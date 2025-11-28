@@ -7,19 +7,28 @@ int ammoPistol = 0;
 int ammoShotgun = 0;
 bool hasPistol = false;
 bool hasShotgun = false;
-int currentWeapon = 0; // 0 = Brak, 1 = Pistolet, 2 = Shotgun
+int currentWeapon = 0;
 
 void initWeapons() {
     weapons.clear();
-    weapons.push_back({ 3.5f, 9.5f, false, 0.0f, WEAPON_PISTOL }); //PISTOL
-    weapons.push_back({ 16.5f, 9.5f, false, 0.0f, WEAPON_SHOTGUN }); //SHOTGUN
+
+    // Bronie (tak jak by³y)
+    weapons.push_back({ 3.5f, 9.5f, false, 0.0f, WEAPON_PISTOL });
+    weapons.push_back({ 16.5f, 9.5f, false, 0.0f, WEAPON_SHOTGUN });
+
+    // --- NOWA AMUNICJA (ŒRODEK MAPY) ---
+    // Amunicja do pistoletu na (10.5, 9.5)
+    weapons.push_back({ 10.5f, 9.5f, false, 0.0f, AMMO_PISTOL_BOX });
+
+    // Amunicja do shotguna na (10.5, 10.5)
+    weapons.push_back({ 10.5f, 10.5f, false, 0.0f, AMMO_SHOTGUN_BOX });
 
     hasPistol = false;
     hasShotgun = false;
     currentWeapon = 0;
     ammoPistol = 0;
     ammoShotgun = 0;
-    std::cout << "Bron zainicjowana." << std::endl;
+    std::cout << "Bronie i amunicja rozmieszczone." << std::endl;
 }
 
 void checkWeaponCollection(float playerX, float playerY) {
@@ -34,19 +43,27 @@ void checkWeaponCollection(float playerX, float playerY) {
             if (distance < collectionDistance) {
                 w.isCollected = true;
 
+                // Logika dla broni
                 if (w.type == WEAPON_PISTOL) {
                     hasPistol = true;
                     if (currentWeapon == 0) currentWeapon = 1;
-
                     ammoPistol += 10;
-                    std::cout << "ZEBRANO PISTOLET! Amunicja Pistoletu: " << ammoPistol << std::endl;
+                    std::cout << "ZEBRANO PISTOLET! (+10 Ammo)" << std::endl;
                 }
                 else if (w.type == WEAPON_SHOTGUN) {
                     hasShotgun = true;
                     currentWeapon = 2;
-
                     ammoShotgun += 5;
-                    std::cout << "ZEBRANO SHOTGUN! Amunicja Shotguna: " << ammoShotgun << std::endl;
+                    std::cout << "ZEBRANO SHOTGUN! (+5 Ammo)" << std::endl;
+                }
+                // Logika dla amunicji
+                else if (w.type == AMMO_PISTOL_BOX) {
+                    ammoPistol += 10;
+                    std::cout << "ZEBRANO AMUNICJE PISTOLETU (+10)" << std::endl;
+                }
+                else if (w.type == AMMO_SHOTGUN_BOX) {
+                    ammoShotgun += 5;
+                    std::cout << "ZEBRANO AMUNICJE SHOTGUNA (+5)" << std::endl;
                 }
             }
         }
