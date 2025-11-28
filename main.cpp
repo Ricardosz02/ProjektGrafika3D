@@ -46,10 +46,9 @@ std::vector<BulletFlash> bulletFlashes;
 extern int (*worldMap)[MAP_WIDTH];
 int activeMapIndex = 1;
 
-// Zmiana: updateSprites teraz modyfikuje zdrowie
 void updateSprites(float playerX, float playerY, int& health) {
     if (!sprites.empty()) {
-        moveMonsters(playerX, playerY, 0.016f, health); // 0.016f to ok. 60 FPS
+        moveMonsters(playerX, playerY, 0.016f, health);
         removeDeadMonsters();
     }
 }
@@ -70,14 +69,14 @@ void main() {
 }
 )glsl";
 
-// --- SHADER Z OBS£UG¥ NOWYCH POTWORÓW (POPRAWIONE ID) ---
+// --- SHADER Z APTECZK¥ ---
 const char* fragmentShaderSource = R"glsl(
 #version 330 core
 in vec3 ourColor;
 in vec2 TexCoord;                      
 out vec4 FragColor;
 
-// Stare sloty (0-15)
+// Sloty 0-21
 uniform sampler2D wallTexture;       // 0
 uniform sampler2D monsterTexture;    // 1
 uniform sampler2D pistolTexture;     // 2
@@ -94,14 +93,14 @@ uniform sampler2D fly1Texture;       // 12
 uniform sampler2D fly2Texture;       // 13
 uniform sampler2D fly3Texture;       // 14
 uniform sampler2D fireballTexture;   // 15
-
-// NOWE SLOTY (WALKER MONSTER)
 uniform sampler2D wWalk1Tex;         // 16
 uniform sampler2D wWalk2Tex;         // 17
 uniform sampler2D wWalk3Tex;         // 18
 uniform sampler2D wHitTex;           // 19
 uniform sampler2D wFight1Tex;        // 20
 uniform sampler2D wFight2Tex;        // 21
+// NOWE:
+uniform sampler2D medkitTexture;     // 22
 
 uniform bool useTexture;
 uniform float playerDir;
@@ -113,20 +112,15 @@ void main() {
     if (useTexture) {
         vec4 texColor;
         
-        // ID > 21.9 -> Slot 21 (Fight2)
-        if (ourColor.b > 21.9)      texColor = texture(wFight2Tex, TexCoord); 
-        // ID > 20.9 -> Slot 20 (Fight1)
+        // ID > 22.9 -> APTECZKA (Slot 22)
+        if (ourColor.b > 22.9)      texColor = texture(medkitTexture, TexCoord);
+
+        else if (ourColor.b > 21.9) texColor = texture(wFight2Tex, TexCoord); 
         else if (ourColor.b > 20.9) texColor = texture(wFight1Tex, TexCoord); 
-        // ID > 19.9 -> Slot 19 (Hit/Pain)
         else if (ourColor.b > 19.9) texColor = texture(wHitTex, TexCoord);    
-        // ID > 18.9 -> Slot 18 (Walk3 - Prawo)
         else if (ourColor.b > 18.9) texColor = texture(wWalk3Tex, TexCoord);  
-        // ID > 17.9 -> Slot 17 (Walk2 - Lewo)
         else if (ourColor.b > 17.9) texColor = texture(wWalk2Tex, TexCoord);  
-        // ID > 16.9 -> Slot 16 (Walk1 - Przód)
         else if (ourColor.b > 16.9) texColor = texture(wWalk1Tex, TexCoord);  
-        
-        // ID > 15.9 -> Slot 15 (Fireball)
         else if (ourColor.b > 15.9) texColor = texture(fireballTexture, TexCoord);
         else if (ourColor.b > 14.9) texColor = texture(fly3Texture, TexCoord);
         else if (ourColor.b > 13.9) texColor = texture(fly2Texture, TexCoord);
@@ -238,7 +232,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    window = glfwCreateWindow(screenWidth, screenHeight, "Mini DOOM - Final Walker Fix", NULL, NULL);
+    window = glfwCreateWindow(screenWidth, screenHeight, "Mini DOOM - Medkit Added", NULL, NULL);
     if (!window) { glfwTerminate(); return -1; }
     glfwMakeContextCurrent(window);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return -1;
@@ -265,14 +259,15 @@ int main() {
     GLuint tAPist = loadTexture("ammunition_pistol.png"), tAShot = loadTexture("ammunition_shotgun.png");
     GLuint tFly1 = loadTexture("monster_flying_1.png"), tFly2 = loadTexture("monster_flying_2.png"), tFly3 = loadTexture("monster_flying_3.png");
     GLuint tFire = loadTexture("fireball.png");
+    GLuint tW1 = loadTexture("monster_walk_1.png");
+    GLuint tW2 = loadTexture("monster_walk_2.png");
+    GLuint tW3 = loadTexture("monster_walk_3.png");
+    GLuint tWHit = loadTexture("monster_walk_hit_5.png");
+    GLuint tWF1 = loadTexture("monster_walk_fight_1.png");
+    GLuint tWF2 = loadTexture("monster_walk_fight_2.png");
 
-    // NOWE TEKSTURY (WALKING MONSTER)
-    GLuint tW1 = loadTexture("monster_walk_1.png"); // Slot 16 (ID 17.0)
-    GLuint tW2 = loadTexture("monster_walk_2.png"); // Slot 17 (ID 18.0)
-    GLuint tW3 = loadTexture("monster_walk_3.png"); // Slot 18 (ID 19.0)
-    GLuint tWHit = loadTexture("monster_walk_hit_5.png"); // Slot 19 (ID 20.0)
-    GLuint tWF1 = loadTexture("monster_walk_fight_1.png"); // Slot 20 (ID 21.0)
-    GLuint tWF2 = loadTexture("monster_walk_fight_2.png"); // Slot 21 (ID 22.0)
+    // APTECZKA
+    GLuint tMed = loadTexture("mecidal.png"); // Slot 22
 
     GLint useTextureLoc = glGetUniformLocation(shaderProgram, "useTexture");
     glUseProgram(shaderProgram);
@@ -292,13 +287,14 @@ int main() {
     glUniform1i(glGetUniformLocation(shaderProgram, "fly2Texture"), 13);
     glUniform1i(glGetUniformLocation(shaderProgram, "fly3Texture"), 14);
     glUniform1i(glGetUniformLocation(shaderProgram, "fireballTexture"), 15);
-    // Nowe sloty
     glUniform1i(glGetUniformLocation(shaderProgram, "wWalk1Tex"), 16);
     glUniform1i(glGetUniformLocation(shaderProgram, "wWalk2Tex"), 17);
     glUniform1i(glGetUniformLocation(shaderProgram, "wWalk3Tex"), 18);
     glUniform1i(glGetUniformLocation(shaderProgram, "wHitTex"), 19);
     glUniform1i(glGetUniformLocation(shaderProgram, "wFight1Tex"), 20);
     glUniform1i(glGetUniformLocation(shaderProgram, "wFight2Tex"), 21);
+    // Nowy slot
+    glUniform1i(glGetUniformLocation(shaderProgram, "medkitTexture"), 22);
 
     GLint playerDirLoc = glGetUniformLocation(shaderProgram, "playerDir"), playerPosLoc = glGetUniformLocation(shaderProgram, "playerPos");
     GLint screenWLoc = glGetUniformLocation(shaderProgram, "screenWidth"), screenHLoc = glGetUniformLocation(shaderProgram, "screenHeight");
@@ -320,13 +316,13 @@ int main() {
     glActiveTexture(GL_TEXTURE13); glBindTexture(GL_TEXTURE_2D, tFly2);
     glActiveTexture(GL_TEXTURE14); glBindTexture(GL_TEXTURE_2D, tFly3);
     glActiveTexture(GL_TEXTURE15); glBindTexture(GL_TEXTURE_2D, tFire);
-    // Nowe
     glActiveTexture(GL_TEXTURE16); glBindTexture(GL_TEXTURE_2D, tW1);
     glActiveTexture(GL_TEXTURE17); glBindTexture(GL_TEXTURE_2D, tW2);
     glActiveTexture(GL_TEXTURE18); glBindTexture(GL_TEXTURE_2D, tW3);
     glActiveTexture(GL_TEXTURE19); glBindTexture(GL_TEXTURE_2D, tWHit);
     glActiveTexture(GL_TEXTURE20); glBindTexture(GL_TEXTURE_2D, tWF1);
     glActiveTexture(GL_TEXTURE21); glBindTexture(GL_TEXTURE_2D, tWF2);
+    glActiveTexture(GL_TEXTURE22); glBindTexture(GL_TEXTURE_2D, tMed); // Aktywacja apteczki
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -393,7 +389,7 @@ int main() {
             if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) { float nx = playerX - cos(playerDir) * mS, ny = playerY - sin(playerDir) * mS; if (worldMap[(int)ny][(int)nx] == 0) { playerX = nx; playerY = ny; } }
             if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) playerDir -= rotSpeed;
             if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) playerDir += rotSpeed;
-            checkWeaponCollection(playerX, playerY);
+            checkWeaponCollection(playerX, playerY, playerHealth); // PRZEKAZUJEMY ZDROWIE!
             updateSprites(playerX, playerY, playerHealth);
             updateFireballs(playerX, playerY, 0.016f, playerHealth);
             if (checkCollision(playerX, playerY) || playerHealth <= 0) gameOver = true;
@@ -441,7 +437,13 @@ int main() {
                 float tX = iD * (sin(playerDir) * sX - cos(playerDir) * sY), tY = iD * (-sin(playerDir + M_PI / 2) * sX + cos(playerDir + M_PI / 2) * sY);
                 if (tY > 0.1f) {
                     int scrX = int(screenWidth / 2 * (1 + tX / tY));
-                    float scale = 1.0f; if (s.isWeapon && (s.type == 0 || s.type == 999))scale = 0.5f; if (s.isWeapon && (s.type == 2 || s.type == 3))scale = 0.4f;
+                    float scale = 1.0f;
+                    if (s.isWeapon) {
+                        if (s.type == 0)scale = 0.5f; // Pistolet
+                        if (s.type == 2 || s.type == 3 || s.type == 4)scale = 0.4f; // Amunicja i Apteczka
+                    }
+                    if (s.type == 999)scale = 0.5f; // Fireball
+
                     int sH = abs(int(screenHeight / tY * scale)), sW = sH / 2;
                     int dS = scrX - sW / 2, dE = scrX + sW / 2;
                     for (int str = dS; str < dE; str++) {
@@ -450,24 +452,26 @@ int main() {
                             float xL = 2.0f * str / screenWidth - 1, xR = 2.0f * (str + 1) / screenWidth - 1;
                             float id = 1.0f; // Default Goblin
 
+                            // LOGIKA ID TEKSTURY
                             if (s.type == 999) id = 16.0f; // Fireball
                             else if (s.isWeapon) {
-                                if (s.type == 1)id = 9.0f; else if (s.type == 0)id = 2.0f; else if (s.type == 2)id = 11.0f; else if (s.type == 3)id = 12.0f;
+                                if (s.type == 1)id = 9.0f;
+                                else if (s.type == 0)id = 2.0f;
+                                else if (s.type == 2)id = 11.0f;
+                                else if (s.type == 3)id = 12.0f;
+                                else if (s.type == 4)id = 23.0f; // ID 23.0 - Apteczka
                             }
                             else if (s.type == 2) { // Flying
                                 if (s.state == 2)id = 15.0f; else if (s.state == 1)id = 14.0f; else id = 13.0f;
                             }
-                            else if (s.type == 3) { // WALKING MONSTER (POPRAWIONE ID)
-                                if (s.state == 2) id = 20.0f; // PAIN (Hit_5) [Slot 19]
+                            else if (s.type == 3) { // WALKING MONSTER
+                                if (s.state == 2) id = 20.0f; // PAIN
                                 else if (s.state == 1) { // ATTACK
-                                    if (s.fightFrame == 0) id = 21.0f; // Fight_1 [Slot 20]
-                                    else id = 22.0f;                   // Fight_2 [Slot 21]
+                                    if (s.fightFrame == 0) id = 21.0f; else id = 22.0f;
                                 }
-                                else { // WALK (Cykl: 1,3,1,2)
-                                    if (s.walkStep == 0) id = 17.0f;      // Walk_1 [Slot 16]
-                                    else if (s.walkStep == 1) id = 19.0f; // Walk_3 [Slot 18]
-                                    else if (s.walkStep == 2) id = 17.0f; // Walk_1 [Slot 16]
-                                    else id = 18.0f;                      // Walk_2 [Slot 17]
+                                else { // WALK
+                                    if (s.walkStep == 0) id = 17.0f; else if (s.walkStep == 1) id = 19.0f;
+                                    else if (s.walkStep == 2) id = 17.0f; else id = 18.0f;
                                 }
                             }
 

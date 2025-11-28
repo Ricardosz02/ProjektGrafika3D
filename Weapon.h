@@ -8,15 +8,16 @@
 // Typy obiektów do zebrania
 const int WEAPON_PISTOL = 0;
 const int WEAPON_SHOTGUN = 1;
-const int AMMO_PISTOL_BOX = 2;  // Nowy typ: Amunicja pistoletowa
-const int AMMO_SHOTGUN_BOX = 3; // Nowy typ: Amunicja do shotguna
+const int AMMO_PISTOL_BOX = 2;
+const int AMMO_SHOTGUN_BOX = 3;
+const int ITEM_MEDKIT = 4; // NOWOŒÆ: Apteczka
 
 struct Weapon
 {
     float x, y;
     bool isCollected;
     float dist;
-    int type; // Przechowuje jeden z powy¿szych typów
+    int type; // Przechowuje typ obiektu
 };
 
 extern std::vector<Weapon> weapons;
@@ -27,6 +28,7 @@ extern bool hasShotgun;
 extern int currentWeapon;
 
 void initWeapons();
-void checkWeaponCollection(float playerX, float playerY);
+// ZMIANA: Dodano parametr int& health
+void checkWeaponCollection(float playerX, float playerY, int& health);
 
 #endif
