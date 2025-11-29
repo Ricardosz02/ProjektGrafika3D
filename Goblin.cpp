@@ -11,13 +11,13 @@ std::vector<Fireball> fireballs;
 void initMonsters() {
     sprites.clear();
     fireballs.clear();
-    
+
     // 1. Zwykły Goblin
-    Sprite goblin;
-    goblin.x = 10.5f; goblin.y = 10.5f;
-    goblin.type = MONSTER_TYPE_GOBLIN;
-    goblin.health = 100;
-    sprites.push_back(goblin);
+    //Sprite goblin;
+    //goblin.x = 13.5f; goblin.y = 13.5f;
+    //goblin.type = MONSTER_TYPE_GOBLIN;
+    //goblin.health = 100;
+    //sprites.push_back(goblin);
 
     // 2. Latający
     Sprite flying;
@@ -25,17 +25,18 @@ void initMonsters() {
     flying.type = MONSTER_TYPE_FLYING;
     flying.health = 150;
     sprites.push_back(flying);
-    
-    // 3. WALKING MONSTER
-    Sprite walker;
-    walker.x = 8.5f; walker.y = 8.5f;
-    walker.type = MONSTER_TYPE_WALKING;
-    walker.health = 200;
-    sprites.push_back(walker);
+
+    // 3. Walker
+    //Sprite walker;
+    //walker.x = 10.5f; walker.y = 10.5f;
+    //walker.type = MONSTER_TYPE_WALKING;
+    //walker.health = 200;
+    //sprites.push_back(walker);
+
+    std::cout << "Potwory zainicjowane.\n";
 }
 
 void removeDeadMonsters() {
-    // Tutaj prosta wersja: usuwamy całkowicie.
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(),
         [](const Sprite& s) { return !s.isAlive; }), sprites.end());
 }
@@ -46,21 +47,33 @@ bool hitMonster(int index, float hitDamage) {
     if (!m.isAlive) return false;
 
     m.health -= (int)hitDamage;
-
-    // Reakcja na ból
     m.state = STATE_PAIN;
-    m.stateTimer = 0.4f; // Czas wyświetlania klatki "hit"
+    m.stateTimer = 0.4f;
 
     if (m.health <= 0) {
         m.isAlive = false;
-        m.state = STATE_PAIN; // Żeby wyświetlić hit_5 jako śmierć
-        std::cout << "Potwor zabity!\n";
+        m.state = STATE_PAIN;
         return true;
     }
     return true;
 }
 
-void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHealth) {
+// Funkcja pomocnicza do zadawania obrażeń z uwzględnieniem pancerza
+void applyDamage(int& health, int& armor, int damage) {
+    if (armor > 0) {
+        if (armor >= damage) {
+            armor -= damage;
+            damage = 0; // Pancerz wchłonął wszystko
+        }
+        else {
+            damage -= armor; // Pancerz zniszczony, reszta idzie w HP
+            armor = 0;
+        }
+    }
+    health -= damage;
+}
+
+void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHealth, int& playerArmor) {
     for (auto& m : sprites) {
         if (!m.isAlive || m.isWeapon) continue;
 
@@ -70,100 +83,76 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
         float dist = std::sqrt(distSq);
         m.dist = distSq;
 
-        // Licznik stanów (ból mija z czasem)
         if (m.state == STATE_PAIN) {
             m.stateTimer -= deltaTime;
             if (m.stateTimer <= 0.0f) m.state = STATE_IDLE;
-            continue; // Jak go boli, to się nie rusza
+            continue;
         }
 
-        // --- TYP 3: WALKING MONSTER ---
+        // --- WALKER ---
         if (m.type == MONSTER_TYPE_WALKING) {
-
-            // Atak wręcz (gdy jest blisko)
-            if (dist < 1.0f) {
+            // ZMIANA TUTAJ: Zmniejszamy dystans ataku z 1.5f na 0.8f
+            // Dzięki temu potwór musi podejść bliżej, żeby uderzyć
+            if (dist < 0.5f) {
                 m.state = STATE_ATTACK;
-
-                // Animacja walki
                 m.animTimer += deltaTime;
-                if (m.animTimer > 0.2f) { // Zmiana klatki ataku co 0.2s
-                    m.fightFrame = (m.fightFrame + 1) % 2; // 0, 1, 0, 1...
-                    m.animTimer = 0.0f;
-                }
+                if (m.animTimer > 0.2f) { m.fightFrame = (m.fightFrame + 1) % 2; m.animTimer = 0.0f; }
 
-                // Zadawanie obrażeń
                 m.attackCooldown -= deltaTime;
                 if (m.attackCooldown <= 0.0f) {
-                    playerHealth -= 10;
-                    m.attackCooldown = 1.0f; // Bije co 1 sekunde
-                    std::cout << "Walker uderza! HP gracza: " << playerHealth << "\n";
+                    applyDamage(playerHealth, playerArmor, 10);
+                    m.attackCooldown = 1.0f;
+                    std::cout << "Walker uderza! HP: " << playerHealth << " Armor: " << playerArmor << "\n";
                 }
             }
-            // Chodzenie (gdy daleko)
             else {
                 m.state = STATE_IDLE;
-
-                // Ruch
                 float moveX = (dx / dist) * WALKING_MONSTER_SPEED;
                 float moveY = (dy / dist) * WALKING_MONSTER_SPEED;
 
-                // Prosta kolizja ze ścianami
-                if (worldMap[(int)(m.y)][(int)(m.x + moveX + 0.3f)] == 0) m.x += moveX;
-                if (worldMap[(int)(m.y + moveY + 0.3f)][(int)(m.x)] == 0) m.y += moveY;
+                // Kolizja ze ścianami (trochę mniejszy margines 0.2f bo potwór mniejszy)
+                if (worldMap[(int)(m.y)][(int)(m.x + moveX + 0.2f)] == 0) m.x += moveX;
+                if (worldMap[(int)(m.y + moveY + 0.2f)][(int)(m.x)] == 0) m.y += moveY;
 
-                // Animacja Chodu: 1 -> 3 -> 1 -> 2
                 m.animTimer += deltaTime;
-                if (m.animTimer > 0.15f) { // Zmiana kroku co 0.15s
-                    m.walkStep = (m.walkStep + 1) % 4; // 0, 1, 2, 3 -> 0...
-                    m.animTimer = 0.0f;
-                }
+                if (m.animTimer > 0.15f) { m.walkStep = (m.walkStep + 1) % 4; m.animTimer = 0.0f; }
             }
         }
-        // --- TYP 2: FLYING ---
+        // --- FLYING ---
         else if (m.type == MONSTER_TYPE_FLYING) {
-            if (dist > 1.0f) {
-                m.x += (dx / dist) * FLYING_MONSTER_SPEED;
-                m.y += (dy / dist) * FLYING_MONSTER_SPEED;
-            }
+            if (dist > 1.0f) { m.x += (dx / dist) * FLYING_MONSTER_SPEED; m.y += (dy / dist) * FLYING_MONSTER_SPEED; }
             m.attackCooldown -= deltaTime;
             if (m.attackCooldown <= 0.0f && dist < 8.0f) {
-                m.state = STATE_ATTACK;
-                m.stateTimer = 0.3f;
-                m.attackCooldown = 2.0f;
-                Fireball fb; fb.x = m.x; fb.y = m.y;
-                fb.dirX = (dx / dist) * 0.1f; fb.dirY = (dy / dist) * 0.1f; fb.active = true;
+                m.state = STATE_ATTACK; m.stateTimer = 0.3f; m.attackCooldown = 2.0f;
+                Fireball fb; fb.x = m.x; fb.y = m.y; fb.dirX = (dx / dist) * 0.1f; fb.dirY = (dy / dist) * 0.1f; fb.active = true;
                 fireballs.push_back(fb);
             }
             if (m.state == STATE_ATTACK && m.stateTimer > 0) m.stateTimer -= deltaTime;
             else if (m.state != STATE_PAIN) m.state = STATE_IDLE;
         }
-        // --- TYP 1: GOBLIN ---
+        // --- GOBLIN ---
         else if (m.type == MONSTER_TYPE_GOBLIN) {
-            if (dist > COLLISION_RADIUS) {
-                m.x += (dx / dist) * GOBLIN_CHASE_SPEED;
-                m.y += (dy / dist) * GOBLIN_CHASE_SPEED;
-            }
+            if (dist > COLLISION_RADIUS) { m.x += (dx / dist) * GOBLIN_CHASE_SPEED; m.y += (dy / dist) * GOBLIN_CHASE_SPEED; }
         }
     }
 }
 
-void updateFireballs(float playerX, float playerY, float deltaTime, int& playerHealth) {
+void updateFireballs(float playerX, float playerY, float deltaTime, int& playerHealth, int& playerArmor) {
     for (auto& fb : fireballs) {
         if (!fb.active) continue;
         fb.x += fb.dirX; fb.y += fb.dirY;
         if (worldMap[(int)fb.y][(int)fb.x] > 0) { fb.active = false; continue; }
         float dx = fb.x - playerX; float dy = fb.y - playerY;
         if (dx * dx + dy * dy < 0.2f) {
-            playerHealth -= 15; fb.active = false;
-            std::cout << "Oberwales kula ognia! HP: " << playerHealth << std::endl;
+            applyDamage(playerHealth, playerArmor, 15);
+            fb.active = false;
+            std::cout << "Kula ognia! HP: " << playerHealth << " Armor: " << playerArmor << "\n";
         }
     }
-    fireballs.erase(std::remove_if(fireballs.begin(), fireballs.end(),
-        [](const Fireball& f) { return !f.active; }), fireballs.end());
+    fireballs.erase(std::remove_if(fireballs.begin(), fireballs.end(), [](const Fireball& f) { return !f.active; }), fireballs.end());
 }
 
 bool checkCollision(float playerX, float playerY) {
-    // Kolizja tylko z Goblinem (typ 1), Walker bije z dystansu melee
     for (const auto& m : sprites) {
         if (!m.isAlive || m.isWeapon) continue;
         if (m.type == MONSTER_TYPE_GOBLIN) {
@@ -172,10 +161,4 @@ bool checkCollision(float playerX, float playerY) {
         }
     }
     return false;
-}
-
-void updateSprites(float playerX, float playerY) {
-    float deltaTime = 0.016f;
-    // UWAGA: Funkcja updateSprites w main.cpp musi teraz przyjmować playerHealth!
-    // W tej wersji pliku zakladam, ze przekazujemy health w moveMonsters.
 }

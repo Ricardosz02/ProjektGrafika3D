@@ -7,7 +7,7 @@ int ammoPistol = 0;
 int ammoShotgun = 0;
 bool hasPistol = false;
 bool hasShotgun = false;
-int currentWeapon = 0; // 0 = Piêœci, 1 = Pistolet, 2 = Shotgun
+int currentWeapon = 0;
 
 void initWeapons() {
     weapons.clear();
@@ -23,15 +23,18 @@ void initWeapons() {
     // Apteczka
     weapons.push_back({ 11.5f, 10.5f, false, 0.0f, ITEM_MEDKIT });
 
+    // KAMIZELKA (Obok apteczki)
+    weapons.push_back({ 12.5f, 10.5f, false, 0.0f, ITEM_ARMOR });
+
     hasPistol = false;
     hasShotgun = false;
-    currentWeapon = 0; // STARTUJEMY Z PIÊŒCIAMI
+    currentWeapon = 0;
     ammoPistol = 0;
     ammoShotgun = 0;
-    std::cout << "Bronie zainicjowane. Start z piesciami." << std::endl;
+    std::cout << "Inicjalizacja przedmiotow zakonczona." << std::endl;
 }
 
-void checkWeaponCollection(float playerX, float playerY, int& health) {
+void checkWeaponCollection(float playerX, float playerY, int& health, int& armor) {
     float collectionDistance = 0.5f;
 
     for (auto& w : weapons) {
@@ -45,8 +48,6 @@ void checkWeaponCollection(float playerX, float playerY, int& health) {
 
                 if (w.type == WEAPON_PISTOL) {
                     hasPistol = true;
-                    // Nie zmieniamy automatu na pistolet, gracz sam musi wybraæ '2'
-                    // chyba ¿e nie ma innej broni palnej, to dla wygody mo¿na zmieniæ:
                     if (currentWeapon == 0) currentWeapon = 1;
                     ammoPistol += 10;
                     std::cout << "ZEBRANO PISTOLET! (+10 Ammo)" << std::endl;
@@ -59,13 +60,21 @@ void checkWeaponCollection(float playerX, float playerY, int& health) {
                 }
                 else if (w.type == AMMO_PISTOL_BOX) {
                     ammoPistol += 10;
+                    std::cout << "Amunicja Pistoletu (+10)" << std::endl;
                 }
                 else if (w.type == AMMO_SHOTGUN_BOX) {
                     ammoShotgun += 5;
+                    std::cout << "Amunicja Shotguna (+5)" << std::endl;
                 }
                 else if (w.type == ITEM_MEDKIT) {
                     health += 50;
                     if (health > 100) health = 100;
+                    std::cout << "Apteczka (+50 HP)" << std::endl;
+                }
+                else if (w.type == ITEM_ARMOR) {
+                    armor += 50;
+                    if (armor > 100) armor = 100;
+                    std::cout << "KAMIZELKA (+50 ARMOR)" << std::endl;
                 }
             }
         }
