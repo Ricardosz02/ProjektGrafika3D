@@ -20,27 +20,21 @@ const int screenWidth = 640;
 const int screenHeight = 480;
 
 int playerHealth = 100;
-
-const float moveSpeed = 0.05f;
-const float rotSpeed = 0.03f;
+float moveSpeed = 0.05f;
+float rotSpeed = 0.03f;
 bool gameOver = false;
 
+// Zmienna do animacji chodzenia
+float walkTimer = 0.0f;
+
+const float FISTS_DAMAGE = 15.0f;
 const float PISTOL_DAMAGE = 25.0f;
 const float SHOTGUN_DAMAGE = 100.0f;
 
-struct HitMarker {
-    float x_map = 0.0f, y_map = 0.0f;
-    float life = 0.0f;
-    int side = 0;
-    float texX = 0.0f;
-};
+struct HitMarker { float x_map, y_map, life; int side; float texX; };
 std::vector<HitMarker> hitMarkers;
 
-struct BulletFlash {
-    float x = 0.0f, y = 0.0f;
-    float dirX = 0.0f, dirY = 0.0f;
-    float life = 0.0f;
-};
+struct BulletFlash { float x, y, dirX, dirY, life; };
 std::vector<BulletFlash> bulletFlashes;
 
 extern int (*worldMap)[MAP_WIDTH];
@@ -58,25 +52,15 @@ const char* vertexShaderSource = R"glsl(
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec3 aColor;
 layout(location = 2) in vec2 aTexCoord;
-
-out vec3 ourColor;
-out vec2 TexCoord;                       
-
-void main() {
-    gl_Position = vec4(aPos, 0.0, 1.0);
-    ourColor = aColor;
-    TexCoord = aTexCoord; 
-}
+out vec3 ourColor; out vec2 TexCoord;                       
+void main() { gl_Position = vec4(aPos, 0.0, 1.0); ourColor = aColor; TexCoord = aTexCoord; }
 )glsl";
 
-// --- SHADER Z APTECZK¥ ---
 const char* fragmentShaderSource = R"glsl(
 #version 330 core
-in vec3 ourColor;
-in vec2 TexCoord;                      
-out vec4 FragColor;
+in vec3 ourColor; in vec2 TexCoord; out vec4 FragColor;
 
-// Sloty 0-21
+// Sloty 0-23
 uniform sampler2D wallTexture;       // 0
 uniform sampler2D monsterTexture;    // 1
 uniform sampler2D pistolTexture;     // 2
@@ -99,22 +83,16 @@ uniform sampler2D wWalk3Tex;         // 18
 uniform sampler2D wHitTex;           // 19
 uniform sampler2D wFight1Tex;        // 20
 uniform sampler2D wFight2Tex;        // 21
-// NOWE:
 uniform sampler2D medkitTexture;     // 22
+uniform sampler2D fistsTexture;      // 23
 
-uniform bool useTexture;
-uniform float playerDir;
-uniform vec2 playerPos;
-uniform float screenWidth;
-uniform float screenHeight;
+uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 
 void main() {
     if (useTexture) {
         vec4 texColor;
-        
-        // ID > 22.9 -> APTECZKA (Slot 22)
-        if (ourColor.b > 22.9)      texColor = texture(medkitTexture, TexCoord);
-
+        if (ourColor.b > 23.9)      texColor = texture(fistsTexture, TexCoord);
+        else if (ourColor.b > 22.9) texColor = texture(medkitTexture, TexCoord);
         else if (ourColor.b > 21.9) texColor = texture(wFight2Tex, TexCoord); 
         else if (ourColor.b > 20.9) texColor = texture(wFight1Tex, TexCoord); 
         else if (ourColor.b > 19.9) texColor = texture(wHitTex, TexCoord);    
@@ -135,22 +113,18 @@ void main() {
             float p = gl_FragCoord.y - (screenHeight / 2.0); if (p < 1.0) p = 1.0; 
             float posZ = 0.5 * screenHeight; float rowDistance = posZ / p;
             float cameraX = (gl_FragCoord.x / screenWidth) * 2.0 - 1.0;
-            float dirX = cos(playerDir); float dirY = sin(playerDir);
-            float planeX = cos(playerDir + 1.5708); float planeY = sin(playerDir + 1.5708);
-            float rayDirX = dirX + planeX * cameraX; float rayDirY = dirY + planeY * cameraX;
+            float rayDirX = cos(playerDir) + cos(playerDir+1.5708)*cameraX;
+            float rayDirY = sin(playerDir) + sin(playerDir+1.5708)*cameraX;
             vec2 ceilPos = playerPos + rowDistance * vec2(rayDirX, rayDirY);
-            texColor = texture(ceilingTexture, ceilPos);
-            texColor = texColor * vec4(0.8, 0.8, 0.8, 1.0);
+            texColor = texture(ceilingTexture, ceilPos) * vec4(0.8, 0.8, 0.8, 1.0);
         } else if (ourColor.b > 4.9) { 
             float p = (screenHeight / 2.0) - gl_FragCoord.y; if (p < 1.0) p = 1.0; 
             float posZ = 0.5 * screenHeight; float rowDistance = posZ / p;
             float cameraX = (gl_FragCoord.x / screenWidth) * 2.0 - 1.0;
-            float dirX = cos(playerDir); float dirY = sin(playerDir);
-            float planeX = cos(playerDir + 1.5708); float planeY = sin(playerDir + 1.5708);
-            float rayDirX = dirX + planeX * cameraX; float rayDirY = dirY + planeY * cameraX;
+            float rayDirX = cos(playerDir) + cos(playerDir+1.5708)*cameraX;
+            float rayDirY = sin(playerDir) + sin(playerDir+1.5708)*cameraX;
             vec2 floorPos = playerPos + rowDistance * vec2(rayDirX, rayDirY);
-            texColor = texture(floorTexture, floorPos);
-            texColor = texColor * vec4(0.8, 0.8, 0.8, 1.0);
+            texColor = texture(floorTexture, floorPos) * vec4(0.8, 0.8, 0.8, 1.0);
         } else if (ourColor.b > 3.9) texColor = texture(hitTexture, TexCoord); 
         else if (ourColor.b > 2.9) texColor = texture(fontTexture, TexCoord);
         else if (ourColor.b > 1.9) texColor = texture(pistolTexture, TexCoord);
@@ -159,254 +133,194 @@ void main() {
         
         if (texColor.a < 0.1) discard; 
         FragColor = texColor * vec4(ourColor.r, ourColor.g, min(ourColor.b, 1.0), 1.0);
-    } else {
-        FragColor = vec4(ourColor, 1.0);
-    }
+    } else { FragColor = vec4(ourColor, 1.0); }
 }
 )glsl";
 
-
 GLuint compileShader(GLenum type, const char* source) {
-    GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, nullptr);
-    glCompileShader(shader);
-    int success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char info[512];
-        glGetShaderInfoLog(shader, 512, nullptr, info);
-        std::cerr << "Shader compile error: " << info << std::endl;
-    }
+    GLuint shader = glCreateShader(type); glShaderSource(shader, 1, &source, nullptr); glCompileShader(shader);
+    int success; glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success) { char info[512]; glGetShaderInfoLog(shader, 512, nullptr, info); std::cerr << "Shader error: " << info << std::endl; }
     return shader;
 }
 
 GLuint loadTexture(const char* path) {
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
+    GLuint textureID; glGenTextures(1, &textureID); glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    int width, height, nrChannels; stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-    if (data) {
-        GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else { std::cerr << "!!! BLAD LADOWANIA: " << path << std::endl; }
-    stbi_image_free(data);
-    stbi_set_flip_vertically_on_load(false);
-    return textureID;
+    if (data) { GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB; glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data); glGenerateMipmap(GL_TEXTURE_2D); }
+    else { std::cerr << "Blad ladowania: " << path << std::endl; }
+    stbi_image_free(data); stbi_set_flip_vertically_on_load(false); return textureID;
 }
 
-void drawGameOverText(std::vector<float>& vertices) {
-    float cx = 0.0f, cy = 0.0f, w = 0.8f, h = 0.2f, r = 1.0f, g = 0.0f, b = 0.0f;
-    vertices.insert(vertices.end(), { cx - w, cy + h, r,g,b, 0,0, cx + w, cy + h, r,g,b, 0,0, cx + w, cy - h, r,g,b, 0,0, cx - w, cy + h, r,g,b, 0,0, cx + w, cy - h, r,g,b, 0,0, cx - w, cy - h, r,g,b, 0,0 });
+void drawGameOverText(std::vector<float>& v) {
+    float cx = 0, cy = 0, w = 0.8, h = 0.2;
+    v.insert(v.end(), { cx - w, cy + h, 1,0,0, 0,0, cx + w, cy + h, 1,0,0, 0,0, cx + w, cy - h, 1,0,0, 0,0, cx - w, cy + h, 1,0,0, 0,0, cx + w, cy - h, 1,0,0, 0,0, cx - w, cy - h, 1,0,0, 0,0 });
 }
 
-void drawQuad2D(std::vector<float>& vertices, float x, float y, float w, float h, float colorB) {
-    float x1 = x - w, y1 = y - h, x2 = x + w, y2 = y + h, r = 1.0f, g = 1.0f, b = colorB;
-    vertices.insert(vertices.end(), { x1,y2,r,g,b,0,1, x2,y2,r,g,b,1,1, x2,y1,r,g,b,1,0, x1,y2,r,g,b,0,1, x2,y1,r,g,b,1,0, x1,y1,r,g,b,0,0 });
+void drawQuad2D(std::vector<float>& v, float x, float y, float w, float h, float cB) {
+    float x1 = x - w, y1 = y - h, x2 = x + w, y2 = y + h;
+    v.insert(v.end(), { x1,y2,1,1,cB,0,1, x2,y2,1,1,cB,1,1, x2,y1,1,1,cB,1,0, x1,y2,1,1,cB,0,1, x2,y1,1,1,cB,1,0, x1,y1,1,1,cB,0,0 });
 }
 
-void drawChar(std::vector<float>& vertices, float x, float y, float size, char c) {
-    if (c < 32 || c > 126) return;
-    int col = (c - 32) % 16, row = (c - 32) / 16;
-    float cw = 1.0f / 16, ch = 1.0f / 6;
-    float u1 = col * cw, v1 = 1.0f - (row + 1) * ch, u2 = (col + 1) * cw, v2 = 1.0f - row * ch;
-    float r = 1.0f, g = 1.0f, b = 3.0f, x2 = x + size, y2 = y + size;
-    vertices.insert(vertices.end(), { x,y2,r,g,b,u1,v2, x2,y2,r,g,b,u2,v2, x2,y,r,g,b,u2,v1, x,y2,r,g,b,u1,v2, x2,y,r,g,b,u2,v1, x,y,r,g,b,u1,v1 });
+void drawChar(std::vector<float>& v, float x, float y, float s, char c) {
+    if (c < 32 || c>126) return; int col = (c - 32) % 16, row = (c - 32) / 16; float cw = 1.0f / 16, ch = 1.0f / 6;
+    float u1 = col * cw, v1 = 1 - (row + 1) * ch, u2 = (col + 1) * cw, v2 = 1 - row * ch;
+    v.insert(v.end(), { x,y + s,1,1,3,u1,v2, x + s,y + s,1,1,3,u2,v2, x + s,y,1,1,3,u2,v1, x,y + s,1,1,3,u1,v2, x + s,y,1,1,3,u2,v1, x,y,1,1,3,u1,v1 });
 }
 
-void drawText(std::vector<float>& vertices, float startX, float startY, float charWidthNDC, const std::string& text) {
-    float currentX = startX;
-    for (char c : text) { drawChar(vertices, currentX, startY, charWidthNDC, c); currentX += charWidthNDC * 0.65f; }
+void drawText(std::vector<float>& v, float sx, float sy, float s, const std::string& t) {
+    float cx = sx; for (char c : t) { drawChar(v, cx, sy, s, c); cx += s * 0.65f; }
 }
 
 int main() {
-    GLFWwindow* window;
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    window = glfwCreateWindow(screenWidth, screenHeight, "Mini DOOM - Medkit Added", NULL, NULL);
+    GLFWwindow* window; glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    window = glfwCreateWindow(screenWidth, screenHeight, "Mini DOOM", NULL, NULL);
     if (!window) { glfwTerminate(); return -1; }
-    glfwMakeContextCurrent(window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return -1;
+    glfwMakeContextCurrent(window); if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return -1;
     glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    GLuint shaderProgram = glCreateProgram();
+    GLuint p = glCreateProgram(); // p = shaderProgram
     GLuint vs = compileShader(GL_VERTEX_SHADER, vertexShaderSource), fs = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
-    glAttachShader(shaderProgram, vs); glAttachShader(shaderProgram, fs); glLinkProgram(shaderProgram);
-    glDeleteShader(vs); glDeleteShader(fs);
+    glAttachShader(p, vs); glAttachShader(p, fs); glLinkProgram(p); glDeleteShader(vs); glDeleteShader(fs);
 
-    GLuint VAO, VBO;
-    glGenVertexArrays(1, &VAO); glGenBuffers(1, &VBO);
+    GLuint VAO, VBO; glGenVertexArrays(1, &VAO); glGenBuffers(1, &VBO);
     glBindVertexArray(VAO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * screenWidth * 35 * 7 * 2, nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * screenWidth * 40 * 7 * 2, nullptr, GL_DYNAMIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    // --- LADOWANIE ---
-    GLuint tWall = loadTexture("wall.png"), tMon = loadTexture("monster.png"), tPist = loadTexture("pistol.png");
-    GLuint tFont = loadTexture("font.png"), tHit = loadTexture("hit.png"), tFloor = loadTexture("floor.png");
-    GLuint tCeil = loadTexture("ceiling.png"), tPView = loadTexture("pistol_view_128.png");
-    GLuint tShot = loadTexture("shotgun.png"), tSView = loadTexture("shotgun_view_128.png");
-    GLuint tAPist = loadTexture("ammunition_pistol.png"), tAShot = loadTexture("ammunition_shotgun.png");
-    GLuint tFly1 = loadTexture("monster_flying_1.png"), tFly2 = loadTexture("monster_flying_2.png"), tFly3 = loadTexture("monster_flying_3.png");
-    GLuint tFire = loadTexture("fireball.png");
-    GLuint tW1 = loadTexture("monster_walk_1.png");
-    GLuint tW2 = loadTexture("monster_walk_2.png");
-    GLuint tW3 = loadTexture("monster_walk_3.png");
-    GLuint tWHit = loadTexture("monster_walk_hit_5.png");
-    GLuint tWF1 = loadTexture("monster_walk_fight_1.png");
-    GLuint tWF2 = loadTexture("monster_walk_fight_2.png");
+    GLuint t[24];
+    t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
+    t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
+    t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
+    t[9] = loadTexture("shotgun_view_128.png"); t[10] = loadTexture("ammunition_pistol.png"); t[11] = loadTexture("ammunition_shotgun.png");
+    t[12] = loadTexture("monster_flying_1.png"); t[13] = loadTexture("monster_flying_2.png"); t[14] = loadTexture("monster_flying_3.png");
+    t[15] = loadTexture("fireball.png"); t[16] = loadTexture("monster_walk_1.png"); t[17] = loadTexture("monster_walk_2.png");
+    t[18] = loadTexture("monster_walk_3.png"); t[19] = loadTexture("monster_walk_hit_5.png"); t[20] = loadTexture("monster_walk_fight_1.png");
+    t[21] = loadTexture("monster_walk_fight_2.png"); t[22] = loadTexture("mecidal.png"); t[23] = loadTexture("hand_both.png");
 
-    // APTECZKA
-    GLuint tMed = loadTexture("mecidal.png"); // Slot 22
+    glUseProgram(p);
 
-    GLint useTextureLoc = glGetUniformLocation(shaderProgram, "useTexture");
-    glUseProgram(shaderProgram);
-    glUniform1i(glGetUniformLocation(shaderProgram, "wallTexture"), 0);
-    glUniform1i(glGetUniformLocation(shaderProgram, "monsterTexture"), 1);
-    glUniform1i(glGetUniformLocation(shaderProgram, "pistolTexture"), 2);
-    glUniform1i(glGetUniformLocation(shaderProgram, "fontTexture"), 3);
-    glUniform1i(glGetUniformLocation(shaderProgram, "hitTexture"), 4);
-    glUniform1i(glGetUniformLocation(shaderProgram, "floorTexture"), 5);
-    glUniform1i(glGetUniformLocation(shaderProgram, "ceilingTexture"), 6);
-    glUniform1i(glGetUniformLocation(shaderProgram, "weaponViewTexture"), 7);
-    glUniform1i(glGetUniformLocation(shaderProgram, "shotgunTexture"), 8);
-    glUniform1i(glGetUniformLocation(shaderProgram, "shotgunViewTexture"), 9);
-    glUniform1i(glGetUniformLocation(shaderProgram, "ammoPistolTexture"), 10);
-    glUniform1i(glGetUniformLocation(shaderProgram, "ammoShotgunTexture"), 11);
-    glUniform1i(glGetUniformLocation(shaderProgram, "fly1Texture"), 12);
-    glUniform1i(glGetUniformLocation(shaderProgram, "fly2Texture"), 13);
-    glUniform1i(glGetUniformLocation(shaderProgram, "fly3Texture"), 14);
-    glUniform1i(glGetUniformLocation(shaderProgram, "fireballTexture"), 15);
-    glUniform1i(glGetUniformLocation(shaderProgram, "wWalk1Tex"), 16);
-    glUniform1i(glGetUniformLocation(shaderProgram, "wWalk2Tex"), 17);
-    glUniform1i(glGetUniformLocation(shaderProgram, "wWalk3Tex"), 18);
-    glUniform1i(glGetUniformLocation(shaderProgram, "wHitTex"), 19);
-    glUniform1i(glGetUniformLocation(shaderProgram, "wFight1Tex"), 20);
-    glUniform1i(glGetUniformLocation(shaderProgram, "wFight2Tex"), 21);
-    // Nowy slot
-    glUniform1i(glGetUniformLocation(shaderProgram, "medkitTexture"), 22);
+    GLint useTextureLoc = glGetUniformLocation(p, "useTexture");
+    glUniform1i(useTextureLoc, 1);
 
-    GLint playerDirLoc = glGetUniformLocation(shaderProgram, "playerDir"), playerPosLoc = glGetUniformLocation(shaderProgram, "playerPos");
-    GLint screenWLoc = glGetUniformLocation(shaderProgram, "screenWidth"), screenHLoc = glGetUniformLocation(shaderProgram, "screenHeight");
+    const char* names[] = { "wallTexture","monsterTexture","pistolTexture","fontTexture","hitTexture","floorTexture","ceilingTexture",
+        "weaponViewTexture","shotgunTexture","shotgunViewTexture","ammoPistolTexture","ammoShotgunTexture","fly1Texture","fly2Texture",
+        "fly3Texture","fireballTexture","wWalk1Tex","wWalk2Tex","wWalk3Tex","wHitTex","wFight1Tex","wFight2Tex","medkitTexture","fistsTexture" };
+    for (int i = 0; i < 24; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
 
-    // Aktywacja
-    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, tWall);
-    glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, tMon);
-    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_2D, tPist);
-    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_2D, tFont);
-    glActiveTexture(GL_TEXTURE4); glBindTexture(GL_TEXTURE_2D, tHit);
-    glActiveTexture(GL_TEXTURE5); glBindTexture(GL_TEXTURE_2D, tFloor);
-    glActiveTexture(GL_TEXTURE6); glBindTexture(GL_TEXTURE_2D, tCeil);
-    glActiveTexture(GL_TEXTURE7); glBindTexture(GL_TEXTURE_2D, tPView);
-    glActiveTexture(GL_TEXTURE8); glBindTexture(GL_TEXTURE_2D, tShot);
-    glActiveTexture(GL_TEXTURE9); glBindTexture(GL_TEXTURE_2D, tSView);
-    glActiveTexture(GL_TEXTURE10); glBindTexture(GL_TEXTURE_2D, tAPist);
-    glActiveTexture(GL_TEXTURE11); glBindTexture(GL_TEXTURE_2D, tAShot);
-    glActiveTexture(GL_TEXTURE12); glBindTexture(GL_TEXTURE_2D, tFly1);
-    glActiveTexture(GL_TEXTURE13); glBindTexture(GL_TEXTURE_2D, tFly2);
-    glActiveTexture(GL_TEXTURE14); glBindTexture(GL_TEXTURE_2D, tFly3);
-    glActiveTexture(GL_TEXTURE15); glBindTexture(GL_TEXTURE_2D, tFire);
-    glActiveTexture(GL_TEXTURE16); glBindTexture(GL_TEXTURE_2D, tW1);
-    glActiveTexture(GL_TEXTURE17); glBindTexture(GL_TEXTURE_2D, tW2);
-    glActiveTexture(GL_TEXTURE18); glBindTexture(GL_TEXTURE_2D, tW3);
-    glActiveTexture(GL_TEXTURE19); glBindTexture(GL_TEXTURE_2D, tWHit);
-    glActiveTexture(GL_TEXTURE20); glBindTexture(GL_TEXTURE_2D, tWF1);
-    glActiveTexture(GL_TEXTURE21); glBindTexture(GL_TEXTURE_2D, tWF2);
-    glActiveTexture(GL_TEXTURE22); glBindTexture(GL_TEXTURE_2D, tMed); // Aktywacja apteczki
+    for (int i = 0; i < 24; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
-    std::vector<float> zBuffer(screenWidth);
-    std::vector<float> vertices;
+    std::vector<float> zBuffer(screenWidth), vertices;
 
-    switchMap(activeMapIndex);
-    initMonsters();
-    initWeapons();
+    switchMap(activeMapIndex); initMonsters(); initWeapons();
 
     static bool spacePressedLastFrame = false;
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) if (hasPistol) currentWeapon = 1;
-        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) if (hasShotgun) currentWeapon = 2;
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) currentWeapon = 0;
+        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) if (hasPistol) currentWeapon = 1;
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) if (hasShotgun) currentWeapon = 2;
 
-        if (currentWeapon > 0 && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !spacePressedLastFrame) {
-            bool canShoot = (currentWeapon == 1 && ammoPistol > 0) || (currentWeapon == 2 && ammoShotgun > 0);
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !spacePressedLastFrame) {
+            bool canShoot = (currentWeapon == 0) || (currentWeapon == 1 && ammoPistol > 0) || (currentWeapon == 2 && ammoShotgun > 0);
             if (canShoot) {
-                if (currentWeapon == 1) ammoPistol--; else ammoShotgun--;
-                float rayDirX = cos(playerDir), rayDirY = sin(playerDir);
-                bulletFlashes.push_back({ playerX + rayDirX * 0.2f, playerY + rayDirY * 0.2f, rayDirX, rayDirY, 2.0f });
+                if (currentWeapon == 1) ammoPistol--; else if (currentWeapon == 2) ammoShotgun--;
+                if (currentWeapon > 0) bulletFlashes.push_back({ playerX + cos(playerDir) * 0.2f, playerY + sin(playerDir) * 0.2f, cos(playerDir), sin(playerDir), 2.0f });
 
-                float perpWallDist = 1e30f; int hitSide = 0, hitMapX = -1, hitMapY = -1; float hitTexX = 0;
-                int mapX = (int)playerX, mapY = (int)playerY;
-                float dDX = abs(1.0f / rayDirX), dDY = abs(1.0f / rayDirY);
-                int sX, sY; float sDX, sDY;
-                if (rayDirX < 0) { sX = -1; sDX = (playerX - mapX) * dDX; }
-                else { sX = 1; sDX = (mapX + 1.0f - playerX) * dDX; }
-                if (rayDirY < 0) { sY = -1; sDY = (playerY - mapY) * dDY; }
-                else { sY = 1; sDY = (mapY + 1.0f - playerY) * dDY; }
+                float rayDX = cos(playerDir), rayDY = sin(playerDir);
+                float dist = 1e30f; int hSide = 0, hMX = -1, hMY = -1; float hTX = 0;
+                int mX = (int)playerX, mY = (int)playerY; float dDX = abs(1 / rayDX), dDY = abs(1 / rayDY);
+                int sX = (rayDX < 0) ? -1 : 1, sY = (rayDY < 0) ? -1 : 1; float sDX = (rayDX < 0) ? (playerX - mX) * dDX : (mX + 1 - playerX) * dDX, sDY = (rayDY < 0) ? (playerY - mY) * dDY : (mY + 1 - playerY) * dDY;
                 int hit = 0, side;
-                while (!hit) {
-                    if (sDX < sDY) { sDX += dDX; mapX += sX; side = 0; }
-                    else { sDY += dDY; mapY += sY; side = 1; }
-                    if (worldMap[mapY][mapX] > 0) hit = 1;
-                }
-                perpWallDist = (side == 0) ? (mapX - playerX + (1 - sX) / 2.0f) / rayDirX : (mapY - playerY + (1 - sY) / 2.0f) / rayDirY;
-                if (side == 0)hitTexX = playerY + perpWallDist * rayDirY; else hitTexX = playerX + perpWallDist * rayDirX;
-                hitTexX -= floor(hitTexX); if ((side == 0 && rayDirX > 0) || (side == 1 && rayDirY < 0)) hitTexX = 1.0f - hitTexX;
-                hitSide = side; hitMapX = mapX; hitMapY = mapY;
+                while (!hit) { if (sDX < sDY) { sDX += dDX; mX += sX; side = 0; } else { sDY += dDY; mY += sY; side = 1; } if (worldMap[mY][mX] > 0)hit = 1; }
+                dist = (side == 0) ? (mX - playerX + (1 - sX) / 2.0f) / rayDX : (mY - playerY + (1 - sY) / 2.0f) / rayDY;
+                if (side == 0)hTX = playerY + dist * rayDY; else hTX = playerX + dist * rayDX; hTX -= floor(hTX);
+                if ((side == 0 && rayDX > 0) || (side == 1 && rayDY < 0)) hTX = 1 - hTX;
+                hSide = side; hMX = mX; hMY = mY;
 
-                float bestMonsterDist = 1e30f; int bestMonsterIndex = -1;
+                float bestDist = 1e30f; int bestIdx = -1;
                 for (int i = 0; i < sprites.size(); ++i) {
                     if (!sprites[i].isAlive || sprites[i].isWeapon) continue;
                     float sX = sprites[i].x - playerX, sY = sprites[i].y - playerY;
-                    float invDet = 1.0f / (cos(playerDir + M_PI / 2) * sin(playerDir) - cos(playerDir) * sin(playerDir + M_PI / 2));
-                    float tY = invDet * (-sin(playerDir + M_PI / 2) * sX + cos(playerDir + M_PI / 2) * sY);
-                    float tX = invDet * (sin(playerDir) * sX - cos(playerDir) * sY);
-                    if (tY > 0 && abs(tX / tY) < 0.1f && tY < bestMonsterDist) { bestMonsterDist = tY; bestMonsterIndex = i; }
+                    float iD = 1.0f / (cos(playerDir + M_PI / 2) * sin(playerDir) - cos(playerDir) * sin(playerDir + M_PI / 2));
+                    float tY = iD * (-sin(playerDir + M_PI / 2) * sX + cos(playerDir + M_PI / 2) * sY);
+                    float tX = iD * (sin(playerDir) * sX - cos(playerDir) * sY);
+                    if (tY > 0 && abs(tX / tY) < 0.1f && tY < bestDist) { bestDist = tY; bestIdx = i; }
                 }
-                float damage = (currentWeapon == 2) ? SHOTGUN_DAMAGE : PISTOL_DAMAGE;
-                if (bestMonsterIndex != -1 && bestMonsterDist < perpWallDist) hitMonster(bestMonsterIndex, damage);
-                else hitMarkers.push_back({ (float)hitMapX + 0.5f, (float)hitMapY + 0.5f, 100.0f, hitSide, hitTexX });
+                float dmg = (currentWeapon == 0) ? FISTS_DAMAGE : (currentWeapon == 1 ? PISTOL_DAMAGE : SHOTGUN_DAMAGE);
+                float rng = (currentWeapon == 0) ? 1.0f : 100.0f;
+                if (bestIdx != -1 && bestDist < rng && bestDist < dist) hitMonster(bestIdx, dmg);
+                else if (currentWeapon > 0 && hit) hitMarkers.push_back({ (float)hMX + 0.5f, (float)hMY + 0.5f, 100.0f, hSide, hTX });
             }
             spacePressedLastFrame = true;
         }
         else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) spacePressedLastFrame = false;
 
         if (!gameOver) {
-            float mS = moveSpeed;
-            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) { float nx = playerX + cos(playerDir) * mS, ny = playerY + sin(playerDir) * mS; if (worldMap[(int)ny][(int)nx] == 0) { playerX = nx; playerY = ny; } }
-            if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) { float nx = playerX - cos(playerDir) * mS, ny = playerY - sin(playerDir) * mS; if (worldMap[(int)ny][(int)nx] == 0) { playerX = nx; playerY = ny; } }
+            float mS = moveSpeed; bool moving = false;
+
+            // --- POPRAWIONE STEROWANIE Z PORTALAMI (9) ---
+            auto tryMove = [&](float moveStep) {
+                float nx = playerX + cos(playerDir) * moveStep;
+                float ny = playerY + sin(playerDir) * moveStep;
+                int type = worldMap[(int)ny][(int)nx];
+
+                if (type == 0) { // Puste pole
+                    playerX = nx; playerY = ny; moving = true;
+                }
+                else if (type == 9) { // PORTAL (Drzwi)
+                    if (activeMapIndex == 1) {
+                        switchMap(2); activeMapIndex = 2;
+                        playerX = 2.5f; playerY = 2.5f; // Nowa pozycja na Mapie 2
+                        initMonsters(); initWeapons();
+                    }
+                    else {
+                        switchMap(1); activeMapIndex = 1;
+                        playerX = 2.5f; playerY = 7.5f; // Nowa pozycja na Mapie 1
+                        initMonsters(); initWeapons();
+                    }
+                }
+                };
+
+            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) tryMove(mS);
+            if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) tryMove(-mS);
+            // ---------------------------------------------
+
             if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) playerDir -= rotSpeed;
             if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) playerDir += rotSpeed;
-            checkWeaponCollection(playerX, playerY, playerHealth); // PRZEKAZUJEMY ZDROWIE!
+
+            // Wolniejsze bujanie
+            if (moving) {
+                walkTimer += 8.0f * 0.016f;
+            }
+            else {
+                walkTimer = 0.0f;
+            }
+
+            checkWeaponCollection(playerX, playerY, playerHealth);
             updateSprites(playerX, playerY, playerHealth);
             updateFireballs(playerX, playerY, 0.016f, playerHealth);
             if (checkCollision(playerX, playerY) || playerHealth <= 0) gameOver = true;
         }
 
-        vertices.clear();
-        glUseProgram(shaderProgram);
+        vertices.clear(); glUseProgram(p);
         if (!gameOver) {
-            glUniform1i(useTextureLoc, 1);
-            glUniform1f(playerDirLoc, playerDir); glUniform2f(playerPosLoc, playerX, playerY);
-            glUniform1f(screenWLoc, (float)screenWidth); glUniform1f(screenHLoc, (float)screenHeight);
+            glUniform1f(glGetUniformLocation(p, "playerDir"), playerDir); glUniform2f(glGetUniformLocation(p, "playerPos"), playerX, playerY);
+            glUniform1f(glGetUniformLocation(p, "screenWidth"), (float)screenWidth); glUniform1f(glGetUniformLocation(p, "screenHeight"), (float)screenHeight);
 
-            float cB = 6.0f, fB = 5.0f; // Sufit/Podloga
+            float cB = 6.0f, fB = 5.0f;
             vertices.insert(vertices.end(), { -1,1,1,1,cB,0,0, 1,1,1,1,cB,0,0, 1,0,1,1,cB,0,0, -1,1,1,1,cB,0,0, 1,0,1,1,cB,0,0, -1,0,1,1,cB,0,0 });
             vertices.insert(vertices.end(), { -1,-1,1,1,fB,0,0, 1,-1,1,1,fB,0,0, 1,0,1,1,fB,0,0, -1,-1,1,1,fB,0,0, 1,0,1,1,fB,0,0, -1,0,1,1,fB,0,0 });
 
-            // Raycasting
             glActiveTexture(GL_TEXTURE0);
             for (int x = 0; x < screenWidth; x++) {
                 float cX = 2.0f * x / screenWidth - 1.0f, rDX = cos(playerDir) + cX * cos(playerDir + M_PI / 2), rDY = sin(playerDir) + cX * sin(playerDir + M_PI / 2);
@@ -424,7 +338,6 @@ int main() {
                 vertices.insert(vertices.end(), { xL,nS,r,g,b,tX,1, xR,nS,r,g,b,tX,1, xR,nE,r,g,b,tX,0, xL,nS,r,g,b,tX,1, xR,nE,r,g,b,tX,0, xL,nE,r,g,b,tX,0 });
             }
 
-            // Sprite Rendering
             std::vector<Sprite> toRender;
             for (const auto& s : sprites) if (s.isAlive) toRender.push_back(s);
             for (const auto& w : weapons) if (!w.isCollected) { Sprite t; t.x = w.x; t.y = w.y; t.isWeapon = true; t.type = w.type; t.dist = (playerX - w.x) * (playerX - w.x) + (playerY - w.y) * (playerY - w.y); toRender.push_back(t); }
@@ -438,71 +351,55 @@ int main() {
                 if (tY > 0.1f) {
                     int scrX = int(screenWidth / 2 * (1 + tX / tY));
                     float scale = 1.0f;
-                    if (s.isWeapon) {
-                        if (s.type == 0)scale = 0.5f; // Pistolet
-                        if (s.type == 2 || s.type == 3 || s.type == 4)scale = 0.4f; // Amunicja i Apteczka
-                    }
-                    if (s.type == 999)scale = 0.5f; // Fireball
-
+                    if (s.isWeapon) { if (s.type == 0)scale = 0.5f; if (s.type == 2 || s.type == 3 || s.type == 4)scale = 0.4f; }
+                    if (s.type == 999)scale = 0.5f; if (!s.isWeapon) { if (s.type == 2)scale = 0.8f; if (s.type == 3)scale = 1.3f; }
                     int sH = abs(int(screenHeight / tY * scale)), sW = sH / 2;
+                    if (!s.isWeapon && s.type == 3) sW = sH / 1.5;
                     int dS = scrX - sW / 2, dE = scrX + sW / 2;
                     for (int str = dS; str < dE; str++) {
                         if (str >= 0 && str < screenWidth && tY < zBuffer[str]) {
                             float texX = (float)(str - dS) / sW, ndcS = 1 - 2.0f * (screenHeight / 2 - sH / 2) / screenHeight, ndcE = 1 - 2.0f * (screenHeight / 2 + sH / 2) / screenHeight;
                             float xL = 2.0f * str / screenWidth - 1, xR = 2.0f * (str + 1) / screenWidth - 1;
-                            float id = 1.0f; // Default Goblin
-
-                            // LOGIKA ID TEKSTURY
-                            if (s.type == 999) id = 16.0f; // Fireball
+                            float id = 1.0f;
+                            if (s.type == 999) id = 16.0f;
                             else if (s.isWeapon) {
-                                if (s.type == 1)id = 9.0f;
-                                else if (s.type == 0)id = 2.0f;
-                                else if (s.type == 2)id = 11.0f;
-                                else if (s.type == 3)id = 12.0f;
-                                else if (s.type == 4)id = 23.0f; // ID 23.0 - Apteczka
+                                if (s.type == 1)id = 9.0f; else if (s.type == 0)id = 2.0f; else if (s.type == 2)id = 11.0f; else if (s.type == 3)id = 12.0f; else if (s.type == 4)id = 23.0f;
                             }
-                            else if (s.type == 2) { // Flying
-                                if (s.state == 2)id = 15.0f; else if (s.state == 1)id = 14.0f; else id = 13.0f;
+                            else if (s.type == 2) { if (s.state == 2)id = 15.0f; else if (s.state == 1)id = 14.0f; else id = 13.0f; }
+                            else if (s.type == 3) {
+                                if (s.state == 2) id = 20.0f;
+                                else if (s.state == 1) { if (s.fightFrame == 0) id = 21.0f; else id = 22.0f; }
+                                else { if (s.walkStep == 0) id = 17.0f; else if (s.walkStep == 1) id = 19.0f; else if (s.walkStep == 2) id = 17.0f; else id = 18.0f; }
                             }
-                            else if (s.type == 3) { // WALKING MONSTER
-                                if (s.state == 2) id = 20.0f; // PAIN
-                                else if (s.state == 1) { // ATTACK
-                                    if (s.fightFrame == 0) id = 21.0f; else id = 22.0f;
-                                }
-                                else { // WALK
-                                    if (s.walkStep == 0) id = 17.0f; else if (s.walkStep == 1) id = 19.0f;
-                                    else if (s.walkStep == 2) id = 17.0f; else id = 18.0f;
-                                }
-                            }
-
                             vertices.insert(vertices.end(), { xL,ndcS,1,1,id,texX,1, xR,ndcS,1,1,id,texX,1, xR,ndcE,1,1,id,texX,0, xL,ndcS,1,1,id,texX,1, xR,ndcE,1,1,id,texX,0, xL,ndcE,1,1,id,texX,0 });
                         }
                     }
                 }
             }
 
-            // HUD
-            if (currentWeapon == 1) { glActiveTexture(GL_TEXTURE7); drawQuad2D(vertices, 0, -0.7f, 0.35f, 0.5f, 7); }
-            else if (currentWeapon == 2) { glActiveTexture(GL_TEXTURE9); drawQuad2D(vertices, 0.15f, -0.4f, 0.35f, 0.5f, 10); }
+            // HUD BOBBING
+            float bobX = cos(walkTimer) * 0.03f;
+            float bobY = abs(sin(walkTimer)) * 0.05f;
+            if (walkTimer == 0.0f) { bobX = 0; bobY = 0; }
+
+            if (currentWeapon == 0) { glActiveTexture(GL_TEXTURE23); drawQuad2D(vertices, 0.0f + bobX, -0.6f - bobY, 0.3f, 0.4f, 24); }
+            else if (currentWeapon == 1) { glActiveTexture(GL_TEXTURE7); drawQuad2D(vertices, 0.0f + bobX, -0.7f - bobY, 0.35f, 0.5f, 7); }
+            else if (currentWeapon == 2) { glActiveTexture(GL_TEXTURE9); drawQuad2D(vertices, 0.15f + bobX, -0.4f - bobY, 0.35f, 0.5f, 10); }
+
             float bC = 8.0f; vertices.insert(vertices.end(), { -1,-0.75f,1,1,bC,0,0, 1,-0.75f,1,1,bC,0,0, 1,-1,1,1,bC,0,0, -1,-0.75f,1,1,bC,0,0, 1,-1,1,1,bC,0,0, -1,-1,1,1,bC,0,0 });
-            glActiveTexture(GL_TEXTURE3);
-            drawText(vertices, -0.95f, -0.90f, 0.05f, "HP: " + std::to_string(playerHealth) + "%");
-            if (currentWeapon == 1) { drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: PISTOL"); drawText(vertices, 0.7f, -0.90f, 0.05f, "AMMO: " + std::to_string(ammoPistol)); }
+            glActiveTexture(GL_TEXTURE3); drawText(vertices, -0.95f, -0.90f, 0.05f, "HP: " + std::to_string(playerHealth) + "%");
+            if (currentWeapon == 0) drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: FISTS");
+            else if (currentWeapon == 1) { drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: PISTOL"); drawText(vertices, 0.7f, -0.90f, 0.05f, "AMMO: " + std::to_string(ammoPistol)); }
             else if (currentWeapon == 2) { drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: SHOTGUN"); drawText(vertices, 0.7f, -0.90f, 0.05f, "AMMO: " + std::to_string(ammoShotgun)); }
-            else drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: KNIFE");
         }
         else {
             glUniform1i(useTextureLoc, 0); drawGameOverText(vertices);
         }
 
-        glClear(GL_COLOR_BUFFER_BIT);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
-        glfwSwapBuffers(window);
+        glClear(GL_COLOR_BUFFER_BIT); glBindBuffer(GL_ARRAY_BUFFER, VBO); glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+        glBindVertexArray(VAO); glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7)); glfwSwapBuffers(window);
     }
-    glDeleteVertexArrays(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteProgram(shaderProgram);
+    glDeleteVertexArrays(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteProgram(p);
     glfwTerminate();
     return 0;
 }
