@@ -26,7 +26,10 @@ float moveSpeed = 0.05f;
 float rotSpeed = 0.03f;
 bool gameOver = false;
 
+// --- ZMIENNE ANIMACJI ---
 float walkTimer = 0.0f;
+float shootTimer = 0.0f;
+bool isShooting = false;
 
 const float FISTS_DAMAGE = 15.0f;
 const float PISTOL_DAMAGE = 25.0f;
@@ -61,7 +64,7 @@ const char* fragmentShaderSource = R"glsl(
 #version 330 core
 in vec3 ourColor; in vec2 TexCoord; out vec4 FragColor;
 
-// Sloty 0-24
+// Sloty 0-26
 uniform sampler2D wallTexture;       // 0
 uniform sampler2D monsterTexture;    // 1
 uniform sampler2D pistolTexture;     // 2
@@ -86,14 +89,21 @@ uniform sampler2D wFight1Tex;        // 20
 uniform sampler2D wFight2Tex;        // 21
 uniform sampler2D medkitTexture;     // 22
 uniform sampler2D fistsTexture;      // 23
-uniform sampler2D armorTexture;      // 24 
+uniform sampler2D armorTexture;      // 24
+uniform sampler2D pistolShootTex;    // 25
+uniform sampler2D shotgunShootTex;   // 26 (NOWE - STRZA£ SHOTGUNA)
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 
 void main() {
     if (useTexture) {
         vec4 texColor;
-        if (ourColor.b > 24.9)      texColor = texture(armorTexture, TexCoord);
+        // ID > 26.9 -> SHOTGUN STRZA£ (Slot 26)
+        if (ourColor.b > 26.9)      texColor = texture(shotgunShootTex, TexCoord);
+        // ID > 25.9 -> PISTOLET STRZA£ (Slot 25)
+        else if (ourColor.b > 25.9) texColor = texture(pistolShootTex, TexCoord);
+        
+        else if (ourColor.b > 24.9) texColor = texture(armorTexture, TexCoord);
         else if (ourColor.b > 23.9) texColor = texture(fistsTexture, TexCoord);
         else if (ourColor.b > 22.9) texColor = texture(medkitTexture, TexCoord);
         else if (ourColor.b > 21.9) texColor = texture(wFight2Tex, TexCoord); 
@@ -197,7 +207,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[25];
+    GLuint t[27]; // ZWIEKSZONA TABLICA
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -207,6 +217,8 @@ int main() {
     t[18] = loadTexture("monster_walk_3.png"); t[19] = loadTexture("monster_walk_hit_5.png"); t[20] = loadTexture("monster_walk_fight_1.png");
     t[21] = loadTexture("monster_walk_fight_2.png"); t[22] = loadTexture("mecidal.png"); t[23] = loadTexture("hand_both.png");
     t[24] = loadTexture("bulletproof_armor.png");
+    t[25] = loadTexture("pistol_view_128_shoot.png");
+    t[26] = loadTexture("shotgun_view_128_shoot.png"); // Slot 26
 
     glUseProgram(p);
     GLint useTextureLoc = glGetUniformLocation(p, "useTexture");
@@ -214,10 +226,11 @@ int main() {
 
     const char* names[] = { "wallTexture","monsterTexture","pistolTexture","fontTexture","hitTexture","floorTexture","ceilingTexture",
         "weaponViewTexture","shotgunTexture","shotgunViewTexture","ammoPistolTexture","ammoShotgunTexture","fly1Texture","fly2Texture",
-        "fly3Texture","fireballTexture","wWalk1Tex","wWalk2Tex","wWalk3Tex","wHitTex","wFight1Tex","wFight2Tex","medkitTexture","fistsTexture", "armorTexture" };
-    for (int i = 0; i < 25; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+        "fly3Texture","fireballTexture","wWalk1Tex","wWalk2Tex","wWalk3Tex","wHitTex","wFight1Tex","wFight2Tex","medkitTexture",
+        "fistsTexture", "armorTexture", "pistolShootTex", "shotgunShootTex" };
+    for (int i = 0; i < 27; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
 
-    for (int i = 0; i < 25; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 27; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -233,11 +246,27 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) if (hasPistol) currentWeapon = 1;
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) if (hasShotgun) currentWeapon = 2;
 
+        // --- LOGIKA STRZALU ---
+        if (shootTimer > 0.0f) {
+            shootTimer -= 0.016f;
+            if (shootTimer <= 0.0f) isShooting = false;
+        }
+
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !spacePressedLastFrame) {
             bool canShoot = (currentWeapon == 0) || (currentWeapon == 1 && ammoPistol > 0) || (currentWeapon == 2 && ammoShotgun > 0);
             if (canShoot) {
                 if (currentWeapon == 1) ammoPistol--; else if (currentWeapon == 2) ammoShotgun--;
                 if (currentWeapon > 0) bulletFlashes.push_back({ playerX + cos(playerDir) * 0.2f, playerY + sin(playerDir) * 0.2f, cos(playerDir), sin(playerDir), 2.0f });
+
+                // --- URUCHOMIENIE ANIMACJI ---
+                if (currentWeapon == 1) {
+                    isShooting = true;
+                    shootTimer = 0.15f; // Szybki Pistolet
+                }
+                else if (currentWeapon == 2) {
+                    isShooting = true;
+                    shootTimer = 0.40f; // Wolniejszy Shotgun
+                }
 
                 float rayDX = cos(playerDir), rayDY = sin(playerDir);
                 float dist = 1e30f; int hSide = 0, hMX = -1, hMY = -1; float hTX = 0;
@@ -335,22 +364,20 @@ int main() {
                     if (s.isWeapon) { if (s.type == 0)scale = 0.5f; if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5)scale = 0.4f; }
                     if (s.type == 999)scale = 0.5f;
 
-                    // --- OBLICZANIE ODSUWANIA I SKALOWANIA DLA POTWORÓW ---
                     float vOffset = 0.0f;
                     if (!s.isWeapon) {
                         if (s.type == 2) {
                             scale = 0.8f;
-                            // <--- ZMIANA: LATANIE (UJEMNY OFFSET) - w górê
                             int normalH = abs(int(screenHeight / tY));
-                            vOffset = -normalH * 0.3f; // Podniesiony o 40% wysokoœci œciany
+                            vOffset = -normalH * 0.4f;
                         }
                         if (s.type == 3) {
-                            scale = 0.4f; // Ma³y
-                            // Dopychanie do pod³ogi (dodatni offset)
+                            scale = 0.4f;
                             int normalH = abs(int(screenHeight / tY));
                             int sH_calc = abs(int((screenHeight / tY) * scale));
                             vOffset = (normalH - sH_calc) / 2.0f;
                         }
+                        if (s.type == 999) vOffset = -abs(int(screenHeight / tY)) * 0.3f;
                     }
 
                     int sH = abs(int(screenHeight / tY * scale));
@@ -361,10 +388,8 @@ int main() {
                     for (int str = dS; str < dE; str++) {
                         if (str >= 0 && str < screenWidth && tY < zBuffer[str]) {
                             float texX = (float)(str - dS) / sW;
-                            // Aplikujemy vOffset
                             float ndcS = 1 - 2.0f * (screenHeight / 2 - sH / 2 + vOffset) / screenHeight;
                             float ndcE = 1 - 2.0f * (screenHeight / 2 + sH / 2 + vOffset) / screenHeight;
-
                             float xL = 2.0f * str / screenWidth - 1, xR = 2.0f * (str + 1) / screenWidth - 1;
                             float id = 1.0f;
                             if (s.type == 999) id = 16.0f;
@@ -383,12 +408,30 @@ int main() {
                 }
             }
 
+            // HUD Z ODRZUTEM
             float bobX = cos(walkTimer) * 0.03f; float bobY = abs(sin(walkTimer)) * 0.05f;
             if (walkTimer == 0.0f) { bobX = 0; bobY = 0; }
 
-            if (currentWeapon == 0) { glActiveTexture(GL_TEXTURE23); drawQuad2D(vertices, 0.0f + bobX, -0.6f - bobY, 0.3f, 0.4f, 24); }
-            else if (currentWeapon == 1) { glActiveTexture(GL_TEXTURE7); drawQuad2D(vertices, 0.0f + bobX, -0.7f - bobY, 0.35f, 0.5f, 7); }
-            else if (currentWeapon == 2) { glActiveTexture(GL_TEXTURE9); drawQuad2D(vertices, 0.15f + bobX, -0.4f - bobY, 0.35f, 0.5f, 10); }
+            float recoilX = 0.0f; float recoilY = 0.0f;
+            if (isShooting) {
+                recoilX = ((float)rand() / RAND_MAX - 0.5f) * 0.1f;
+                recoilY = 0.1f;
+            }
+
+            if (currentWeapon == 0) { glActiveTexture(GL_TEXTURE23); drawQuad2D(vertices, 0.0f + bobX + recoilX, -0.6f - bobY + recoilY, 0.3f, 0.4f, 24); }
+            else if (currentWeapon == 1) {
+                glActiveTexture(GL_TEXTURE7);
+                float gunID = isShooting ? 26.0f : 7.0f;
+                if (isShooting) glActiveTexture(GL_TEXTURE25);
+                drawQuad2D(vertices, 0.0f + bobX + recoilX, -0.5f - bobY + recoilY, 0.35f, 0.5f, gunID);
+            }
+            else if (currentWeapon == 2) {
+                glActiveTexture(GL_TEXTURE9);
+                // <--- ZMIANA: ANIMACJA SHOTGUNA
+                float gunID = isShooting ? 27.0f : 10.0f; // ID 10 normal, 27 shot
+                if (isShooting) glActiveTexture(GL_TEXTURE26); // Slot 26
+                drawQuad2D(vertices, 0.15f + bobX + recoilX, -0.4f - bobY + recoilY, 0.35f, 0.5f, gunID);
+            }
 
             float bC = 8.0f; vertices.insert(vertices.end(), { -1,-0.75f,1,1,bC,0,0, 1,-0.75f,1,1,bC,0,0, 1,-1,1,1,bC,0,0, -1,-0.75f,1,1,bC,0,0, 1,-1,1,1,bC,0,0, -1,-1,1,1,bC,0,0 });
             glActiveTexture(GL_TEXTURE3); drawText(vertices, -0.95f, -0.90f, 0.05f, "HP: " + std::to_string(playerHealth) + "%");
