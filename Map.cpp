@@ -5,12 +5,18 @@
 std::vector<Door> doors;
 std::vector<WallDecal> wallDecals;
 
+bool isKeypadActive = false;
+bool isKeypadSuccess = false;
+float keypadSuccessTimer = 0.0f;
+Door* targetKeypadDoor = nullptr;
+
 // LEGENDA MAPY:
 // 1 - Œciana
 // 2 - Drzwi Otwarte (bez karty)
 // 3 - Drzwi na ZIELONA karte
 // 4 - Drzwi na CZERWONA karte
 // 5 - Drzwi na OBIE karty
+// 8 - Drzwi na KOD (Keypad)
 // 9 - Portal
 int worldMap1[MAP_HEIGHT][MAP_WIDTH] = {
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -29,9 +35,9 @@ int worldMap1[MAP_HEIGHT][MAP_WIDTH] = {
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,1,2,1,1,1,3,1,1,1,4,1,1,1,1,1,5,1,1,1},
-    {1,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
-    {1,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
+    {1,1,2,1,1,1,3,1,1,1,4,1,1,1,1,8,1,5,1,1},
+    {1,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,1},
+    {1,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,1},
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
@@ -66,8 +72,8 @@ void initDoors() {
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
             int t = worldMap[y][x];
-            if (t >= 2 && t <= 5) {
-                bool startLocked = (t != 2); // Tylko typ 2 jest od razu otwarty
+            if ((t >= 2 && t <= 5) || t == 8) {
+                bool startLocked = (t != 2);
                 doors.push_back({ x, y, 0.0f, CLOSED, 0.0f, startLocked });
             }
         }
@@ -109,6 +115,22 @@ void updateDoors(float dt) {
 void openDoorAt(int x, int y) {
     int doorType = worldMap[y][x];
 
+    if (doorType == 8) {
+        Door* d = getDoor(x, y);
+        if (d && d->isLocked && d->state == CLOSED) {
+            isKeypadActive = true;
+            isKeypadSuccess = false;
+            targetKeypadDoor = d;
+            std::cout << "Otwieram panel kodowy..." << std::endl;
+            return;
+        }
+        else if (d && !d->isLocked) {
+        }
+        else {
+            return;
+        }
+    }
+
     if (doorType == 3) {
         if (!hasGreenKey) {
             std::cout << "POTRZEBNA ZIELONA KARTA!" << std::endl;
@@ -127,7 +149,7 @@ void openDoorAt(int x, int y) {
             return;
         }
     }
-    else if (doorType != 2) {
+    else if (doorType != 2 && doorType != 8) {
         return;
     }
 
@@ -135,7 +157,7 @@ void openDoorAt(int x, int y) {
         if (door.x == x && door.y == y) {
             if (door.state == CLOSED || door.state == CLOSING) {
                 door.state = OPENING;
-                door.isLocked = false; // ODBLOKOWUJEMY NA STALE!
+                door.isLocked = false;
                 std::cout << "Otwieram drzwi!" << std::endl;
             }
             return;

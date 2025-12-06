@@ -49,6 +49,9 @@ std::vector<BulletFlash> bulletFlashes;
 extern int (*worldMap)[MAP_WIDTH];
 int activeMapIndex = 1;
 
+std::string keypadInput = "";
+bool keysPressed[10] = { 0 };
+
 void updateSprites(float playerX, float playerY, int& health, int& armor) {
     if (!sprites.empty()) {
         moveMonsters(playerX, playerY, 0.016f, health, armor, damageAlpha);
@@ -116,7 +119,10 @@ uniform sampler2D dRedL;             // 41
 uniform sampler2D dRedO;             // 42
 uniform sampler2D dDualL;            // 43
 uniform sampler2D dDualO;            // 44
-// -------------
+uniform sampler2D dCodeL;            // 45
+uniform sampler2D dCodeO;            // 46
+uniform sampler2D keypadRed;         // 47
+uniform sampler2D keypadGreen;       // 48
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity;
@@ -130,14 +136,16 @@ void main() {
         
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        // --- ID DRZWI (103-108) ---
-        if (ourColor.b > 107.9) texColor = texture(dDualO, TexCoord);       // 108 Dual Open
-        else if (ourColor.b > 106.9) texColor = texture(dDualL, TexCoord);  // 107 Dual Lock
-        else if (ourColor.b > 105.9) texColor = texture(dRedO, TexCoord);   // 106 Red Open
-        else if (ourColor.b > 104.9) texColor = texture(dRedL, TexCoord);   // 105 Red Lock
-        else if (ourColor.b > 103.9) texColor = texture(dGreenO, TexCoord); // 104 Green Open
-        else if (ourColor.b > 102.9) texColor = texture(dGreenL, TexCoord); // 103 Green Lock
-        // --------------------------
+        if (ourColor.b > 119.9)      texColor = texture(keypadGreen, TexCoord);
+        else if (ourColor.b > 118.9) texColor = texture(keypadRed, TexCoord);
+        else if (ourColor.b > 110.9) texColor = texture(dCodeO, TexCoord);
+        else if (ourColor.b > 109.9) texColor = texture(dCodeL, TexCoord);
+        else if (ourColor.b > 107.9) texColor = texture(dDualO, TexCoord);
+        else if (ourColor.b > 106.9) texColor = texture(dDualL, TexCoord);
+        else if (ourColor.b > 105.9) texColor = texture(dRedO, TexCoord);
+        else if (ourColor.b > 104.9) texColor = texture(dRedL, TexCoord);
+        else if (ourColor.b > 103.9) texColor = texture(dGreenO, TexCoord);
+        else if (ourColor.b > 102.9) texColor = texture(dGreenL, TexCoord);
 
         else if (ourColor.b > 101.9) texColor = texture(keyRedTex, TexCoord); 
         else if (ourColor.b > 100.9) texColor = texture(keyGreenTex, TexCoord); 
@@ -148,6 +156,16 @@ void main() {
         else if (ourColor.b > 97.9) {
              texColor = texture(holePistolTex, TexCoord);
         }
+        
+        else if (ourColor.b > 94.9) {
+             texColor = vec4(0.0, 0.0, 0.0, 0.75); 
+        }
+
+        else if (ourColor.b > 89.9) {
+             // ID 90.0: U¿ywane dla UI Keypada z podmian¹ slotu 0
+             texColor = texture(wallTexture, TexCoord);
+        }
+
         else if (ourColor.b > 79.9) {
              texColor = texture(bloodPartTex, TexCoord);
         }
@@ -166,14 +184,16 @@ void main() {
         else if (ourColor.b > 30.9) {
              texColor = texture(wallTexture, TexCoord);
         }
+        
         else if (ourColor.b > 29.9) {
-            vec4 imgColor = texture(wallTexture, TexCoord);
+            vec4 imgColor = texture(bloodScreenTex, TexCoord); 
             isBlood = true;
             texColor.rgb = mix(bloodRed, imgColor.rgb, imgColor.a);
             float finalAlpha = max(0.6, imgColor.a);
             texColor.a = finalAlpha * damageIntensity; 
             texColor = vec4(texColor.rgb, texColor.a);
         }
+
         else if (ourColor.b > 26.9) {
             vec4 wCol = texture(shotgunShootTex, TexCoord);
             texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
@@ -299,7 +319,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[45]; // TABLICA ZWIEKSZONA DLA NOWYCH TEKSTUR
+    GLuint t[49];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -329,6 +349,10 @@ int main() {
     t[42] = loadTexture("door_red_open.png");
     t[43] = loadTexture("door_dual_locked.png");
     t[44] = loadTexture("door_dual_open.png");
+    t[45] = loadTexture("door_code_locked.png");
+    t[46] = loadTexture("door_code_open.png");
+    t[47] = loadTexture("keypad_ui_red.png");
+    t[48] = loadTexture("keypad_ui_green.png");
 
     glUseProgram(p);
     GLint useTextureLoc = glGetUniformLocation(p, "useTexture");
@@ -342,11 +366,12 @@ int main() {
         "fistsTexture", "armorTexture", "pistolShootTex", "shotgunShootTex", "bloodScreenTex", "deathTex",
         "fistR1Tex", "fistR2Tex", "fistL1Tex", "fistL2Tex", "doorTexture", "holePistolTex", "holeShotgunTex", "bloodPartTex",
         "keyGreenTex", "keyRedTex",
-        "dGreenL", "dGreenO", "dRedL", "dRedO", "dDualL", "dDualO" };
+        "dGreenL", "dGreenO", "dRedL", "dRedO", "dDualL", "dDualO",
+        "dCodeL", "dCodeO", "keypadRed", "keypadGreen" };
 
-    for (int i = 0; i < 45; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 49; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
 
-    for (int i = 0; i < 45; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 49; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -397,7 +422,7 @@ int main() {
             if (shootTimer <= 0.0f) isShooting = false;
         }
 
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !spacePressedLastFrame) {
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !spacePressedLastFrame && !isKeypadActive) {
             bool canShoot = (currentWeapon == 0) || (currentWeapon == 1 && ammoPistol > 0) || (currentWeapon == 2 && ammoShotgun > 0);
             if (canShoot) {
                 if (currentWeapon == 1) ammoPistol--; else if (currentWeapon == 2) ammoShotgun--;
@@ -478,7 +503,7 @@ int main() {
         }
         else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) spacePressedLastFrame = false;
 
-        if (!gameOver) {
+        if (!gameOver && !isKeypadActive) {
             float mS = moveSpeed; bool moving = false;
             auto tryMove = [&](float moveStep) {
                 float dx = cos(playerDir) * moveStep;
@@ -494,12 +519,12 @@ int main() {
                     Door* d = getDoor((int)checkX, (int)playerY);
                     if (d && d->openAmount < 0.7f) doorBlockX = true;
                 }
-                else if (typeX >= 3 && typeX <= 5) {
+                else if ((typeX >= 3 && typeX <= 5) || typeX == 8) {
                     Door* d = getDoor((int)checkX, (int)playerY);
                     if (d && d->openAmount < 0.7f) doorBlockX = true;
                 }
 
-                if (typeX == 0 || ((typeX >= 2 && typeX <= 5) && !doorBlockX)) {
+                if (typeX == 0 || ((typeX >= 2 && typeX <= 5 || typeX == 8) && !doorBlockX)) {
                     playerX = nextX;
                     moving = true;
                 }
@@ -518,12 +543,12 @@ int main() {
                     Door* d = getDoor((int)playerX, (int)checkY);
                     if (d && d->openAmount < 0.7f) doorBlockY = true;
                 }
-                else if (typeY >= 3 && typeY <= 5) {
+                else if ((typeY >= 3 && typeY <= 5) || typeY == 8) {
                     Door* d = getDoor((int)playerX, (int)checkY);
                     if (d && d->openAmount < 0.7f) doorBlockY = true;
                 }
 
-                if (typeY == 0 || ((typeY >= 2 && typeY <= 5) && !doorBlockY)) {
+                if (typeY == 0 || ((typeY >= 2 && typeY <= 5 || typeY == 8) && !doorBlockY)) {
                     playerY = nextY;
                     moving = true;
                 }
@@ -571,7 +596,7 @@ int main() {
 
                     int tile = worldMap[mY][mX];
                     if (tile == 1 || tile == 9) hit = 1;
-                    else if (tile >= 2 && tile <= 5) {
+                    else if ((tile >= 2 && tile <= 5) || tile == 8) {
                         float perpD = (side == 0) ? (mX - playerX + (1 - sX) / 2.0f) / rDX : (mY - playerY + (1 - sY) / 2.0f) / rDY;
                         float wX_temp = (side == 0) ? playerY + perpD * rDY : playerX + perpD * rDX;
                         wX_temp -= floor(wX_temp);
@@ -590,14 +615,14 @@ int main() {
                 float perp = (side == 0) ? (mX - playerX + (1 - sX) / 2.0f) / rDX : (mY - playerY + (1 - sY) / 2.0f) / rDY; zBuffer[x] = perp;
                 int type = worldMap[mY][mX];
 
-                float r = (type == 9) ? 1 : (type == 1 ? 0.4 : (type >= 2 && type <= 5 ? 1.0 : 0.6)), g = r, b = (type == 9) ? 0 : r;
+                float r = (type == 9) ? 1 : (type == 1 ? 0.4 : ((type >= 2 && type <= 5) || type == 8 ? 1.0 : 0.6)), g = r, b = (type == 9) ? 0 : r;
                 if (side) r *= 0.7, g *= 0.7, b *= 0.7;
 
                 float wX = (side == 0) ? playerY + perp * rDY : playerX + perp * rDX; wX -= floor(wX);
                 float tX = wX;
                 if ((side == 0 && rDX > 0) || (side == 1 && rDY < 0)) tX = 1 - tX;
 
-                if (type >= 2 && type <= 5) {
+                if ((type >= 2 && type <= 5) || type == 8) {
                     tX -= texOffset;
                     if (tX < 0) tX += 1.0f;
                 }
@@ -610,8 +635,8 @@ int main() {
                 else if (type == 2) blueChannelID = 36.0f;
                 else if (type == 3) {
                     Door* d = getDoor(mX, mY);
-                    if (d && d->isLocked) blueChannelID = 103.0f; // Locked
-                    else blueChannelID = 104.0f; // Open/Unlocked
+                    if (d && d->isLocked) blueChannelID = 103.0f;
+                    else blueChannelID = 104.0f;
                 }
                 else if (type == 4) {
                     Door* d = getDoor(mX, mY);
@@ -622,6 +647,11 @@ int main() {
                     Door* d = getDoor(mX, mY);
                     if (d && d->isLocked) blueChannelID = 107.0f;
                     else blueChannelID = 108.0f;
+                }
+                else if (type == 8) {
+                    Door* d = getDoor(mX, mY);
+                    if (d && d->isLocked) blueChannelID = 110.0f;
+                    else blueChannelID = 111.0f;
                 }
                 else blueChannelID = 31.0f;
 
@@ -677,7 +707,7 @@ int main() {
                     float scale = 1.0f;
                     if (s.isWeapon) {
                         if (s.type == 0)scale = 0.3f; if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5)scale = 0.4f;
-                        else if (s.type == 6 || s.type == 7) scale = 0.4f; // KLUCZE
+                        else if (s.type == 6 || s.type == 7) scale = 0.4f;
                     }
                     if (s.type == 999) scale = 0.5f;
 
@@ -721,8 +751,8 @@ int main() {
                             if (s.type == 999) id = 16.0f;
                             else if (s.isWeapon) {
                                 if (s.type == 1)id = 9.0f; else if (s.type == 0)id = 2.0f; else if (s.type == 2)id = 11.0f; else if (s.type == 3)id = 12.0f; else if (s.type == 4)id = 23.0f; else if (s.type == 5)id = 25.0f;
-                                else if (s.type == 6) id = 101.0f; // Green Key
-                                else if (s.type == 7) id = 102.0f; // Red Key
+                                else if (s.type == 6) id = 101.0f;
+                                else if (s.type == 7) id = 102.0f;
                                 else if (s.type == OBJECT_HOLE_PISTOL) id = 98.0f;
                                 else if (s.type == OBJECT_HOLE_SHOTGUN) id = 99.0f;
                             }
@@ -744,16 +774,11 @@ int main() {
                 glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
                 vertices.clear();
 
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, t[27]);
-
                 drawQuad2D(vertices, 0.0f, 0.0f, 1.0f, 1.0f, 30.0f);
 
                 glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
                 glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
                 vertices.clear();
-
-                glBindTexture(GL_TEXTURE_2D, t[0]);
             }
 
             float bobX = cos(walkTimer) * 0.03f; float bobY = abs(sin(walkTimer)) * 0.05f;
@@ -802,6 +827,97 @@ int main() {
 
             glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
             glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+
+            if (isKeypadActive) {
+                if (!isKeypadSuccess) {
+                    for (int k = 0; k <= 9; k++) {
+                        if (glfwGetKey(window, GLFW_KEY_0 + k) == GLFW_PRESS) {
+                            if (!keysPressed[k]) {
+                                if (keypadInput.length() < 4) {
+                                    keypadInput += std::to_string(k);
+                                    std::cout << "Kod: " << keypadInput << std::endl;
+                                }
+                                keysPressed[k] = true;
+                            }
+                        }
+                        else {
+                            keysPressed[k] = false;
+                        }
+                    }
+
+                    static bool backspacePressed = false;
+                    if (glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS) {
+                        if (!backspacePressed && keypadInput.length() > 0) {
+                            keypadInput.pop_back();
+                            backspacePressed = true;
+                        }
+                    }
+                    else backspacePressed = false;
+
+                    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+                        isKeypadActive = false;
+                        keypadInput = "";
+                    }
+
+                    static bool enterPressed = false;
+                    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+                        if (!enterPressed) {
+                            if (keypadInput == "1234") {
+                                isKeypadSuccess = true;
+                                keypadSuccessTimer = 1.0f;
+                                if (targetKeypadDoor) {
+                                    targetKeypadDoor->isLocked = false;
+                                    targetKeypadDoor->state = OPENING;
+                                }
+                                keypadInput = "";
+                            }
+                            else {
+                                keypadInput = "";
+                                std::cout << "Bledny kod!" << std::endl;
+                            }
+                            enterPressed = true;
+                        }
+                    }
+                    else enterPressed = false;
+                }
+                else {
+                    keypadSuccessTimer -= 0.016f;
+                    if (keypadSuccessTimer <= 0.0f) {
+                        isKeypadActive = false;
+                        isKeypadSuccess = false;
+                        targetKeypadDoor = nullptr;
+                    }
+                }
+
+                vertices.clear();
+                glUseProgram(p);
+
+                drawQuad2D(vertices, 0.0f, 0.0f, 1.0f, 1.0f, 95.0f);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+                vertices.clear();
+
+                int uiTexID = isKeypadSuccess ? 48 : 47;
+
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, t[uiTexID]);
+
+                float quadID = 90.0f;
+
+                drawQuad2D(vertices, 0.0f, 0.0f, 0.4f, 0.6f, quadID);
+
+                glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+                glBindTexture(GL_TEXTURE_2D, t[0]);
+
+                if (!isKeypadSuccess) {
+                    vertices.clear();
+                    glActiveTexture(GL_TEXTURE3);
+                    drawText(vertices, -0.15f, -0.29f, 0.1f, keypadInput);
+                    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+                }
+            }
 
         }
         else {

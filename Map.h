@@ -11,7 +11,7 @@ struct Door {
     float openAmount;
     DoorState state;
     float timer;
-    bool isLocked; // NOWE: Czy drzwi s¹ zaryglowane?
+    bool isLocked;
 };
 
 struct WallDecal {
@@ -21,6 +21,11 @@ struct WallDecal {
     float hitY;
     int type;
 };
+
+extern bool isKeypadActive;
+extern bool isKeypadSuccess;
+extern float keypadSuccessTimer;
+extern Door* targetKeypadDoor;
 
 extern int worldMap1[MAP_HEIGHT][MAP_WIDTH];
 extern int worldMap2[MAP_HEIGHT][MAP_WIDTH];

@@ -187,5 +187,17 @@
     <Image Include="door_red_open.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="door_code_locked.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="door_code_open.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="keypad_ui_red.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="keypad_ui_green.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
 </Project>
