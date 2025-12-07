@@ -149,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="ammunition_pistol.png" />
+    <Image Include="ammunition_rifle.png" />
     <Image Include="ammunition_shotgun.png" />
     <Image Include="blood_particle.png" />
     <Image Include="blood_screen_damage.png" />
@@ -193,6 +194,9 @@
     <Image Include="pistol_view_128.png" />
     <Image Include="pistol_view_128_shoot.png" />
     <Image Include="red_card.png" />
+    <Image Include="rifle.png" />
+    <Image Include="rifle_view.png" />
+    <Image Include="rifle_view_shoot.png" />
     <Image Include="shotgun.png" />
     <Image Include="shotgun_view_128.png" />
     <Image Include="shotgun_view_128_shoot.png" />

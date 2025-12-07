@@ -7,8 +7,10 @@
 
 const int WEAPON_PISTOL = 0;
 const int WEAPON_SHOTGUN = 1;
+const int WEAPON_RIFLE = 8;
 const int AMMO_PISTOL_BOX = 2;
 const int AMMO_SHOTGUN_BOX = 3;
+const int AMMO_RIFLE_BOX = 9;
 const int ITEM_MEDKIT = 4;
 const int ITEM_ARMOR = 5;
 
@@ -26,6 +28,8 @@ struct Weapon
 extern std::vector<Weapon> weapons;
 extern int ammoPistol;
 extern int ammoShotgun;
+extern int ammoRifle;
+extern bool hasRifle;
 extern bool hasPistol;
 extern bool hasShotgun;
 extern int currentWeapon;

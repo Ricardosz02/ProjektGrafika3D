@@ -199,5 +199,17 @@
     <Image Include="keypad_ui_green.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="ammunition_rifle.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="rifle.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="rifle_view.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="rifle_view_shoot.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
 </Project>

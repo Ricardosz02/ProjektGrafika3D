@@ -112,7 +112,6 @@ uniform sampler2D holeShotgunTex;    // 35
 uniform sampler2D bloodPartTex;      // 36
 uniform sampler2D keyGreenTex;       // 37
 uniform sampler2D keyRedTex;         // 38
-// --- DRZWI ---
 uniform sampler2D dGreenL;           // 39
 uniform sampler2D dGreenO;           // 40
 uniform sampler2D dRedL;             // 41
@@ -123,6 +122,10 @@ uniform sampler2D dCodeL;            // 45
 uniform sampler2D dCodeO;            // 46
 uniform sampler2D keypadRed;         // 47
 uniform sampler2D keypadGreen;       // 48
+uniform sampler2D rifleTex;          // 49
+uniform sampler2D rifleViewTex;      // 50
+uniform sampler2D rifleShootTex;     // 51
+uniform sampler2D ammoRifleTex;      // 52
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity;
@@ -136,39 +139,38 @@ void main() {
         
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        if (ourColor.b > 119.9)      texColor = texture(keypadGreen, TexCoord);
-        else if (ourColor.b > 118.9) texColor = texture(keypadRed, TexCoord);
-        else if (ourColor.b > 110.9) texColor = texture(dCodeO, TexCoord);
-        else if (ourColor.b > 109.9) texColor = texture(dCodeL, TexCoord);
-        else if (ourColor.b > 107.9) texColor = texture(dDualO, TexCoord);
-        else if (ourColor.b > 106.9) texColor = texture(dDualL, TexCoord);
-        else if (ourColor.b > 105.9) texColor = texture(dRedO, TexCoord);
-        else if (ourColor.b > 104.9) texColor = texture(dRedL, TexCoord);
-        else if (ourColor.b > 103.9) texColor = texture(dGreenO, TexCoord);
-        else if (ourColor.b > 102.9) texColor = texture(dGreenL, TexCoord);
+        if (ourColor.b > 119.9)      texColor = texture(keypadGreen, TexCoord); 
+        else if (ourColor.b > 118.9) texColor = texture(keypadRed, TexCoord);   
+        else if (ourColor.b > 110.9) texColor = texture(dCodeO, TexCoord);      
+        else if (ourColor.b > 109.9) texColor = texture(dCodeL, TexCoord);      
+        else if (ourColor.b > 107.9) texColor = texture(dDualO, TexCoord);      
+        else if (ourColor.b > 106.9) texColor = texture(dDualL, TexCoord);      
+        else if (ourColor.b > 105.9) texColor = texture(dRedO, TexCoord);       
+        else if (ourColor.b > 104.9) texColor = texture(dRedL, TexCoord);       
+        else if (ourColor.b > 103.9) texColor = texture(dGreenO, TexCoord);     
+        else if (ourColor.b > 102.9) texColor = texture(dGreenL, TexCoord);     
 
-        else if (ourColor.b > 101.9) texColor = texture(keyRedTex, TexCoord); 
+        else if (ourColor.b > 101.9) texColor = texture(keyRedTex, TexCoord);   
         else if (ourColor.b > 100.9) texColor = texture(keyGreenTex, TexCoord); 
 
-        else if (ourColor.b > 98.9) {
-             texColor = texture(holeShotgunTex, TexCoord);
-        }
-        else if (ourColor.b > 97.9) {
-             texColor = texture(holePistolTex, TexCoord);
-        }
-        
+        else if (ourColor.b > 98.9) texColor = texture(holeShotgunTex, TexCoord);
+        else if (ourColor.b > 97.9) texColor = texture(holePistolTex, TexCoord);
+
         else if (ourColor.b > 94.9) {
              texColor = vec4(0.0, 0.0, 0.0, 0.75); 
         }
 
         else if (ourColor.b > 89.9) {
-             // ID 90.0: U¿ywane dla UI Keypada z podmian¹ slotu 0
              texColor = texture(wallTexture, TexCoord);
         }
 
-        else if (ourColor.b > 79.9) {
-             texColor = texture(bloodPartTex, TexCoord);
-        }
+        else if (ourColor.b > 79.9) texColor = texture(bloodPartTex, TexCoord);
+
+        else if (ourColor.b > 52.9) texColor = texture(ammoRifleTex, TexCoord); // ID 53
+        else if (ourColor.b > 51.9) texColor = texture(rifleShootTex, TexCoord);// ID 52
+        else if (ourColor.b > 50.9) texColor = texture(rifleViewTex, TexCoord); // ID 51
+        else if (ourColor.b > 49.9) texColor = texture(rifleTex, TexCoord);     // ID 50
+
         else if (ourColor.b > 35.9) {
              texColor = texture(doorTexture, TexCoord);
         }
@@ -184,7 +186,6 @@ void main() {
         else if (ourColor.b > 30.9) {
              texColor = texture(wallTexture, TexCoord);
         }
-        
         else if (ourColor.b > 29.9) {
             vec4 imgColor = texture(bloodScreenTex, TexCoord); 
             isBlood = true;
@@ -193,7 +194,6 @@ void main() {
             texColor.a = finalAlpha * damageIntensity; 
             texColor = vec4(texColor.rgb, texColor.a);
         }
-
         else if (ourColor.b > 26.9) {
             vec4 wCol = texture(shotgunShootTex, TexCoord);
             texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
@@ -319,7 +319,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[49];
+    GLuint t[53];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -353,6 +353,10 @@ int main() {
     t[46] = loadTexture("door_code_open.png");
     t[47] = loadTexture("keypad_ui_red.png");
     t[48] = loadTexture("keypad_ui_green.png");
+    t[49] = loadTexture("rifle.png");
+    t[50] = loadTexture("rifle_view.png");
+    t[51] = loadTexture("rifle_view_shoot.png");
+    t[52] = loadTexture("ammunition_rifle.png");
 
     glUseProgram(p);
     GLint useTextureLoc = glGetUniformLocation(p, "useTexture");
@@ -367,11 +371,12 @@ int main() {
         "fistR1Tex", "fistR2Tex", "fistL1Tex", "fistL2Tex", "doorTexture", "holePistolTex", "holeShotgunTex", "bloodPartTex",
         "keyGreenTex", "keyRedTex",
         "dGreenL", "dGreenO", "dRedL", "dRedO", "dDualL", "dDualO",
-        "dCodeL", "dCodeO", "keypadRed", "keypadGreen" };
+        "dCodeL", "dCodeO", "keypadRed", "keypadGreen",
+        "rifleTex", "rifleViewTex", "rifleShootTex", "ammoRifleTex" };
 
-    for (int i = 0; i < 49; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 53; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
 
-    for (int i = 0; i < 49; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 53; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -416,20 +421,40 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) currentWeapon = 0;
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) if (hasPistol) currentWeapon = 1;
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) if (hasShotgun) currentWeapon = 2;
+        if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) if (hasRifle) currentWeapon = 3;
 
         if (shootTimer > 0.0f) {
             shootTimer -= 0.016f;
             if (shootTimer <= 0.0f) isShooting = false;
         }
 
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !spacePressedLastFrame && !isKeypadActive) {
-            bool canShoot = (currentWeapon == 0) || (currentWeapon == 1 && ammoPistol > 0) || (currentWeapon == 2 && ammoShotgun > 0);
+        bool isRifle = (currentWeapon == 3);
+        bool triggerPressed = false;
+
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !isKeypadActive) {
+            if (isRifle) {
+                triggerPressed = true;
+            }
+            else {
+                if (!spacePressedLastFrame) triggerPressed = true;
+            }
+        }
+
+        if (triggerPressed) {
+            bool canShoot = (currentWeapon == 0) || (currentWeapon == 1 && ammoPistol > 0) || (currentWeapon == 2 && ammoShotgun > 0) || (currentWeapon == 3 && ammoRifle > 0);
+
+            if (isRifle && shootTimer > 0.0f) canShoot = false;
+
             if (canShoot) {
-                if (currentWeapon == 1) ammoPistol--; else if (currentWeapon == 2) ammoShotgun--;
+                if (currentWeapon == 1) ammoPistol--;
+                else if (currentWeapon == 2) ammoShotgun--;
+                else if (currentWeapon == 3) ammoRifle--;
+
                 if (currentWeapon > 0) bulletFlashes.push_back({ playerX + cos(playerDir) * 0.2f, playerY + sin(playerDir) * 0.2f, cos(playerDir), sin(playerDir), 2.0f });
 
                 if (currentWeapon == 1) { isShooting = true; shootTimer = 0.15f; }
                 else if (currentWeapon == 2) { isShooting = true; shootTimer = 0.40f; }
+                else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.10f; }
                 else if (currentWeapon == 0) {
                     isShooting = true;
                     shootTimer = 0.6f;
@@ -443,6 +468,7 @@ int main() {
 
                 if (currentWeapon == 1) { pellets = 1; spread = 0.04f; spreadY = 0.05f; }
                 if (currentWeapon == 2) { pellets = 8; spread = 0.15f; spreadY = 0.30f; }
+                if (currentWeapon == 3) { pellets = 1; spread = 0.06f; spreadY = 0.06f; }
                 if (currentWeapon == 0) { pellets = 1; spread = 0.0f;  spreadY = 0.0f; }
 
                 for (int p = 0; p < pellets; p++) {
@@ -475,7 +501,7 @@ int main() {
                         if (tY > 0 && abs(tX / tY) < 0.1f && tY < bestDist) { bestDist = tY; bestIdx = i; }
                     }
 
-                    float dmg = (currentWeapon == 0) ? FISTS_DAMAGE : (currentWeapon == 1 ? PISTOL_DAMAGE : SHOTGUN_DAMAGE);
+                    float dmg = (currentWeapon == 0) ? FISTS_DAMAGE : (currentWeapon == 1 ? PISTOL_DAMAGE : (currentWeapon == 3 ? 20.0f : SHOTGUN_DAMAGE));
                     if (currentWeapon == 2) dmg /= 8.0f;
 
                     float rng = (currentWeapon == 0) ? 1.0f : 100.0f;
@@ -491,7 +517,7 @@ int main() {
                         newDecal.side = hSide;
                         newDecal.hitX = hTX;
                         newDecal.hitY = randHeight;
-                        newDecal.type = (currentWeapon == 1) ? 98 : 99;
+                        newDecal.type = (currentWeapon == 2) ? 99 : 98;
 
                         wallDecals.push_back(newDecal);
 
@@ -499,7 +525,7 @@ int main() {
                     }
                 }
             }
-            spacePressedLastFrame = true;
+            if (!isRifle) spacePressedLastFrame = true;
         }
         else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) spacePressedLastFrame = false;
 
@@ -753,6 +779,8 @@ int main() {
                                 if (s.type == 1)id = 9.0f; else if (s.type == 0)id = 2.0f; else if (s.type == 2)id = 11.0f; else if (s.type == 3)id = 12.0f; else if (s.type == 4)id = 23.0f; else if (s.type == 5)id = 25.0f;
                                 else if (s.type == 6) id = 101.0f;
                                 else if (s.type == 7) id = 102.0f;
+                                else if (s.type == 8) id = 50.0f;
+                                else if (s.type == 9) id = 53.0f;
                                 else if (s.type == OBJECT_HOLE_PISTOL) id = 98.0f;
                                 else if (s.type == OBJECT_HOLE_SHOTGUN) id = 99.0f;
                             }
@@ -817,6 +845,13 @@ int main() {
                 if (isShooting) glActiveTexture(GL_TEXTURE26);
                 drawQuad2D(vertices, 0.15f + bobX + recoilX, -0.4f - bobY + recoilY, 0.35f, 0.5f, gunID);
             }
+            else if (currentWeapon == 3) {
+                glActiveTexture(GL_TEXTURE0 + 50);
+                float gunID = isShooting ? 52.0f : 51.0f;
+                if (isShooting) glActiveTexture(GL_TEXTURE0 + 51);
+
+                drawQuad2D(vertices, 0.15f + bobX + recoilX, -0.5f - bobY + recoilY, 0.45f, 0.40f, gunID); //0.45
+            }
 
             float bC = 8.0f; vertices.insert(vertices.end(), { -1,-0.75f,1,1,bC,0,0, 1,-0.75f,1,1,bC,0,0, 1,-1,1,1,bC,0,0, -1,-0.75f,1,1,bC,0,0, 1,-1,1,1,bC,0,0, -1,-1,1,1,bC,0,0 });
             glActiveTexture(GL_TEXTURE3); drawText(vertices, -0.95f, -0.90f, 0.05f, "HP: " + std::to_string(playerHealth) + "%");
@@ -824,6 +859,7 @@ int main() {
             if (currentWeapon == 0) drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: FISTS");
             else if (currentWeapon == 1) { drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: PISTOL"); drawText(vertices, 0.7f, -0.90f, 0.05f, "AMMO: " + std::to_string(ammoPistol)); }
             else if (currentWeapon == 2) { drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: SHOTGUN"); drawText(vertices, 0.7f, -0.90f, 0.05f, "AMMO: " + std::to_string(ammoShotgun)); }
+            else if (currentWeapon == 3) { drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: RIFLE"); drawText(vertices, 0.7f, -0.90f, 0.05f, "AMMO: " + std::to_string(ammoRifle)); }
 
             glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
             glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
@@ -898,16 +934,15 @@ int main() {
                 vertices.clear();
 
                 int uiTexID = isKeypadSuccess ? 48 : 47;
-
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, t[uiTexID]);
 
                 float quadID = 90.0f;
-
                 drawQuad2D(vertices, 0.0f, 0.0f, 0.4f, 0.6f, quadID);
 
                 glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
                 glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+
                 glBindTexture(GL_TEXTURE_2D, t[0]);
 
                 if (!isKeypadSuccess) {

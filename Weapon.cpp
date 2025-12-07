@@ -5,8 +5,12 @@
 std::vector<Weapon> weapons;
 int ammoPistol = 0;
 int ammoShotgun = 0;
+int ammoRifle = 0;
+
 bool hasPistol = false;
 bool hasShotgun = false;
+bool hasRifle = false;
+
 int currentWeapon = 0;
 
 bool hasGreenKey = false;
@@ -17,8 +21,12 @@ void initWeapons() {
 
     weapons.push_back({ 3.5f, 9.5f, false, 0.0f, WEAPON_PISTOL });
     weapons.push_back({ 16.5f, 9.5f, false, 0.0f, WEAPON_SHOTGUN });
+    weapons.push_back({ 13.5f, 7.5f, false, 0.0f, WEAPON_RIFLE });
+
     weapons.push_back({ 10.5f, 9.5f, false, 0.0f, AMMO_PISTOL_BOX });
     weapons.push_back({ 10.5f, 10.5f, false, 0.0f, AMMO_SHOTGUN_BOX });
+    weapons.push_back({ 14.5f, 7.5f, false, 0.0f, AMMO_RIFLE_BOX });
+
     weapons.push_back({ 11.5f, 10.5f, false, 0.0f, ITEM_MEDKIT });
     weapons.push_back({ 12.5f, 10.5f, false, 0.0f, ITEM_ARMOR });
 
@@ -27,6 +35,7 @@ void initWeapons() {
 
     hasPistol = false;
     hasShotgun = false;
+    hasRifle = false;
 
     hasGreenKey = false;
     hasRedKey = false;
@@ -34,6 +43,8 @@ void initWeapons() {
     currentWeapon = 0;
     ammoPistol = 0;
     ammoShotgun = 0;
+    ammoRifle = 0;
+
     std::cout << "Inicjalizacja przedmiotow zakonczona." << std::endl;
 }
 
@@ -61,6 +72,12 @@ void checkWeaponCollection(float playerX, float playerY, int& health, int& armor
                     ammoShotgun += 5;
                     std::cout << "ZEBRANO SHOTGUN! (+5 Ammo)" << std::endl;
                 }
+                else if (w.type == WEAPON_RIFLE) {
+                    hasRifle = true;
+                    currentWeapon = 3;
+                    ammoRifle += 50;
+                    std::cout << "ZEBRANO KARABIN! (+50 Ammo)" << std::endl;
+                }
                 else if (w.type == AMMO_PISTOL_BOX) {
                     ammoPistol += 10;
                     std::cout << "Amunicja Pistoletu (+10)" << std::endl;
@@ -68,6 +85,10 @@ void checkWeaponCollection(float playerX, float playerY, int& health, int& armor
                 else if (w.type == AMMO_SHOTGUN_BOX) {
                     ammoShotgun += 5;
                     std::cout << "Amunicja Shotguna (+5)" << std::endl;
+                }
+                else if (w.type == AMMO_RIFLE_BOX) {
+                    ammoRifle += 20;
+                    std::cout << "Amunicja Karabinu (+20)" << std::endl;
                 }
                 else if (w.type == ITEM_MEDKIT) {
                     health += 50;
