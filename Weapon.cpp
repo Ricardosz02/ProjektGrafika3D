@@ -96,7 +96,7 @@ void checkWeaponCollection(float playerX, float playerY, int& health, int& armor
                     std::cout << "Apteczka (+50 HP)" << std::endl;
                 }
                 else if (w.type == ITEM_ARMOR) {
-                    armor += 50;
+                    armor += 100;
                     if (armor > 100) armor = 100;
                     std::cout << "KAMIZELKA (+50 ARMOR)" << std::endl;
                 }

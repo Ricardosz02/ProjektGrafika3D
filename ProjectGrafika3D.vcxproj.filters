@@ -211,5 +211,8 @@
     <Image Include="rifle_view_shoot.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="hud_overlay.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -1,13 +1,13 @@
 #include "config.h" 
-#include "Map.h"     
-#include "Goblin.h"  
-#include "Weapon.h"   
+#include "Map.h"      
+#include "Goblin.h"   
+#include "Weapon.h"    
 #include "stb_image.h" 
 #include <cmath>
 #include <vector>
 #include <iostream>
 #include <algorithm> 
-#include <string>       
+#include <string>        
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f 
@@ -16,8 +16,8 @@
 float playerX = 2.5f;
 float playerY = 2.5f;
 float playerDir = 0.0f;
-const int screenWidth = 640;
-const int screenHeight = 480;
+const int screenWidth = 1920;
+const int screenHeight = 1080;
 
 int playerHealth = 100;
 int playerArmor = 0;
@@ -65,7 +65,7 @@ const char* vertexShaderSource = R"glsl(
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec3 aColor;
 layout(location = 2) in vec2 aTexCoord;
-out vec3 ourColor; out vec2 TexCoord;                       
+out vec3 ourColor; out vec2 TexCoord;                        
 void main() { gl_Position = vec4(aPos, 0.0, 1.0); ourColor = aColor; TexCoord = aTexCoord; }
 )glsl";
 
@@ -126,6 +126,7 @@ uniform sampler2D rifleTex;          // 49
 uniform sampler2D rifleViewTex;      // 50
 uniform sampler2D rifleShootTex;     // 51
 uniform sampler2D ammoRifleTex;      // 52
+uniform sampler2D hudTexture;        // 53
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity;
@@ -139,7 +140,8 @@ void main() {
         
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        if (ourColor.b > 119.9)      texColor = texture(keypadGreen, TexCoord); 
+        if (ourColor.b > 124.9)      texColor = texture(hudTexture, TexCoord); 
+        else if (ourColor.b > 119.9) texColor = texture(keypadGreen, TexCoord); 
         else if (ourColor.b > 118.9) texColor = texture(keypadRed, TexCoord);   
         else if (ourColor.b > 110.9) texColor = texture(dCodeO, TexCoord);      
         else if (ourColor.b > 109.9) texColor = texture(dCodeL, TexCoord);      
@@ -166,10 +168,10 @@ void main() {
 
         else if (ourColor.b > 79.9) texColor = texture(bloodPartTex, TexCoord);
 
-        else if (ourColor.b > 52.9) texColor = texture(ammoRifleTex, TexCoord); // ID 53
-        else if (ourColor.b > 51.9) texColor = texture(rifleShootTex, TexCoord);// ID 52
-        else if (ourColor.b > 50.9) texColor = texture(rifleViewTex, TexCoord); // ID 51
-        else if (ourColor.b > 49.9) texColor = texture(rifleTex, TexCoord);     // ID 50
+        else if (ourColor.b > 52.9) texColor = texture(ammoRifleTex, TexCoord); 
+        else if (ourColor.b > 51.9) texColor = texture(rifleShootTex, TexCoord);
+        else if (ourColor.b > 50.9) texColor = texture(rifleViewTex, TexCoord); 
+        else if (ourColor.b > 49.9) texColor = texture(rifleTex, TexCoord);     
 
         else if (ourColor.b > 35.9) {
              texColor = texture(doorTexture, TexCoord);
@@ -319,7 +321,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[53];
+    GLuint t[54];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -357,6 +359,7 @@ int main() {
     t[50] = loadTexture("rifle_view.png");
     t[51] = loadTexture("rifle_view_shoot.png");
     t[52] = loadTexture("ammunition_rifle.png");
+    t[53] = loadTexture("hud_overlay.png");
 
     glUseProgram(p);
     GLint useTextureLoc = glGetUniformLocation(p, "useTexture");
@@ -372,11 +375,11 @@ int main() {
         "keyGreenTex", "keyRedTex",
         "dGreenL", "dGreenO", "dRedL", "dRedO", "dDualL", "dDualO",
         "dCodeL", "dCodeO", "keypadRed", "keypadGreen",
-        "rifleTex", "rifleViewTex", "rifleShootTex", "ammoRifleTex" };
+        "rifleTex", "rifleViewTex", "rifleShootTex", "ammoRifleTex", "hudTexture" };
 
-    for (int i = 0; i < 53; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 54; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
 
-    for (int i = 0; i < 53; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 54; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -850,16 +853,63 @@ int main() {
                 float gunID = isShooting ? 52.0f : 51.0f;
                 if (isShooting) glActiveTexture(GL_TEXTURE0 + 51);
 
-                drawQuad2D(vertices, 0.15f + bobX + recoilX, -0.5f - bobY + recoilY, 0.45f, 0.40f, gunID); //0.45
+                drawQuad2D(vertices, 0.15f + bobX + recoilX, -0.5f - bobY + recoilY, 0.45f, 0.40f, gunID);
             }
 
-            float bC = 8.0f; vertices.insert(vertices.end(), { -1,-0.75f,1,1,bC,0,0, 1,-0.75f,1,1,bC,0,0, 1,-1,1,1,bC,0,0, -1,-0.75f,1,1,bC,0,0, 1,-1,1,1,bC,0,0, -1,-1,1,1,bC,0,0 });
-            glActiveTexture(GL_TEXTURE3); drawText(vertices, -0.95f, -0.90f, 0.05f, "HP: " + std::to_string(playerHealth) + "%");
-            if (playerArmor > 0) drawText(vertices, -0.55f, -0.90f, 0.05f, "ARMOR: " + std::to_string(playerArmor));
-            if (currentWeapon == 0) drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: FISTS");
-            else if (currentWeapon == 1) { drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: PISTOL"); drawText(vertices, 0.7f, -0.90f, 0.05f, "AMMO: " + std::to_string(ammoPistol)); }
-            else if (currentWeapon == 2) { drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: SHOTGUN"); drawText(vertices, 0.7f, -0.90f, 0.05f, "AMMO: " + std::to_string(ammoShotgun)); }
-            else if (currentWeapon == 3) { drawText(vertices, -0.25f, -0.90f, 0.05f, "WEAPON: RIFLE"); drawText(vertices, 0.7f, -0.90f, 0.05f, "AMMO: " + std::to_string(ammoRifle)); }
+            glActiveTexture(GL_TEXTURE0 + 53);
+            drawQuad2D(vertices, 0.0f, -0.87f, 0.75f, 0.13f, 125.0f);
+
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+            vertices.clear();
+
+            glActiveTexture(GL_TEXTURE3);
+
+            float hpLabelX = -0.60f;
+            float hpLabelY = -0.84f;
+
+            float hpValueX = -0.65f;
+            float hpValueY = -0.92f;
+
+            drawText(vertices, hpLabelX, hpLabelY, 0.04f, "HP");
+            drawText(vertices, hpValueX, hpValueY, 0.07f, std::to_string(playerHealth));
+
+            if (playerArmor > 0) {
+                float armLabelX = -0.40f;
+                float armLabelY = -0.84f;
+
+                float armValueX = -0.415f;
+                float armValueY = -0.92f;
+
+                drawText(vertices, armLabelX, armLabelY, 0.04f, "ARMOR");
+                drawText(vertices, armValueX, armValueY, 0.07f, std::to_string(playerArmor));
+            }
+
+            if (currentWeapon == 0) drawText(vertices, 0.28f, -0.85f, 0.04f, "WEAPON: FISTS");
+            else if (currentWeapon == 1) {
+                drawText(vertices, 0.28f, -0.85f, 0.04f, "WEAPON: PISTOL");
+                drawText(vertices, 0.28f, -0.93f, 0.04f, "AMMO: " + std::to_string(ammoPistol));
+            }
+            else if (currentWeapon == 2) {
+                drawText(vertices, 0.28f, -0.85f, 0.04f, "WEAPON: SHOTGUN");
+                drawText(vertices, 0.28f, -0.93f, 0.04f, "AMMO: " + std::to_string(ammoShotgun));
+            }
+            else if (currentWeapon == 3) {
+                drawText(vertices, 0.28f, -0.85f, 0.04f, "WEAPON: RIFLE");
+                drawText(vertices, 0.28f, -0.93f, 0.04f, "AMMO: " + std::to_string(ammoRifle));
+            }
+
+            float centerX = -0.1f;
+            float cardY = -0.87f;
+            float cardSize = 0.06f;
+
+            if (hasGreenKey) {
+                drawQuad2D(vertices, centerX, cardY, cardSize, cardSize, 101.0f);
+                centerX += 0.12f;
+            }
+            if (hasRedKey) {
+                drawQuad2D(vertices, centerX, cardY, cardSize, cardSize, 102.0f);
+            }
 
             glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
             glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));

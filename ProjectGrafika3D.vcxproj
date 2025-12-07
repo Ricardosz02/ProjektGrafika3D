@@ -177,6 +177,7 @@
     <Image Include="hand_attack_right_2.png" />
     <Image Include="hand_idle.png" />
     <Image Include="hit.png" />
+    <Image Include="hud_overlay.png" />
     <Image Include="keypad_ui_green.png" />
     <Image Include="keypad_ui_red.png" />
     <Image Include="mecidal.png" />
