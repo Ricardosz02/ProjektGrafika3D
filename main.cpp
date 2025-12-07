@@ -735,7 +735,7 @@ int main() {
                     int scrX = int(screenWidth / 2 * (1 + tX / tY));
                     float scale = 1.0f;
                     if (s.isWeapon) {
-                        if (s.type == 0)scale = 0.3f; if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5)scale = 0.4f;
+                        if (s.type == 0)scale = 0.3f; if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5 || s.type == 9)scale = 0.4f;
                         else if (s.type == 6 || s.type == 7) scale = 0.4f;
                     }
                     if (s.type == 999) scale = 0.5f;
@@ -758,9 +758,23 @@ int main() {
                         if (s.type == 999) vOffset = -abs(int(screenHeight / tY)) * 0.3f;
                     }
                     if (s.isWeapon) {
-                        if (s.type != OBJECT_HOLE_PISTOL && s.type != OBJECT_HOLE_SHOTGUN) {
-                            float time = (float)glfwGetTime();
+                        float time = (float)glfwGetTime();
+                        float wallH = screenHeight / tY;
+
+                        if (s.type == OBJECT_HOLE_PISTOL || s.type == OBJECT_HOLE_SHOTGUN) {
+                            vOffset = 0.0f;
+                        }
+
+                        else if (s.type == 6 || s.type == 7 || s.type == 0 || s.type == 1 || s.type == 8) {
+                            float highDrop = wallH * 0.6f;
+
                             vOffset = sin(time * 4.0f + s.x) * 10.0f;
+                        }
+
+                        else {
+                            float lowDrop = wallH * 0.6f;
+
+                            vOffset = sin(time * 3.0f + s.x) * 3.0f + lowDrop;
                         }
                     }
 
