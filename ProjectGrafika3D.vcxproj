@@ -198,6 +198,8 @@
     <Image Include="rifle.png" />
     <Image Include="rifle_view.png" />
     <Image Include="rifle_view_shoot.png" />
+    <Image Include="shell.png" />
+    <Image Include="shell_shotgun.png" />
     <Image Include="shotgun.png" />
     <Image Include="shotgun_view_128.png" />
     <Image Include="shotgun_view_128_shoot.png" />

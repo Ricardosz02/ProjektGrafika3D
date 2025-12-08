@@ -214,5 +214,11 @@
     <Image Include="hud_overlay.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="shell_shotgun.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="shell.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
 </Project>

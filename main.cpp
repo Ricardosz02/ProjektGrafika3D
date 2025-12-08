@@ -1,16 +1,16 @@
-#include "config.h" 
-#include "Map.h"      
-#include "Goblin.h"   
-#include "Weapon.h"    
-#include "stb_image.h" 
+#include "config.h"
+#include "Map.h"
+#include "Goblin.h"
+#include "Weapon.h"
+#include "stb_image.h"
 #include <cmath>
 #include <vector>
 #include <iostream>
-#include <algorithm> 
-#include <string>        
+#include <algorithm>
+#include <string>
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846f 
+#define M_PI 3.14159265358979323846f
 #endif
 
 float playerX = 2.5f;
@@ -46,6 +46,17 @@ std::vector<HitMarker> hitMarkers;
 struct BulletFlash { float x, y, dirX, dirY, life; };
 std::vector<BulletFlash> bulletFlashes;
 
+struct Shell {
+    float x, y;
+    float vx, vy;
+    float rotation;
+    float vrot;
+    float scale;
+    int type;
+    float life;
+};
+std::vector<Shell> shells;
+
 extern int (*worldMap)[MAP_WIDTH];
 int activeMapIndex = 1;
 
@@ -60,12 +71,24 @@ void updateSprites(float playerX, float playerY, int& health, int& armor) {
     updateBloodParticles(0.016f);
 }
 
+void updateShells(float dt) {
+    for (auto& s : shells) {
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        s.vy -= 3.0f * dt;
+        s.rotation += s.vrot * dt;
+        s.life -= dt;
+    }
+    shells.erase(std::remove_if(shells.begin(), shells.end(),
+        [](const Shell& s) { return s.life <= 0.0f || s.y < -1.2f; }), shells.end());
+}
+
 const char* vertexShaderSource = R"glsl(
 #version 330 core
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec3 aColor;
 layout(location = 2) in vec2 aTexCoord;
-out vec3 ourColor; out vec2 TexCoord;                        
+out vec3 ourColor; out vec2 TexCoord;
 void main() { gl_Position = vec4(aPos, 0.0, 1.0); ourColor = aColor; TexCoord = aTexCoord; }
 )glsl";
 
@@ -127,33 +150,37 @@ uniform sampler2D rifleViewTex;      // 50
 uniform sampler2D rifleShootTex;     // 51
 uniform sampler2D ammoRifleTex;      // 52
 uniform sampler2D hudTexture;        // 53
+uniform sampler2D shellTex;          // 54
+uniform sampler2D shellShotgunTex;   // 55
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity;
-uniform float horizon; 
-uniform float flashIntensity; 
+uniform float horizon;
+uniform float flashIntensity;
 
 void main() {
     if (useTexture) {
         vec4 texColor;
         bool isBlood = false;
-        
+
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        if (ourColor.b > 124.9)      texColor = texture(hudTexture, TexCoord); 
-        else if (ourColor.b > 119.9) texColor = texture(keypadGreen, TexCoord); 
-        else if (ourColor.b > 118.9) texColor = texture(keypadRed, TexCoord);   
-        else if (ourColor.b > 110.9) texColor = texture(dCodeO, TexCoord);      
-        else if (ourColor.b > 109.9) texColor = texture(dCodeL, TexCoord);      
-        else if (ourColor.b > 107.9) texColor = texture(dDualO, TexCoord);      
-        else if (ourColor.b > 106.9) texColor = texture(dDualL, TexCoord);      
-        else if (ourColor.b > 105.9) texColor = texture(dRedO, TexCoord);       
-        else if (ourColor.b > 104.9) texColor = texture(dRedL, TexCoord);       
-        else if (ourColor.b > 103.9) texColor = texture(dGreenO, TexCoord);     
-        else if (ourColor.b > 102.9) texColor = texture(dGreenL, TexCoord);     
+        if (ourColor.b > 130.9)      texColor = texture(shellShotgunTex, TexCoord);
+        else if (ourColor.b > 129.9) texColor = texture(shellTex, TexCoord);
+        else if (ourColor.b > 124.9) texColor = texture(hudTexture, TexCoord);
+        else if (ourColor.b > 119.9) texColor = texture(keypadGreen, TexCoord);
+        else if (ourColor.b > 118.9) texColor = texture(keypadRed, TexCoord);
+        else if (ourColor.b > 110.9) texColor = texture(dCodeO, TexCoord);
+        else if (ourColor.b > 109.9) texColor = texture(dCodeL, TexCoord);
+        else if (ourColor.b > 107.9) texColor = texture(dDualO, TexCoord);
+        else if (ourColor.b > 106.9) texColor = texture(dDualL, TexCoord);
+        else if (ourColor.b > 105.9) texColor = texture(dRedO, TexCoord);
+        else if (ourColor.b > 104.9) texColor = texture(dRedL, TexCoord);
+        else if (ourColor.b > 103.9) texColor = texture(dGreenO, TexCoord);
+        else if (ourColor.b > 102.9) texColor = texture(dGreenL, TexCoord);
 
-        else if (ourColor.b > 101.9) texColor = texture(keyRedTex, TexCoord);   
-        else if (ourColor.b > 100.9) texColor = texture(keyGreenTex, TexCoord); 
+        else if (ourColor.b > 101.9) texColor = texture(keyRedTex, TexCoord);
+        else if (ourColor.b > 100.9) texColor = texture(keyGreenTex, TexCoord);
 
         else if (ourColor.b > 98.9) texColor = texture(holeShotgunTex, TexCoord);
         else if (ourColor.b > 97.9) texColor = texture(holePistolTex, TexCoord);
@@ -161,11 +188,12 @@ void main() {
         else if (ourColor.b > 95.9) {
              float dist = distance(TexCoord, vec2(0.5, 0.5));
              if (dist > 0.5) discard;
-             texColor = vec4(0.0, 0.0, 0.0, 0.6 * (1.0 - dist * 2.0)); 
+             float alpha = 0.6 * (1.0 - dist * 2.0);
+             texColor = vec4(0.0, 0.0, 0.0, alpha);
         }
 
         else if (ourColor.b > 94.9) {
-             texColor = vec4(0.0, 0.0, 0.0, 0.75); 
+             texColor = vec4(0.0, 0.0, 0.0, 0.75);
         }
 
         else if (ourColor.b > 89.9) {
@@ -174,10 +202,10 @@ void main() {
 
         else if (ourColor.b > 79.9) texColor = texture(bloodPartTex, TexCoord);
 
-        else if (ourColor.b > 52.9) texColor = texture(ammoRifleTex, TexCoord); 
+        else if (ourColor.b > 52.9) texColor = texture(ammoRifleTex, TexCoord);
         else if (ourColor.b > 51.9) texColor = texture(rifleShootTex, TexCoord);
-        else if (ourColor.b > 50.9) texColor = texture(rifleViewTex, TexCoord); 
-        else if (ourColor.b > 49.9) texColor = texture(rifleTex, TexCoord);     
+        else if (ourColor.b > 50.9) texColor = texture(rifleViewTex, TexCoord);
+        else if (ourColor.b > 49.9) texColor = texture(rifleTex, TexCoord);
 
         else if (ourColor.b > 35.9) {
              texColor = texture(doorTexture, TexCoord);
@@ -195,11 +223,11 @@ void main() {
              texColor = texture(wallTexture, TexCoord);
         }
         else if (ourColor.b > 29.9) {
-            vec4 imgColor = texture(bloodScreenTex, TexCoord); 
+            vec4 imgColor = texture(bloodScreenTex, TexCoord);
             isBlood = true;
             texColor.rgb = mix(bloodRed, imgColor.rgb, imgColor.a);
             float finalAlpha = max(0.6, imgColor.a);
-            texColor.a = finalAlpha * damageIntensity; 
+            texColor.a = finalAlpha * damageIntensity;
             texColor = vec4(texColor.rgb, texColor.a);
         }
         else if (ourColor.b > 26.9) {
@@ -216,60 +244,60 @@ void main() {
             texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
         }
         else if (ourColor.b > 22.9) texColor = texture(medkitTexture, TexCoord);
-        else if (ourColor.b > 21.9) texColor = texture(wFight2Tex, TexCoord); 
-        else if (ourColor.b > 20.9) texColor = texture(wFight1Tex, TexCoord); 
-        else if (ourColor.b > 19.9) texColor = texture(wHitTex, TexCoord);    
-        else if (ourColor.b > 18.9) texColor = texture(wWalk3Tex, TexCoord);  
-        else if (ourColor.b > 17.9) texColor = texture(wWalk2Tex, TexCoord);  
-        else if (ourColor.b > 16.9) texColor = texture(wWalk1Tex, TexCoord);  
+        else if (ourColor.b > 21.9) texColor = texture(wFight2Tex, TexCoord);
+        else if (ourColor.b > 20.9) texColor = texture(wFight1Tex, TexCoord);
+        else if (ourColor.b > 19.9) texColor = texture(wHitTex, TexCoord);
+        else if (ourColor.b > 18.9) texColor = texture(wWalk3Tex, TexCoord);
+        else if (ourColor.b > 17.9) texColor = texture(wWalk2Tex, TexCoord);
+        else if (ourColor.b > 16.9) texColor = texture(wWalk1Tex, TexCoord);
         else if (ourColor.b > 15.9) texColor = texture(fireballTexture, TexCoord);
         else if (ourColor.b > 14.9) texColor = texture(fly3Texture, TexCoord);
         else if (ourColor.b > 13.9) texColor = texture(fly2Texture, TexCoord);
         else if (ourColor.b > 12.9) texColor = texture(fly1Texture, TexCoord);
-        else if (ourColor.b > 11.9) texColor = texture(ammoShotgunTexture, TexCoord); 
-        else if (ourColor.b > 10.9) texColor = texture(ammoPistolTexture, TexCoord);  
+        else if (ourColor.b > 11.9) texColor = texture(ammoShotgunTexture, TexCoord);
+        else if (ourColor.b > 10.9) texColor = texture(ammoPistolTexture, TexCoord);
         else if (ourColor.b > 9.9) {
             vec4 wCol = texture(shotgunViewTexture, TexCoord);
             texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
         }
-        else if (ourColor.b > 8.9)  texColor = texture(shotgunTexture, TexCoord);     
-        else if (ourColor.b > 7.9)  texColor = vec4(0.2, 0.2, 0.2, 1.0);              
+        else if (ourColor.b > 8.9)  texColor = texture(shotgunTexture, TexCoord);
+        else if (ourColor.b > 7.9)  texColor = vec4(0.2, 0.2, 0.2, 1.0);
         else if (ourColor.b > 6.9)  {
              vec4 wCol = texture(weaponViewTexture, TexCoord);
              texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
         }
         else if (ourColor.b > 5.9) {
-            float p = gl_FragCoord.y - (screenHeight / 2.0); 
-            if (p < 1.0) p = 1.0; 
+            float p = gl_FragCoord.y - (screenHeight / 2.0);
+            if (p < 1.0) p = 1.0;
             float posZ = 0.5 * screenHeight; float rowDistance = posZ / p;
             float cameraX = (gl_FragCoord.x / screenWidth) * 2.0 - 1.0;
             float rayDirX = cos(playerDir) + cos(playerDir+1.5708)*cameraX;
             float rayDirY = sin(playerDir) + sin(playerDir+1.5708)*cameraX;
             vec2 ceilPos = playerPos + rowDistance * vec2(rayDirX, rayDirY);
-            
+
             float light = min(1.0, 3.5 / rowDistance);
             texColor = texture(ceilingTexture, ceilPos) * vec4(light, light, light, 1.0);
 
-        } else if (ourColor.b > 4.9) { 
-            float p = (screenHeight / 2.0) - gl_FragCoord.y; 
-            if (p < 1.0) p = 1.0; 
+        } else if (ourColor.b > 4.9) {
+            float p = (screenHeight / 2.0) - gl_FragCoord.y;
+            if (p < 1.0) p = 1.0;
             float posZ = 0.5 * screenHeight; float rowDistance = posZ / p;
             float cameraX = (gl_FragCoord.x / screenWidth) * 2.0 - 1.0;
             float rayDirX = cos(playerDir) + cos(playerDir+1.5708)*cameraX;
             float rayDirY = sin(playerDir) + sin(playerDir+1.5708)*cameraX;
             vec2 floorPos = playerPos + rowDistance * vec2(rayDirX, rayDirY);
-            
+
             float light = min(1.0, 3.5 / rowDistance);
             texColor = texture(floorTexture, floorPos) * vec4(light, light, light, 1.0);
 
-        } else if (ourColor.b > 3.9) texColor = texture(hitTexture, TexCoord); 
+        } else if (ourColor.b > 3.9) texColor = texture(hitTexture, TexCoord);
         else if (ourColor.b > 2.9) texColor = texture(fontTexture, TexCoord);
         else if (ourColor.b > 1.9) texColor = texture(pistolTexture, TexCoord);
-        else if (ourColor.b > 0.99) texColor = texture(monsterTexture, TexCoord); 
+        else if (ourColor.b > 0.99) texColor = texture(monsterTexture, TexCoord);
         else texColor = texture(wallTexture, TexCoord);
-        
-        if (!isBlood && texColor.a < 0.1) discard; 
-        
+
+        if (!isBlood && texColor.a < 0.1) discard;
+
         if (!isBlood) FragColor = texColor * vec4(ourColor.r, ourColor.r, ourColor.r, 1.0);
         else FragColor = texColor;
     } else { FragColor = vec4(ourColor, 1.0); }
@@ -304,6 +332,32 @@ void drawQuad2D(std::vector<float>& v, float x, float y, float w, float h, float
     v.insert(v.end(), { x1,y2,1,1,cB,0,1, x2,y2,1,1,cB,1,1, x2,y1,1,1,cB,1,0, x1,y2,1,1,cB,0,1, x2,y1,1,1,cB,1,0, x1,y1,1,1,cB,0,0 });
 }
 
+void drawRotatedQuad2D(std::vector<float>& v, float x, float y, float w, float h, float angle, float cB) {
+    float halfW = w / 2.0f;
+    float halfH = h / 2.0f;
+
+    float localX[4] = { -halfW,  halfW,  halfW, -halfW };
+    float localY[4] = { halfH,  halfH, -halfH, -halfH };
+
+    float cosA = cos(angle);
+    float sinA = sin(angle);
+
+    float finalX[4], finalY[4];
+
+    for (int i = 0; i < 4; i++) {
+        finalX[i] = x + (localX[i] * cosA - localY[i] * sinA);
+        finalY[i] = y + (localX[i] * sinA + localY[i] * cosA);
+    }
+
+    v.insert(v.end(), { finalX[3], finalY[3], 1,1, cB, 0, 1 });
+    v.insert(v.end(), { finalX[2], finalY[2], 1,1, cB, 1, 1 });
+    v.insert(v.end(), { finalX[1], finalY[1], 1,1, cB, 1, 0 });
+
+    v.insert(v.end(), { finalX[3], finalY[3], 1,1, cB, 0, 1 });
+    v.insert(v.end(), { finalX[1], finalY[1], 1,1, cB, 1, 0 });
+    v.insert(v.end(), { finalX[0], finalY[0], 1,1, cB, 0, 0 });
+}
+
 void drawChar(std::vector<float>& v, float x, float y, float s, char c) {
     if (c < 32 || c>126) return; int col = (c - 32) % 16, row = (c - 32) / 16; float cw = 1.0f / 16, ch = 1.0f / 6;
     float u1 = col * cw, v1 = 1 - (row + 1) * ch, u2 = (col + 1) * cw, v2 = 1 - row * ch;
@@ -333,7 +387,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[54];
+    GLuint t[56];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -372,6 +426,8 @@ int main() {
     t[51] = loadTexture("rifle_view_shoot.png");
     t[52] = loadTexture("ammunition_rifle.png");
     t[53] = loadTexture("hud_overlay.png");
+    t[54] = loadTexture("shell.png");          // 54
+    t[55] = loadTexture("shell_shotgun.png");  // 55
 
     glUseProgram(p);
     GLint useTextureLoc = glGetUniformLocation(p, "useTexture");
@@ -387,11 +443,12 @@ int main() {
         "keyGreenTex", "keyRedTex",
         "dGreenL", "dGreenO", "dRedL", "dRedO", "dDualL", "dDualO",
         "dCodeL", "dCodeO", "keypadRed", "keypadGreen",
-        "rifleTex", "rifleViewTex", "rifleShootTex", "ammoRifleTex", "hudTexture" };
+        "rifleTex", "rifleViewTex", "rifleShootTex", "ammoRifleTex", "hudTexture",
+        "shellTex", "shellShotgunTex" };
 
-    for (int i = 0; i < 54; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 56; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
 
-    for (int i = 0; i < 54; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 56; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -404,6 +461,8 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+
+        updateShells(0.016f);
 
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !ePressedLastFrame) {
             float interactDist = 1.0f;
@@ -467,9 +526,39 @@ int main() {
 
                 if (currentWeapon > 0) bulletFlashes.push_back({ playerX + cos(playerDir) * 0.2f, playerY + sin(playerDir) * 0.2f, cos(playerDir), sin(playerDir), 2.0f });
 
-                if (currentWeapon == 1) { isShooting = true; shootTimer = 0.15f; }
-                else if (currentWeapon == 2) { isShooting = true; shootTimer = 0.40f; }
-                else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.10f; }
+                if (currentWeapon > 0) {
+                    Shell s;
+                    s.x = 0.35f;
+                    s.y = -0.5f;
+                    s.life = 2.0f;
+                    s.rotation = 0.0f;
+
+                    float rnd = (float)rand() / RAND_MAX;
+                    s.vx = 0.2f + rnd * 0.2f;
+                    s.vy = 1.0f + rnd * 0.4f;
+                    s.vrot = 5.0f + rnd * 5.0f;
+
+                    if (currentWeapon == 2) {
+                        s.type = 1; // shotgun
+                        s.scale = 0.08f;
+                        s.vx = 0.15f + rnd * 0.1f;
+                    }
+                    else {
+                        s.type = 0; // pistol/rifle
+                        s.scale = 0.05f;
+                    }
+                    shells.push_back(s);
+                }
+
+                if (currentWeapon == 1) {
+                    isShooting = true; shootTimer = 0.15f;
+                }
+                else if (currentWeapon == 2) {
+                    isShooting = true; shootTimer = 0.40f;
+                }
+                else if (currentWeapon == 3) {
+                    isShooting = true; shootTimer = 0.10f;
+                }
                 else if (currentWeapon == 0) {
                     isShooting = true;
                     shootTimer = 0.6f;
@@ -752,10 +841,8 @@ int main() {
                     int scrX = int(screenWidth / 2 * (1 + tX / tY));
                     float scale = 1.0f;
                     if (s.isWeapon) {
-                        if (s.type == 0) scale = 0.3f;
+                        if (s.type == 0)scale = 0.3f; if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5 || s.type == 9)scale = 0.4f;
                         else if (s.type == 6 || s.type == 7) scale = 0.4f;
-                        else if (s.type == 8) scale = 0.4f;
-                        else if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5 || s.type == 9) scale = 0.25f;
                     }
                     if (s.type == 999) scale = 0.5f;
                     if (s.type == OBJECT_BLOOD) scale = 0.1f;
@@ -919,6 +1006,11 @@ int main() {
                 if (isShooting) glActiveTexture(GL_TEXTURE0 + 51);
 
                 drawQuad2D(vertices, 0.15f + bobX + recoilX, -0.5f - bobY + recoilY, 0.45f, 0.40f, gunID);
+            }
+
+            for (const auto& s : shells) {
+                float cID = (s.type == 1) ? 131.0f : 130.0f;
+                drawRotatedQuad2D(vertices, s.x, s.y, s.scale, s.scale, s.rotation, cID);
             }
 
             glActiveTexture(GL_TEXTURE0 + 53);
