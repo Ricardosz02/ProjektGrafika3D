@@ -161,7 +161,7 @@ void main() {
         else if (ourColor.b > 95.9) {
              float dist = distance(TexCoord, vec2(0.5, 0.5));
              if (dist > 0.5) discard;
-             texColor = vec4(0.0, 0.0, 0.0, 0.7 * (1.0 - dist * 2.0));
+             texColor = vec4(0.0, 0.0, 0.0, 0.6 * (1.0 - dist * 2.0)); 
         }
 
         else if (ourColor.b > 94.9) {
@@ -246,7 +246,11 @@ void main() {
             float rayDirX = cos(playerDir) + cos(playerDir+1.5708)*cameraX;
             float rayDirY = sin(playerDir) + sin(playerDir+1.5708)*cameraX;
             vec2 ceilPos = playerPos + rowDistance * vec2(rayDirX, rayDirY);
-            texColor = texture(ceilingTexture, ceilPos) * vec4(0.8, 0.8, 0.8, 1.0);
+            
+            // --- EFEKT LATARKI (Sufit) ---
+            float light = min(1.0, 3.5 / rowDistance);
+            texColor = texture(ceilingTexture, ceilPos) * vec4(light, light, light, 1.0);
+
         } else if (ourColor.b > 4.9) { 
             float p = (screenHeight / 2.0) - gl_FragCoord.y; 
             if (p < 1.0) p = 1.0; 
@@ -255,7 +259,11 @@ void main() {
             float rayDirX = cos(playerDir) + cos(playerDir+1.5708)*cameraX;
             float rayDirY = sin(playerDir) + sin(playerDir+1.5708)*cameraX;
             vec2 floorPos = playerPos + rowDistance * vec2(rayDirX, rayDirY);
-            texColor = texture(floorTexture, floorPos) * vec4(0.8, 0.8, 0.8, 1.0);
+            
+            // --- EFEKT LATARKI (Pod³oga) ---
+            float light = min(1.0, 3.5 / rowDistance);
+            texColor = texture(floorTexture, floorPos) * vec4(light, light, light, 1.0);
+
         } else if (ourColor.b > 3.9) texColor = texture(hitTexture, TexCoord); 
         else if (ourColor.b > 2.9) texColor = texture(fontTexture, TexCoord);
         else if (ourColor.b > 1.9) texColor = texture(pistolTexture, TexCoord);
@@ -653,6 +661,12 @@ int main() {
                 float r = (type == 9) ? 1 : (type == 1 ? 0.4 : ((type >= 2 && type <= 5) || type == 8 ? 1.0 : 0.6)), g = r, b = (type == 9) ? 0 : r;
                 if (side) r *= 0.7, g *= 0.7, b *= 0.7;
 
+                // --- EFEKT LATARKI NA ŒCIANACH ---
+                float light = 3.5f / (perp + 0.1f);
+                if (light > 1.0f) light = 1.0f;
+                r *= light;
+                g *= light;
+
                 float wX = (side == 0) ? playerY + perp * rDY : playerX + perp * rDX; wX -= floor(wX);
                 float tX = wX;
                 if ((side == 0 && rDX > 0) || (side == 1 && rDY < 0)) tX = 1 - tX;
@@ -755,14 +769,18 @@ int main() {
                     float shadowWidthFactor = 0.0f;
                     float wallH = screenHeight / tY;
 
-                    if (s.isWeapon) {
+                    if (s.type == 999) {
                         float time = (float)glfwGetTime();
-
+                        vOffset = sin(time * 15.0f + s.x) * 5.0f;
+                        shadowWidthFactor = 0.8f;
+                    }
+                    else if (s.isWeapon) {
+                        float time = (float)glfwGetTime();
                         if (s.type == OBJECT_HOLE_PISTOL || s.type == OBJECT_HOLE_SHOTGUN) {
                             vOffset = 0.0f;
                         }
                         else if (s.type == 6 || s.type == 7 || s.type == 0 || s.type == 1 || s.type == 8) {
-                            float highDrop = wallH * 0.6f;
+                            // Usun¹³em highDrop z vOffset, ¿eby bronie lewitowa³y wy¿ej (tak jak by³o wczeœniej)
                             vOffset = sin(time * 4.0f + s.x) * 10.0f;
 
                             float bobSine = sin(time * 4.0f + s.x);
@@ -787,7 +805,7 @@ int main() {
                         int sH_item = abs(int(screenHeight / tY * scale));
                         int sW_item = sH_item / 2;
 
-                        int sW_shadow = sW_item * shadowWidthFactor * 2.0f;
+                        int sW_shadow = sW_item * shadowWidthFactor * 1.2f;
                         int sH_shadow = sH_item * 0.15f;
 
                         float floorStatic = 0.0f;
@@ -804,7 +822,11 @@ int main() {
                             if (str >= 0 && str < screenWidth && tY < zBuffer[str]) {
                                 float texX = (float)(str - dS) / sW_shadow;
                                 float xL = 2.0f * str / screenWidth - 1, xR = 2.0f * (str + 1) / screenWidth - 1;
-                                vertices.insert(vertices.end(), { xL,ndcS,1,1,96.0f,texX,1, xR,ndcS,1,1,96.0f,texX,1, xR,ndcE,1,1,96.0f,texX,0, xL,ndcS,1,1,96.0f,texX,1, xR,ndcE,1,1,96.0f,texX,0, xL,ndcE,1,1,96.0f,texX,0 });
+                                // --- EFEKT LATARKI NA CIENIU ---
+                                float sLight = 3.5f / (tY + 0.1f);
+                                if (sLight > 1.0f) sLight = 1.0f;
+                                // U¿ywamy sLight te¿ dla cienia, ¿eby nie œwieci³ w ciemnoœci
+                                vertices.insert(vertices.end(), { xL,ndcS,sLight,sLight,96.0f,texX,1, xR,ndcS,sLight,sLight,96.0f,texX,1, xR,ndcE,sLight,sLight,96.0f,texX,0, xL,ndcS,sLight,sLight,96.0f,texX,1, xR,ndcE,sLight,sLight,96.0f,texX,0, xL,ndcE,sLight,sLight,96.0f,texX,0 });
                             }
                         }
                     }
@@ -821,6 +843,10 @@ int main() {
                             float ndcS = 1 - 2.0f * (screenHeight / 2 - sH / 2 + vOffset) / screenHeight;
                             float ndcE = 1 - 2.0f * (screenHeight / 2 + sH / 2 + vOffset) / screenHeight;
                             float xL = 2.0f * str / screenWidth - 1, xR = 2.0f * (str + 1) / screenWidth - 1;
+
+                            // --- EFEKT LATARKI NA SPRITE'ACH ---
+                            float sLight = 3.5f / (tY + 0.1f);
+                            if (sLight > 1.0f) sLight = 1.0f;
 
                             float id = 1.0f;
                             if (s.type == 999) id = 16.0f;
@@ -840,7 +866,7 @@ int main() {
                                 else if (s.state == 1) { if (s.fightFrame == 0) id = 21.0f; else id = 22.0f; }
                                 else { if (s.walkStep == 0) id = 17.0f; else if (s.walkStep == 1) id = 19.0f; else if (s.walkStep == 2) id = 17.0f; else id = 18.0f; }
                             }
-                            vertices.insert(vertices.end(), { xL,ndcS,1,1,id,texX,1, xR,ndcS,1,1,id,texX,1, xR,ndcE,1,1,id,texX,0, xL,ndcS,1,1,id,texX,1, xR,ndcE,1,1,id,texX,0, xL,ndcE,1,1,id,texX,0 });
+                            vertices.insert(vertices.end(), { xL,ndcS,sLight,sLight,id,texX,1, xR,ndcS,sLight,sLight,id,texX,1, xR,ndcE,sLight,sLight,id,texX,0, xL,ndcS,sLight,sLight,id,texX,1, xR,ndcE,sLight,sLight,id,texX,0, xL,ndcE,sLight,sLight,id,texX,0 });
                         }
                     }
                 }
