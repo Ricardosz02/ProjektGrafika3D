@@ -158,6 +158,12 @@ void main() {
         else if (ourColor.b > 98.9) texColor = texture(holeShotgunTex, TexCoord);
         else if (ourColor.b > 97.9) texColor = texture(holePistolTex, TexCoord);
 
+        else if (ourColor.b > 95.9) {
+             float dist = distance(TexCoord, vec2(0.5, 0.5));
+             if (dist > 0.5) discard;
+             texColor = vec4(0.0, 0.0, 0.0, 0.7 * (1.0 - dist * 2.0));
+        }
+
         else if (ourColor.b > 94.9) {
              texColor = vec4(0.0, 0.0, 0.0, 0.75); 
         }
@@ -735,50 +741,76 @@ int main() {
                     int scrX = int(screenWidth / 2 * (1 + tX / tY));
                     float scale = 1.0f;
                     if (s.isWeapon) {
-                        if (s.type == 0)scale = 0.3f; if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5 || s.type == 9)scale = 0.4f;
+                        if (s.type == 0) scale = 0.3f;
                         else if (s.type == 6 || s.type == 7) scale = 0.4f;
+                        else if (s.type == 8) scale = 0.4f;
+                        else if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5 || s.type == 9) scale = 0.25f;
                     }
                     if (s.type == 999) scale = 0.5f;
-
                     if (s.type == OBJECT_BLOOD) scale = 0.1f;
-
                     if (s.type == OBJECT_HOLE_PISTOL) scale = 0.15f;
                     if (s.type == OBJECT_HOLE_SHOTGUN) scale = 0.30f;
 
                     float vOffset = 0.0f;
+                    float shadowWidthFactor = 0.0f;
+                    float wallH = screenHeight / tY;
 
-                    if (s.type == OBJECT_BLOOD) {
-                        int normalH = abs(int(screenHeight / tY));
-                        vOffset = -s.zOffset * normalH;
-                    }
-
-                    else if (!s.isWeapon) {
-                        if (s.type == 2) { scale = 0.8f; int normalH = abs(int(screenHeight / tY)); vOffset = -normalH * 0.4f; }
-                        if (s.type == 3) { scale = 0.5f; int normalH = abs(int(screenHeight / tY)); int sH_calc = abs(int((screenHeight / tY) * scale)); vOffset = (normalH - sH_calc) / 2.0f; }
-                        if (s.type == 999) vOffset = -abs(int(screenHeight / tY)) * 0.3f;
-                    }
                     if (s.isWeapon) {
                         float time = (float)glfwGetTime();
-                        float wallH = screenHeight / tY;
 
                         if (s.type == OBJECT_HOLE_PISTOL || s.type == OBJECT_HOLE_SHOTGUN) {
                             vOffset = 0.0f;
                         }
-
                         else if (s.type == 6 || s.type == 7 || s.type == 0 || s.type == 1 || s.type == 8) {
                             float highDrop = wallH * 0.6f;
-
                             vOffset = sin(time * 4.0f + s.x) * 10.0f;
-                        }
 
+                            float bobSine = sin(time * 4.0f + s.x);
+                            shadowWidthFactor = 1.0f - (bobSine * 0.3f);
+                        }
                         else {
                             float lowDrop = wallH * 0.6f;
-
                             vOffset = sin(time * 3.0f + s.x) * 3.0f + lowDrop;
+
+                            float bobSine = sin(time * 3.0f + s.x);
+                            shadowWidthFactor = 1.0f - (bobSine * 0.3f);
+                        }
+                    }
+                    else if (s.type == OBJECT_BLOOD) {
+                        vOffset = -s.zOffset * abs(int(screenHeight / tY));
+                    }
+                    else if (!s.isWeapon && s.type == 2) { scale = 0.8f; vOffset = -abs(int(screenHeight / tY)) * 0.4f; }
+                    else if (!s.isWeapon && s.type == 3) { scale = 0.5f; int normalH = abs(int(screenHeight / tY)); int sH_calc = abs(int((screenHeight / tY) * scale)); vOffset = (normalH - sH_calc) / 2.0f; }
+                    else if (s.type == 999) vOffset = -abs(int(screenHeight / tY)) * 0.3f;
+
+                    if (shadowWidthFactor > 0.0f) {
+                        int sH_item = abs(int(screenHeight / tY * scale));
+                        int sW_item = sH_item / 2;
+
+                        int sW_shadow = sW_item * shadowWidthFactor * 2.0f;
+                        int sH_shadow = sH_item * 0.15f;
+
+                        float floorStatic = 0.0f;
+                        if (s.type == 6 || s.type == 7 || s.type == 0 || s.type == 1 || s.type == 8) floorStatic = wallH * 0.6f;
+                        else floorStatic = wallH * 0.6f;
+
+                        float shadowVOffset = floorStatic + (sH_item / 2.0f);
+
+                        float ndcS = 1 - 2.0f * (screenHeight / 2 - sH_shadow / 2 + shadowVOffset) / screenHeight;
+                        float ndcE = 1 - 2.0f * (screenHeight / 2 + sH_shadow / 2 + shadowVOffset) / screenHeight;
+
+                        int dS = scrX - sW_shadow / 2, dE = scrX + sW_shadow / 2;
+                        for (int str = dS; str < dE; str++) {
+                            if (str >= 0 && str < screenWidth && tY < zBuffer[str]) {
+                                float texX = (float)(str - dS) / sW_shadow;
+                                float xL = 2.0f * str / screenWidth - 1, xR = 2.0f * (str + 1) / screenWidth - 1;
+                                vertices.insert(vertices.end(), { xL,ndcS,1,1,96.0f,texX,1, xR,ndcS,1,1,96.0f,texX,1, xR,ndcE,1,1,96.0f,texX,0, xL,ndcS,1,1,96.0f,texX,1, xR,ndcE,1,1,96.0f,texX,0, xL,ndcE,1,1,96.0f,texX,0 });
+                            }
                         }
                     }
 
-                    int sH = abs(int(screenHeight / tY * scale)); int sW = sH / 2;
+                    int sH = abs(int(screenHeight / tY * scale));
+                    int sW = sH / 2;
                     if (!s.isWeapon && s.type == 3) sW = sH / 1.0;
                     if (s.type == OBJECT_HOLE_PISTOL || s.type == OBJECT_HOLE_SHOTGUN || s.type == OBJECT_BLOOD) sW = sH;
 
