@@ -247,7 +247,6 @@ void main() {
             float rayDirY = sin(playerDir) + sin(playerDir+1.5708)*cameraX;
             vec2 ceilPos = playerPos + rowDistance * vec2(rayDirX, rayDirY);
             
-            // --- EFEKT LATARKI (Sufit) ---
             float light = min(1.0, 3.5 / rowDistance);
             texColor = texture(ceilingTexture, ceilPos) * vec4(light, light, light, 1.0);
 
@@ -260,7 +259,6 @@ void main() {
             float rayDirY = sin(playerDir) + sin(playerDir+1.5708)*cameraX;
             vec2 floorPos = playerPos + rowDistance * vec2(rayDirX, rayDirY);
             
-            // --- EFEKT LATARKI (Pod³oga) ---
             float light = min(1.0, 3.5 / rowDistance);
             texColor = texture(floorTexture, floorPos) * vec4(light, light, light, 1.0);
 
@@ -661,7 +659,6 @@ int main() {
                 float r = (type == 9) ? 1 : (type == 1 ? 0.4 : ((type >= 2 && type <= 5) || type == 8 ? 1.0 : 0.6)), g = r, b = (type == 9) ? 0 : r;
                 if (side) r *= 0.7, g *= 0.7, b *= 0.7;
 
-                // --- EFEKT LATARKI NA ŒCIANACH ---
                 float light = 3.5f / (perp + 0.1f);
                 if (light > 1.0f) light = 1.0f;
                 r *= light;
@@ -780,7 +777,6 @@ int main() {
                             vOffset = 0.0f;
                         }
                         else if (s.type == 6 || s.type == 7 || s.type == 0 || s.type == 1 || s.type == 8) {
-                            // Usun¹³em highDrop z vOffset, ¿eby bronie lewitowa³y wy¿ej (tak jak by³o wczeœniej)
                             vOffset = sin(time * 4.0f + s.x) * 10.0f;
 
                             float bobSine = sin(time * 4.0f + s.x);
@@ -822,10 +818,8 @@ int main() {
                             if (str >= 0 && str < screenWidth && tY < zBuffer[str]) {
                                 float texX = (float)(str - dS) / sW_shadow;
                                 float xL = 2.0f * str / screenWidth - 1, xR = 2.0f * (str + 1) / screenWidth - 1;
-                                // --- EFEKT LATARKI NA CIENIU ---
                                 float sLight = 3.5f / (tY + 0.1f);
                                 if (sLight > 1.0f) sLight = 1.0f;
-                                // U¿ywamy sLight te¿ dla cienia, ¿eby nie œwieci³ w ciemnoœci
                                 vertices.insert(vertices.end(), { xL,ndcS,sLight,sLight,96.0f,texX,1, xR,ndcS,sLight,sLight,96.0f,texX,1, xR,ndcE,sLight,sLight,96.0f,texX,0, xL,ndcS,sLight,sLight,96.0f,texX,1, xR,ndcE,sLight,sLight,96.0f,texX,0, xL,ndcE,sLight,sLight,96.0f,texX,0 });
                             }
                         }
@@ -844,7 +838,6 @@ int main() {
                             float ndcE = 1 - 2.0f * (screenHeight / 2 + sH / 2 + vOffset) / screenHeight;
                             float xL = 2.0f * str / screenWidth - 1, xR = 2.0f * (str + 1) / screenWidth - 1;
 
-                            // --- EFEKT LATARKI NA SPRITE'ACH ---
                             float sLight = 3.5f / (tY + 0.1f);
                             if (sLight > 1.0f) sLight = 1.0f;
 
