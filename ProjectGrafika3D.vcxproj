@@ -208,6 +208,14 @@
     <Image Include="shotgun_view_128_shoot.png" />
     <Image Include="wall.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="goblin_attack.wav" />
+    <Media Include="goblin_idle.wav" />
+    <Media Include="goblin_pain.wav" />
+    <Media Include="shoot_pistol.wav" />
+    <Media Include="shoot_rifle.wav" />
+    <Media Include="shoot_shotgun.wav" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

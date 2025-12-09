@@ -230,4 +230,24 @@
       <Filter>Pliki zasobów</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="shoot_shotgun.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="shoot_rifle.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="shoot_pistol.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="goblin_attack.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="goblin_idle.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="goblin_pain.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+  </ItemGroup>
 </Project>

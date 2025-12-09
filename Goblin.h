@@ -33,6 +33,8 @@ struct Sprite {
     float stateTimer = 0.0f;
     float attackCooldown = 0.0f;
 
+    float soundTimer = 0.0f;
+
     float animTimer = 0.0f;
     int walkStep = 0;
     int fightFrame = 0;

@@ -3,6 +3,11 @@
 
 void initAudio();
 void cleanupAudio();
+
 void playShootSound(int weaponType);
+
+void playGoblinIdle();
+void playGoblinAttack();
+void playGoblinPain();
 
 #endif

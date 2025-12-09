@@ -1,5 +1,6 @@
 ﻿#include "Goblin.h" 
 #include "Map.h" 
+#include "Audio.h"
 #include <vector>
 #include <cmath> 
 #include <iostream>
@@ -15,8 +16,8 @@ void initMonsters() {
     bloodParticles.clear();
 
     Sprite goblin; goblin.x = 13.5f; goblin.y = 13.5f; goblin.type = MONSTER_TYPE_GOBLIN; goblin.health = 100; sprites.push_back(goblin);
-    Sprite flying; flying.x = 12.5f; flying.y = 12.5f; flying.type = MONSTER_TYPE_FLYING; flying.health = 150; sprites.push_back(flying);
-    Sprite walker; walker.x = 10.5f; walker.y = 10.5f; walker.type = MONSTER_TYPE_WALKING; walker.health = 200; sprites.push_back(walker);
+    //Sprite flying; flying.x = 12.5f; flying.y = 12.5f; flying.type = MONSTER_TYPE_FLYING; flying.health = 150; sprites.push_back(flying);
+    //Sprite walker; walker.x = 10.5f; walker.y = 10.5f; walker.type = MONSTER_TYPE_WALKING; walker.health = 200; sprites.push_back(walker);
 
     std::cout << "Potwory zainicjowane.\n";
 }
@@ -29,6 +30,10 @@ bool hitMonster(int index, float hitDamage) {
     if (index < 0 || index >= sprites.size()) return false;
     Sprite& m = sprites[index];
     if (!m.isAlive) return false;
+
+    if (m.type == MONSTER_TYPE_GOBLIN) {
+        playGoblinPain();
+    }
 
     int drops = 5;
     if (bloodParticles.size() > 200) {
@@ -123,6 +128,23 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
             else if (m.state != STATE_PAIN) m.state = STATE_IDLE;
         }
         else if (m.type == MONSTER_TYPE_GOBLIN) {
+
+            m.soundTimer -= deltaTime;
+            if (m.soundTimer <= 0.0f) {
+                if (dist < 15.0f) {
+                    playGoblinIdle();
+                }
+                m.soundTimer = 3.0f + ((float)rand() / RAND_MAX) * 4.0f;
+            }
+
+            if (dist < 0.7f) {
+                m.attackCooldown -= deltaTime;
+                if (m.attackCooldown <= 0.0f) {
+                    playGoblinAttack();
+                    m.attackCooldown = 1.0f;
+                }
+            }
+
             float moveX = 0.0f, moveY = 0.0f;
             if (dist > COLLISION_RADIUS) {
                 moveX = (dx / dist) * GOBLIN_CHASE_SPEED;

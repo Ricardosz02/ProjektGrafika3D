@@ -29,3 +29,16 @@ void playShootSound(int weaponType) {
         ma_engine_play_sound(&engine, "shoot_rifle.wav", NULL);
     }
 }
+
+
+void playGoblinIdle() {
+    ma_engine_play_sound(&engine, "goblin_idle.wav", NULL);
+}
+
+void playGoblinAttack() {
+    ma_engine_play_sound(&engine, "goblin_attack.wav", NULL);
+}
+
+void playGoblinPain() {
+    ma_engine_play_sound(&engine, "goblin_pain.wav", NULL);
+}
