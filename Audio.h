@@ -10,4 +10,8 @@ void playGoblinIdle();
 void playGoblinAttack();
 void playGoblinPain();
 
+void playDoorSound();
+void playAccessDeniedSound();
+void playKeypadClick();
+
 #endif

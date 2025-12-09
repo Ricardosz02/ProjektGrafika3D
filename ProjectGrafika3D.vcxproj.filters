@@ -249,5 +249,14 @@
     <Media Include="goblin_pain.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
+    <Media Include="access_denied.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="door_open.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="keypad_click.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
   </ItemGroup>
 </Project>

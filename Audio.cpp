@@ -42,3 +42,16 @@ void playGoblinAttack() {
 void playGoblinPain() {
     ma_engine_play_sound(&engine, "goblin_pain.wav", NULL);
 }
+
+
+void playDoorSound() {
+    ma_engine_play_sound(&engine, "door_open.wav", NULL);
+}
+
+void playAccessDeniedSound() {
+    ma_engine_play_sound(&engine, "access_denied.wav", NULL);
+}
+
+void playKeypadClick() {
+    ma_engine_play_sound(&engine, "keypad_click.wav", NULL);
+}

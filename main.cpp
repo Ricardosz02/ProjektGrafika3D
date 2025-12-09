@@ -1085,6 +1085,7 @@ int main() {
                                 if (keypadInput.length() < 4) {
                                     keypadInput += std::to_string(k);
                                     std::cout << "Kod: " << keypadInput << std::endl;
+                                    playKeypadClick();
                                 }
                                 keysPressed[k] = true;
                             }
@@ -1117,12 +1118,14 @@ int main() {
                                 if (targetKeypadDoor) {
                                     targetKeypadDoor->isLocked = false;
                                     targetKeypadDoor->state = OPENING;
+                                    playDoorSound();
                                 }
                                 keypadInput = "";
                             }
                             else {
                                 keypadInput = "";
                                 std::cout << "Bledny kod!" << std::endl;
+                                playAccessDeniedSound();
                             }
                             enterPressed = true;
                         }

@@ -209,9 +209,12 @@
     <Image Include="wall.png" />
   </ItemGroup>
   <ItemGroup>
+    <Media Include="access_denied.wav" />
+    <Media Include="door_open.wav" />
     <Media Include="goblin_attack.wav" />
     <Media Include="goblin_idle.wav" />
     <Media Include="goblin_pain.wav" />
+    <Media Include="keypad_click.wav" />
     <Media Include="shoot_pistol.wav" />
     <Media Include="shoot_rifle.wav" />
     <Media Include="shoot_shotgun.wav" />

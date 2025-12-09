@@ -1,5 +1,6 @@
 #include "Map.h"
 #include "Weapon.h"
+#include "Audio.h"
 #include <iostream>
 
 std::vector<Door> doors;
@@ -99,7 +100,10 @@ void updateDoors(float dt) {
             break;
         case OPEN:
             door.timer -= dt;
-            if (door.timer <= 0.0f) door.state = CLOSING;
+            if (door.timer <= 0.0f) {
+                door.state = CLOSING;
+                playDoorSound();
+            }
             break;
         case CLOSING:
             door.openAmount -= dt * 1.5f;
@@ -134,18 +138,21 @@ void openDoorAt(int x, int y) {
     if (doorType == 3) {
         if (!hasGreenKey) {
             std::cout << "POTRZEBNA ZIELONA KARTA!" << std::endl;
+            playAccessDeniedSound();
             return;
         }
     }
     else if (doorType == 4) {
         if (!hasRedKey) {
             std::cout << "POTRZEBNA CZERWONA KARTA!" << std::endl;
+            playAccessDeniedSound();
             return;
         }
     }
     else if (doorType == 5) {
         if (!hasGreenKey || !hasRedKey) {
             std::cout << "POTRZEBNE OBIE KARTY!" << std::endl;
+            playAccessDeniedSound();
             return;
         }
     }
@@ -159,6 +166,7 @@ void openDoorAt(int x, int y) {
                 door.state = OPENING;
                 door.isLocked = false;
                 std::cout << "Otwieram drzwi!" << std::endl;
+                playDoorSound();
             }
             return;
         }
