@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Audio.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Goblin.cpp" />
     <ClCompile Include="main.cpp" />
@@ -141,9 +142,11 @@
     <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Audio.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="Goblin.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="miniaudio.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Weapon.h" />
   </ItemGroup>

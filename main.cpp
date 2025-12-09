@@ -2,6 +2,7 @@
 #include "Map.h"
 #include "Goblin.h"
 #include "Weapon.h"
+#include "Audio.h"
 #include "stb_image.h"
 #include <cmath>
 #include <vector>
@@ -429,6 +430,8 @@ int main() {
     t[54] = loadTexture("shell.png");          // 54
     t[55] = loadTexture("shell_shotgun.png");  // 55
 
+    initAudio();
+
     glUseProgram(p);
     GLint useTextureLoc = glGetUniformLocation(p, "useTexture");
     glUniform1i(useTextureLoc, 1);
@@ -523,6 +526,9 @@ int main() {
                 if (currentWeapon == 1) ammoPistol--;
                 else if (currentWeapon == 2) ammoShotgun--;
                 else if (currentWeapon == 3) ammoRifle--;
+
+                // ODG£OS STRZA£U
+                playShootSound(currentWeapon);
 
                 if (currentWeapon > 0) bulletFlashes.push_back({ playerX + cos(playerDir) * 0.2f, playerY + sin(playerDir) * 0.2f, cos(playerDir), sin(playerDir), 2.0f });
 
@@ -1186,6 +1192,7 @@ int main() {
         glfwSwapBuffers(window);
     }
     glDeleteVertexArrays(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteProgram(p);
+    cleanupAudio();
     glfwTerminate();
     return 0;
 }
