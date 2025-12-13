@@ -258,5 +258,14 @@
     <Media Include="keypad_click.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
+    <Media Include="step_1.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="step_2.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="step_3.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
   </ItemGroup>
 </Project>

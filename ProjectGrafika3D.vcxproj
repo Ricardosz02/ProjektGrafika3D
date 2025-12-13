@@ -218,6 +218,9 @@
     <Media Include="shoot_pistol.wav" />
     <Media Include="shoot_rifle.wav" />
     <Media Include="shoot_shotgun.wav" />
+    <Media Include="step_1.wav" />
+    <Media Include="step_2.wav" />
+    <Media Include="step_3.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

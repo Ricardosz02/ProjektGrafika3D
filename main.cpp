@@ -31,6 +31,9 @@ float walkTimer = 0.0f;
 float shootTimer = 0.0f;
 bool isShooting = false;
 
+float stepTimer = 0.0f;
+const float STEP_INTERVAL = 0.5f;
+
 int punchSide = 0;
 float maxShootTime = 0.0f;
 
@@ -427,8 +430,8 @@ int main() {
     t[51] = loadTexture("rifle_view_shoot.png");
     t[52] = loadTexture("ammunition_rifle.png");
     t[53] = loadTexture("hud_overlay.png");
-    t[54] = loadTexture("shell.png");          // 54
-    t[55] = loadTexture("shell_shotgun.png");  // 55
+    t[54] = loadTexture("shell.png");
+    t[55] = loadTexture("shell_shotgun.png");
 
     initAudio();
 
@@ -527,7 +530,6 @@ int main() {
                 else if (currentWeapon == 2) ammoShotgun--;
                 else if (currentWeapon == 3) ammoRifle--;
 
-                // ODG£OS STRZA£U
                 playShootSound(currentWeapon);
 
                 if (currentWeapon > 0) bulletFlashes.push_back({ playerX + cos(playerDir) * 0.2f, playerY + sin(playerDir) * 0.2f, cos(playerDir), sin(playerDir), 2.0f });
@@ -545,12 +547,12 @@ int main() {
                     s.vrot = 5.0f + rnd * 5.0f;
 
                     if (currentWeapon == 2) {
-                        s.type = 1; // shotgun
+                        s.type = 1;
                         s.scale = 0.08f;
                         s.vx = 0.15f + rnd * 0.1f;
                     }
                     else {
-                        s.type = 0; // pistol/rifle
+                        s.type = 0;
                         s.scale = 0.05f;
                     }
                     shells.push_back(s);
@@ -698,7 +700,18 @@ int main() {
             if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) playerDir -= rotSpeed;
             if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) playerDir += rotSpeed;
 
-            if (moving) walkTimer += 8.0f * 0.016f; else walkTimer = 0.0f;
+            if (moving) {
+                walkTimer += 8.0f * 0.016f;
+                stepTimer -= 0.016f;
+                if (stepTimer <= 0.0f) {
+                    playStepSound();
+                    stepTimer = STEP_INTERVAL;
+                }
+            }
+            else {
+                walkTimer = 0.0f;
+                stepTimer = 0.05f;
+            }
 
             checkWeaponCollection(playerX, playerY, playerHealth, playerArmor);
             updateSprites(playerX, playerY, playerHealth, playerArmor);

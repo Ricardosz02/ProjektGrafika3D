@@ -14,4 +14,6 @@ void playDoorSound();
 void playAccessDeniedSound();
 void playKeypadClick();
 
+void playStepSound();
+
 #endif

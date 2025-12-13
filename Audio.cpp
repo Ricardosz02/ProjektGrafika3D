@@ -55,3 +55,10 @@ void playAccessDeniedSound() {
 void playKeypadClick() {
     ma_engine_play_sound(&engine, "keypad_click.wav", NULL);
 }
+
+void playStepSound() {
+    int r = rand() % 3; // Losuje 0, 1 lub 2
+    if (r == 0) ma_engine_play_sound(&engine, "step_1.wav", NULL);
+    else if (r == 1) ma_engine_play_sound(&engine, "step_2.wav", NULL);
+    else ma_engine_play_sound(&engine, "step_3.wav", NULL);
+}
