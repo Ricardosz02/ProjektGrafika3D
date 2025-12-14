@@ -211,6 +211,7 @@
   <ItemGroup>
     <Media Include="access_denied.wav" />
     <Media Include="door_open.wav" />
+    <Media Include="dry_fire.wav" />
     <Media Include="goblin_attack.wav" />
     <Media Include="goblin_idle.wav" />
     <Media Include="goblin_pain.wav" />

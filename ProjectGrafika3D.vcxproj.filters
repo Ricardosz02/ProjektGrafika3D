@@ -288,5 +288,8 @@
     <Media Include="player_pain.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
+    <Media Include="dry_fire.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
   </ItemGroup>
 </Project>

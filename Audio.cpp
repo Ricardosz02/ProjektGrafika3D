@@ -76,3 +76,7 @@ void playPickupSound(int type) {
 void playPlayerPain() {
     ma_engine_play_sound(&engine, "player_pain.wav", NULL);
 }
+
+void playDryFireSound() {
+    ma_engine_play_sound(&engine, "dry_fire.wav", NULL);
+}

@@ -523,9 +523,17 @@ int main() {
         if (triggerPressed) {
             bool canShoot = (currentWeapon == 0) || (currentWeapon == 1 && ammoPistol > 0) || (currentWeapon == 2 && ammoShotgun > 0) || (currentWeapon == 3 && ammoRifle > 0);
 
-            if (isRifle && shootTimer > 0.0f) canShoot = false;
+            if (isRifle && shootTimer > 0.0f) {
+                canShoot = false;
+            }
 
-            if (canShoot) {
+            bool hasAmmo = true;
+            if (currentWeapon == 1 && ammoPistol <= 0) hasAmmo = false;
+            if (currentWeapon == 2 && ammoShotgun <= 0) hasAmmo = false;
+            if (currentWeapon == 3 && ammoRifle <= 0) hasAmmo = false;
+            if (currentWeapon == 0) hasAmmo = true;
+
+            if (canShoot && hasAmmo) {
                 if (currentWeapon == 1) ammoPistol--;
                 else if (currentWeapon == 2) ammoShotgun--;
                 else if (currentWeapon == 3) ammoRifle--;
@@ -536,48 +544,25 @@ int main() {
 
                 if (currentWeapon > 0) {
                     Shell s;
-                    s.x = 0.35f;
-                    s.y = -0.5f;
-                    s.life = 2.0f;
-                    s.rotation = 0.0f;
-
+                    s.x = 0.35f; s.y = -0.5f; s.life = 2.0f; s.rotation = 0.0f;
                     float rnd = (float)rand() / RAND_MAX;
-                    s.vx = 0.2f + rnd * 0.2f;
-                    s.vy = 1.0f + rnd * 0.4f;
-                    s.vrot = 5.0f + rnd * 5.0f;
-
-                    if (currentWeapon == 2) {
-                        s.type = 1;
-                        s.scale = 0.08f;
-                        s.vx = 0.15f + rnd * 0.1f;
-                    }
-                    else {
-                        s.type = 0;
-                        s.scale = 0.05f;
-                    }
+                    s.vx = 0.2f + rnd * 0.2f; s.vy = 1.0f + rnd * 0.4f; s.vrot = 5.0f + rnd * 5.0f;
+                    if (currentWeapon == 2) { s.type = 1; s.scale = 0.08f; s.vx = 0.15f + rnd * 0.1f; }
+                    else { s.type = 0; s.scale = 0.05f; }
                     shells.push_back(s);
                 }
 
-                if (currentWeapon == 1) {
-                    isShooting = true; shootTimer = 0.15f;
-                }
-                else if (currentWeapon == 2) {
-                    isShooting = true; shootTimer = 0.40f;
-                }
-                else if (currentWeapon == 3) {
-                    isShooting = true; shootTimer = 0.30f;
-                }
+                if (currentWeapon == 1) { isShooting = true; shootTimer = 0.15f; }
+                else if (currentWeapon == 2) { isShooting = true; shootTimer = 0.40f; }
+                else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.10f; }
                 else if (currentWeapon == 0) {
                     isShooting = true;
-                    shootTimer = 0.9f;
+                    shootTimer = 0.6f;
                     maxShootTime = shootTimer;
                     punchSide = 1 - punchSide;
                 }
 
-                int pellets = 1;
-                float spread = 0.0f;
-                float spreadY = 0.0f;
-
+                int pellets = 1; float spread = 0.0f; float spreadY = 0.0f;
                 if (currentWeapon == 1) { pellets = 1; spread = 0.04f; spreadY = 0.05f; }
                 if (currentWeapon == 2) { pellets = 8; spread = 0.15f; spreadY = 0.30f; }
                 if (currentWeapon == 3) { pellets = 1; spread = 0.06f; spreadY = 0.06f; }
@@ -586,11 +571,9 @@ int main() {
                 for (int p = 0; p < pellets; p++) {
                     float angleOffset = ((float)rand() / RAND_MAX - 0.5f) * spread;
                     float bulletDir = playerDir + angleOffset;
-
                     float randHeight = ((float)rand() / RAND_MAX - 0.5f) * spreadY;
 
-                    float rayDX = cos(bulletDir);
-                    float rayDY = sin(bulletDir);
+                    float rayDX = cos(bulletDir); float rayDY = sin(bulletDir);
                     float dist = 1e30f; int hSide = 0, hMX = -1, hMY = -1; float hTX = 0;
                     int mX = (int)playerX, mY = (int)playerY; float dDX = abs(1 / rayDX), dDY = abs(1 / rayDY);
                     int sX = (rayDX < 0) ? -1 : 1, sY = (rayDY < 0) ? -1 : 1; float sDX = (rayDX < 0) ? (playerX - mX) * dDX : (mX + 1 - playerX) * dDX, sDY = (rayDY < 0) ? (playerY - mY) * dDY : (mY + 1 - playerY) * dDY;
@@ -615,7 +598,6 @@ int main() {
 
                     float dmg = (currentWeapon == 0) ? FISTS_DAMAGE : (currentWeapon == 1 ? PISTOL_DAMAGE : (currentWeapon == 3 ? 20.0f : SHOTGUN_DAMAGE));
                     if (currentWeapon == 2) dmg /= 8.0f;
-
                     float rng = (currentWeapon == 0) ? 1.0f : 100.0f;
 
                     if (bestIdx != -1 && bestDist < rng && bestDist < dist) hitMonster(bestIdx, dmg);
@@ -623,20 +605,29 @@ int main() {
 
                     bool hitWall = hit && (bestIdx == -1 || bestDist > dist);
                     if (hitWall && currentWeapon > 0) {
-                        WallDecal newDecal;
-                        newDecal.x = hMX;
-                        newDecal.y = hMY;
-                        newDecal.side = hSide;
-                        newDecal.hitX = hTX;
-                        newDecal.hitY = randHeight;
+                        WallDecal newDecal; newDecal.x = hMX; newDecal.y = hMY; newDecal.side = hSide; newDecal.hitX = hTX; newDecal.hitY = randHeight;
                         newDecal.type = (currentWeapon == 2) ? 99 : 98;
-
                         wallDecals.push_back(newDecal);
-
                         if (wallDecals.size() > 50) wallDecals.erase(wallDecals.begin());
                     }
                 }
             }
+            else if (!hasAmmo) {
+                if (isRifle) {
+                    if (!spacePressedLastFrame) {
+                        playDryFireSound();
+                        spacePressedLastFrame = true;
+                    }
+                }
+                else {
+                    playDryFireSound();
+                }
+
+                if (currentWeapon == 3) shootTimer = 0.1f;
+                else shootTimer = 0.2f;
+                isShooting = false;
+            }
+
             if (!isRifle) spacePressedLastFrame = true;
         }
         else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) spacePressedLastFrame = false;
@@ -652,7 +643,6 @@ int main() {
 
             float mS = currentSpeed;
             bool moving = false;
-
             auto tryMove = [&](float moveStep) {
                 float dx = cos(playerDir) * moveStep;
                 float dy = sin(playerDir) * moveStep;

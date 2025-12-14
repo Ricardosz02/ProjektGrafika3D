@@ -26,4 +26,6 @@ void playPickupSound(int type);
 
 void playPlayerPain();
 
+void playDryFireSound();
+
 #endif
