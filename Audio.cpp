@@ -72,3 +72,7 @@ void playPickupSound(int type) {
     else if (type == PICKUP_WEAPON) ma_engine_play_sound(&engine, "pickup_weapon.wav", NULL);
     else if (type == PICKUP_KEY) ma_engine_play_sound(&engine, "pickup_key.wav", NULL);
 }
+
+void playPlayerPain() {
+    ma_engine_play_sound(&engine, "player_pain.wav", NULL);
+}

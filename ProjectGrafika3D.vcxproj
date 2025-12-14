@@ -220,6 +220,7 @@
     <Media Include="pickup_health.wav" />
     <Media Include="pickup_key.wav" />
     <Media Include="pickup_weapon.wav" />
+    <Media Include="player_pain.wav" />
     <Media Include="punch.wav" />
     <Media Include="shoot_pistol.wav" />
     <Media Include="shoot_rifle.wav" />

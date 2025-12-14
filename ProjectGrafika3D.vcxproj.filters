@@ -285,5 +285,8 @@
     <Media Include="punch.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
+    <Media Include="player_pain.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
   </ItemGroup>
 </Project>

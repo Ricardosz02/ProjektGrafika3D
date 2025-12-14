@@ -64,7 +64,10 @@ void applyDamage(int& health, int& armor, int damage, float& damageAlpha) {
         if (armor >= damage) { armor -= damage; damage = 0; }
         else { damage -= armor; armor = 0; }
     }
-    health -= damage;
+    if (damage > 0) {
+        health -= damage;
+        playPlayerPain();
+    }
 
     damageAlpha = 1.0f;
 }

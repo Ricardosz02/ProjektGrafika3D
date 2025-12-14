@@ -24,4 +24,6 @@ void playStepSound();
 
 void playPickupSound(int type);
 
+void playPlayerPain();
+
 #endif
