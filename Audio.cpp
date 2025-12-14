@@ -18,7 +18,6 @@ void cleanupAudio() {
 }
 
 void playShootSound(int weaponType) {
-    // 1 = Pistol, 2 = Shotgun, 3 = Rifle
     if (weaponType == 1) {
         ma_engine_play_sound(&engine, "shoot_pistol.wav", NULL);
     }
@@ -57,8 +56,16 @@ void playKeypadClick() {
 }
 
 void playStepSound() {
-    int r = rand() % 3; // Losuje 0, 1 lub 2
+    int r = rand() % 3;
     if (r == 0) ma_engine_play_sound(&engine, "step_1.wav", NULL);
     else if (r == 1) ma_engine_play_sound(&engine, "step_2.wav", NULL);
     else ma_engine_play_sound(&engine, "step_3.wav", NULL);
+}
+
+void playPickupSound(int type) {
+    if (type == PICKUP_HEALTH) ma_engine_play_sound(&engine, "pickup_health.wav", NULL);
+    else if (type == PICKUP_ARMOR) ma_engine_play_sound(&engine, "pickup_armor.wav", NULL);
+    else if (type == PICKUP_AMMO) ma_engine_play_sound(&engine, "pickup_ammo.wav", NULL);
+    else if (type == PICKUP_WEAPON) ma_engine_play_sound(&engine, "pickup_weapon.wav", NULL);
+    else if (type == PICKUP_KEY) ma_engine_play_sound(&engine, "pickup_key.wav", NULL);
 }

@@ -215,6 +215,11 @@
     <Media Include="goblin_idle.wav" />
     <Media Include="goblin_pain.wav" />
     <Media Include="keypad_click.wav" />
+    <Media Include="pickup_ammo.wav" />
+    <Media Include="pickup_armor.wav" />
+    <Media Include="pickup_health.wav" />
+    <Media Include="pickup_key.wav" />
+    <Media Include="pickup_weapon.wav" />
     <Media Include="shoot_pistol.wav" />
     <Media Include="shoot_rifle.wav" />
     <Media Include="shoot_shotgun.wav" />

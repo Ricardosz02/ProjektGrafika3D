@@ -1,4 +1,5 @@
 #include "Weapon.h"
+#include "Audio.h"
 #include <cmath>
 #include <iostream>
 
@@ -64,48 +65,58 @@ void checkWeaponCollection(float playerX, float playerY, int& health, int& armor
                     hasPistol = true;
                     if (currentWeapon == 0) currentWeapon = 1;
                     ammoPistol += 10;
+                    playPickupSound(PICKUP_WEAPON);
                     std::cout << "ZEBRANO PISTOLET! (+10 Ammo)" << std::endl;
                 }
                 else if (w.type == WEAPON_SHOTGUN) {
                     hasShotgun = true;
                     if (currentWeapon == 0 || currentWeapon == 1) currentWeapon = 2;
                     ammoShotgun += 5;
+                    playPickupSound(PICKUP_WEAPON);
                     std::cout << "ZEBRANO SHOTGUN! (+5 Ammo)" << std::endl;
                 }
                 else if (w.type == WEAPON_RIFLE) {
                     hasRifle = true;
                     currentWeapon = 3;
                     ammoRifle += 50;
+                    playPickupSound(PICKUP_WEAPON);
                     std::cout << "ZEBRANO KARABIN! (+50 Ammo)" << std::endl;
                 }
                 else if (w.type == AMMO_PISTOL_BOX) {
                     ammoPistol += 10;
+                    playPickupSound(PICKUP_AMMO);
                     std::cout << "Amunicja Pistoletu (+10)" << std::endl;
                 }
                 else if (w.type == AMMO_SHOTGUN_BOX) {
                     ammoShotgun += 5;
+                    playPickupSound(PICKUP_AMMO);
                     std::cout << "Amunicja Shotguna (+5)" << std::endl;
                 }
                 else if (w.type == AMMO_RIFLE_BOX) {
                     ammoRifle += 20;
+                    playPickupSound(PICKUP_AMMO);
                     std::cout << "Amunicja Karabinu (+20)" << std::endl;
                 }
                 else if (w.type == ITEM_MEDKIT) {
                     health += 50;
                     if (health > 100) health = 100;
+                    playPickupSound(PICKUP_HEALTH);
                     std::cout << "Apteczka (+50 HP)" << std::endl;
                 }
                 else if (w.type == ITEM_ARMOR) {
                     armor += 100;
                     if (armor > 100) armor = 100;
+                    playPickupSound(PICKUP_ARMOR);
                     std::cout << "KAMIZELKA (+50 ARMOR)" << std::endl;
                 }
                 else if (w.type == ITEM_KEY_GREEN) {
                     hasGreenKey = true;
+                    playPickupSound(PICKUP_KEY);
                     std::cout << "ZEBRANO ZIELONA KARTE!" << std::endl;
                 }
                 else if (w.type == ITEM_KEY_RED) {
                     hasRedKey = true;
+                    playPickupSound(PICKUP_KEY);
                     std::cout << "ZEBRANO CZERWONA KARTE!" << std::endl;
                 }
             }

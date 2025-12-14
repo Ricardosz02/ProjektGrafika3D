@@ -267,5 +267,20 @@
     <Media Include="step_3.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
+    <Media Include="pickup_ammo.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="pickup_armor.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="pickup_health.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="pickup_key.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="pickup_weapon.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
   </ItemGroup>
 </Project>
