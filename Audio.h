@@ -28,4 +28,6 @@ void playPlayerPain();
 
 void playDryFireSound();
 
+void playPlayerDeath();
+
 #endif

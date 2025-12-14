@@ -80,3 +80,8 @@ void playPlayerPain() {
 void playDryFireSound() {
     ma_engine_play_sound(&engine, "dry_fire.wav", NULL);
 }
+
+void playPlayerDeath() {
+    ma_engine_play_sound(&engine, "player_die.wav", NULL);
+    ma_engine_play_sound(&engine, "game_over.wav", NULL);
+}

@@ -717,7 +717,7 @@ int main() {
             checkWeaponCollection(playerX, playerY, playerHealth, playerArmor);
             updateSprites(playerX, playerY, playerHealth, playerArmor);
             updateFireballs(playerX, playerY, 0.016f, playerHealth, playerArmor, damageAlpha);
-            if (checkCollision(playerX, playerY) || playerHealth <= 0) gameOver = true;
+            if (checkCollision(playerX, playerY) || playerHealth <= 0) { gameOver = true; playPlayerDeath(); }
         }
 
         vertices.clear(); glUseProgram(p);
