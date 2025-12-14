@@ -18,7 +18,10 @@ void cleanupAudio() {
 }
 
 void playShootSound(int weaponType) {
-    if (weaponType == 1) {
+    if (weaponType == 0) {
+        ma_engine_play_sound(&engine, "punch.wav", NULL);
+    }
+    else if (weaponType == 1) {
         ma_engine_play_sound(&engine, "shoot_pistol.wav", NULL);
     }
     else if (weaponType == 2) {

@@ -569,7 +569,7 @@ int main() {
                 }
                 else if (currentWeapon == 0) {
                     isShooting = true;
-                    shootTimer = 0.6f;
+                    shootTimer = 0.9f;
                     maxShootTime = shootTimer;
                     punchSide = 1 - punchSide;
                 }

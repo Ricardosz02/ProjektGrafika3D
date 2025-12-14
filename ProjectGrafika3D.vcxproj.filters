@@ -282,5 +282,8 @@
     <Media Include="pickup_weapon.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
+    <Media Include="punch.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
   </ItemGroup>
 </Project>
