@@ -23,7 +23,7 @@ const int screenHeight = 1080;
 int playerHealth = 100;
 int playerArmor = 0;
 
-float moveSpeed = 0.05f;
+float moveSpeed = 0.035f;
 float rotSpeed = 0.03f;
 bool gameOver = false;
 
@@ -565,7 +565,7 @@ int main() {
                     isShooting = true; shootTimer = 0.40f;
                 }
                 else if (currentWeapon == 3) {
-                    isShooting = true; shootTimer = 0.10f;
+                    isShooting = true; shootTimer = 0.30f;
                 }
                 else if (currentWeapon == 0) {
                     isShooting = true;
@@ -642,7 +642,17 @@ int main() {
         else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) spacePressedLastFrame = false;
 
         if (!gameOver && !isKeypadActive) {
-            float mS = moveSpeed; bool moving = false;
+            float currentSpeed = moveSpeed;
+            bool isSprinting = false;
+
+            if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+                currentSpeed *= 2.0f;
+                isSprinting = true;
+            }
+
+            float mS = currentSpeed;
+            bool moving = false;
+
             auto tryMove = [&](float moveStep) {
                 float dx = cos(playerDir) * moveStep;
                 float dy = sin(playerDir) * moveStep;
@@ -701,8 +711,9 @@ int main() {
             if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) playerDir += rotSpeed;
 
             if (moving) {
-                walkTimer += 8.0f * 0.016f;
-                stepTimer -= 0.016f;
+                float rhythm = isSprinting ? 1.5f : 1.0f;
+                walkTimer += 8.0f * 0.016f * rhythm;
+                stepTimer -= 0.016f * rhythm;
                 if (stepTimer <= 0.0f) {
                     playStepSound();
                     stepTimer = STEP_INTERVAL;
@@ -860,7 +871,7 @@ int main() {
                     int scrX = int(screenWidth / 2 * (1 + tX / tY));
                     float scale = 1.0f;
                     if (s.isWeapon) {
-                        if (s.type == 0)scale = 0.3f; if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5 || s.type == 9)scale = 0.4f;
+                        if (s.type == 0)scale = 0.3f; if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5)scale = 0.4f;
                         else if (s.type == 6 || s.type == 7) scale = 0.4f;
                     }
                     if (s.type == 999) scale = 0.5f;
@@ -1208,7 +1219,9 @@ int main() {
         glfwSwapBuffers(window);
     }
     glDeleteVertexArrays(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteProgram(p);
+
     cleanupAudio();
+
     glfwTerminate();
     return 0;
 }

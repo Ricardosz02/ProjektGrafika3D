@@ -15,7 +15,7 @@ void initMonsters() {
     fireballs.clear();
     bloodParticles.clear();
 
-    Sprite goblin; goblin.x = 13.5f; goblin.y = 13.5f; goblin.type = MONSTER_TYPE_GOBLIN; goblin.health = 100; sprites.push_back(goblin);
+    //Sprite goblin; goblin.x = 13.5f; goblin.y = 13.5f; goblin.type = MONSTER_TYPE_GOBLIN; goblin.health = 100; sprites.push_back(goblin);
     //Sprite flying; flying.x = 12.5f; flying.y = 12.5f; flying.type = MONSTER_TYPE_FLYING; flying.health = 150; sprites.push_back(flying);
     //Sprite walker; walker.x = 10.5f; walker.y = 10.5f; walker.type = MONSTER_TYPE_WALKING; walker.health = 200; sprites.push_back(walker);
 
