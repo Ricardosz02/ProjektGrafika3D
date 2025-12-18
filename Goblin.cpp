@@ -34,6 +34,9 @@ bool hitMonster(int index, float hitDamage) {
     if (m.type == MONSTER_TYPE_GOBLIN) {
         playGoblinPain();
     }
+    else if (m.type == MONSTER_TYPE_FLYING) {
+        playFlyingPain();
+    }
 
     int drops = 5;
     if (bloodParticles.size() > 200) {
@@ -112,6 +115,15 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
             }
         }
         else if (m.type == MONSTER_TYPE_FLYING) {
+
+            m.soundTimer -= deltaTime;
+            if (m.soundTimer <= 0.0f) {
+                if (dist < 15.0f && (rand() % 100 < 25)) {
+                    playFlyingIdle();
+                }
+                m.soundTimer = 2.0f + ((float)rand() / RAND_MAX) * 3.0f;
+            }
+
             float moveX = 0.0f, moveY = 0.0f;
             if (dist > 1.0f) {
                 moveX = (dx / dist) * FLYING_MONSTER_SPEED;
@@ -123,7 +135,9 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
 
             m.attackCooldown -= deltaTime;
             if (m.attackCooldown <= 0.0f && dist < 8.0f) {
-                m.state = STATE_ATTACK; m.stateTimer = 0.3f; m.attackCooldown = 2.0f;
+                playFlyingAttack();
+
+                m.state = STATE_ATTACK; m.stateTimer = 0.3f; m.attackCooldown = 3.5f + ((float)rand() / RAND_MAX) * 2.0f;
                 Fireball fb; fb.x = m.x; fb.y = m.y; fb.dirX = (dx / dist) * 0.1f; fb.dirY = (dy / dist) * 0.1f; fb.active = true;
                 fireballs.push_back(fb);
             }

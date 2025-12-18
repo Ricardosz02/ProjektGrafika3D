@@ -32,7 +32,6 @@ void playShootSound(int weaponType) {
     }
 }
 
-
 void playGoblinIdle() {
     ma_engine_play_sound(&engine, "goblin_idle.wav", NULL);
 }
@@ -45,6 +44,17 @@ void playGoblinPain() {
     ma_engine_play_sound(&engine, "goblin_pain.wav", NULL);
 }
 
+void playFlyingIdle() {
+    ma_engine_play_sound(&engine, "flying_idle.wav", NULL);
+}
+
+void playFlyingAttack() {
+    ma_engine_play_sound(&engine, "flying_attack.wav", NULL);
+}
+
+void playFlyingPain() {
+    ma_engine_play_sound(&engine, "flying_pain.wav", NULL);
+}
 
 void playDoorSound() {
     ma_engine_play_sound(&engine, "door_open.wav", NULL);

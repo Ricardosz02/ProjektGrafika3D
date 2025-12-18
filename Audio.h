@@ -16,6 +16,10 @@ void playGoblinIdle();
 void playGoblinAttack();
 void playGoblinPain();
 
+void playFlyingIdle();
+void playFlyingAttack();
+void playFlyingPain();
+
 void playDoorSound();
 void playAccessDeniedSound();
 void playKeypadClick();
