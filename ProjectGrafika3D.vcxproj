@@ -214,6 +214,9 @@
     <Media Include="access_denied.wav" />
     <Media Include="door_open.wav" />
     <Media Include="dry_fire.wav" />
+    <Media Include="flying_attack.wav" />
+    <Media Include="flying_idle.wav" />
+    <Media Include="flying_pain.wav" />
     <Media Include="game_over.wav" />
     <Media Include="goblin_attack.wav" />
     <Media Include="goblin_idle.wav" />

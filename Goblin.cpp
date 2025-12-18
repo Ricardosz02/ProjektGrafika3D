@@ -37,6 +37,9 @@ bool hitMonster(int index, float hitDamage) {
     else if (m.type == MONSTER_TYPE_FLYING) {
         playFlyingPain();
     }
+    else if (m.type == MONSTER_TYPE_WALKING) {
+        playWalkerPain();
+    }
 
     int drops = 5;
     if (bloodParticles.size() > 200) {
@@ -91,12 +94,24 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
         float monsterRadius = 0.3f;
 
         if (m.type == MONSTER_TYPE_WALKING) {
+
+            m.soundTimer -= deltaTime;
+            if (m.soundTimer <= 0.0f) {
+                if (dist < 10.0f) {
+                    playWalkerIdle();
+                }
+                m.soundTimer = 2.0f + ((float)rand() / RAND_MAX) * 2.0f;
+            }
+
             if (dist < 0.6f) {
                 m.state = STATE_ATTACK;
                 m.animTimer += deltaTime;
-                if (m.animTimer > 0.2f) { m.fightFrame = (m.fightFrame + 1) % 2; m.animTimer = 0.0f; }
+                if (m.animTimer > 0.3f) { m.fightFrame = (m.fightFrame + 1) % 2; m.animTimer = 0.0f; }
                 m.attackCooldown -= deltaTime;
                 if (m.attackCooldown <= 0.0f) {
+
+                    playWalkerAttack();
+
                     applyDamage(playerHealth, playerArmor, 10, damageAlpha);
                     m.attackCooldown = 1.0f;
                     std::cout << "Walker uderza!\n";
@@ -115,7 +130,6 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
             }
         }
         else if (m.type == MONSTER_TYPE_FLYING) {
-
             m.soundTimer -= deltaTime;
             if (m.soundTimer <= 0.0f) {
                 if (dist < 15.0f && (rand() % 100 < 25)) {
@@ -136,8 +150,10 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
             m.attackCooldown -= deltaTime;
             if (m.attackCooldown <= 0.0f && dist < 8.0f) {
                 playFlyingAttack();
+                m.state = STATE_ATTACK;
+                m.stateTimer = 0.3f;
+                m.attackCooldown = 3.5f + ((float)rand() / RAND_MAX) * 2.0f;
 
-                m.state = STATE_ATTACK; m.stateTimer = 0.3f; m.attackCooldown = 3.5f + ((float)rand() / RAND_MAX) * 2.0f;
                 Fireball fb; fb.x = m.x; fb.y = m.y; fb.dirX = (dx / dist) * 0.1f; fb.dirY = (dy / dist) * 0.1f; fb.active = true;
                 fireballs.push_back(fb);
             }
@@ -145,7 +161,6 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
             else if (m.state != STATE_PAIN) m.state = STATE_IDLE;
         }
         else if (m.type == MONSTER_TYPE_GOBLIN) {
-
             m.soundTimer -= deltaTime;
             if (m.soundTimer <= 0.0f) {
                 if (dist < 15.0f) {

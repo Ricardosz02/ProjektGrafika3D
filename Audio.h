@@ -20,6 +20,10 @@ void playFlyingIdle();
 void playFlyingAttack();
 void playFlyingPain();
 
+void playWalkerIdle();
+void playWalkerPain();
+void playWalkerAttack();
+
 void playDoorSound();
 void playAccessDeniedSound();
 void playKeypadClick();

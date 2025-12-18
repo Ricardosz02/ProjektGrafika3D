@@ -56,6 +56,26 @@ void playFlyingPain() {
     ma_engine_play_sound(&engine, "flying_pain.wav", NULL);
 }
 
+void playWalkerIdle() {
+    ma_engine_play_sound(&engine, "walker_idle.wav", NULL);
+}
+
+void playWalkerPain() {
+    ma_engine_play_sound(&engine, "walker_pain.wav", NULL);
+}
+
+void playWalkerAttack() {
+    static int variant = 0;
+    if (variant == 0) {
+        ma_engine_play_sound(&engine, "walker_attack_1.wav", NULL);
+        variant = 1;
+    }
+    else {
+        ma_engine_play_sound(&engine, "walker_attack_2.wav", NULL);
+        variant = 0;
+    }
+}
+
 void playDoorSound() {
     ma_engine_play_sound(&engine, "door_open.wav", NULL);
 }

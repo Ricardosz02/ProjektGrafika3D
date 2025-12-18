@@ -303,5 +303,14 @@
     <Media Include="player_die.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
+    <Media Include="flying_pain.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="flying_idle.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="flying_attack.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
   </ItemGroup>
 </Project>
