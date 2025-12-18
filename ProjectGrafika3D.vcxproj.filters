@@ -36,6 +36,9 @@
     <ClCompile Include="Audio.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -57,6 +60,9 @@
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="Audio.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>
@@ -289,6 +295,12 @@
       <Filter>Pliki zasobów</Filter>
     </Media>
     <Media Include="dry_fire.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="game_over.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="player_die.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
   </ItemGroup>

@@ -138,6 +138,7 @@
     <ClCompile Include="Goblin.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="stb_image_impl.cpp" />
     <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
@@ -146,6 +147,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="Goblin.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="miniaudio.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Weapon.h" />
@@ -212,6 +214,7 @@
     <Media Include="access_denied.wav" />
     <Media Include="door_open.wav" />
     <Media Include="dry_fire.wav" />
+    <Media Include="game_over.wav" />
     <Media Include="goblin_attack.wav" />
     <Media Include="goblin_idle.wav" />
     <Media Include="goblin_pain.wav" />
@@ -221,6 +224,7 @@
     <Media Include="pickup_health.wav" />
     <Media Include="pickup_key.wav" />
     <Media Include="pickup_weapon.wav" />
+    <Media Include="player_die.wav" />
     <Media Include="player_pain.wav" />
     <Media Include="punch.wav" />
     <Media Include="shoot_pistol.wav" />
