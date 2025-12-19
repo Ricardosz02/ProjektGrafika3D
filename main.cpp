@@ -191,11 +191,15 @@ uniform sampler2D shellTex;          // 54
 uniform sampler2D shellShotgunTex;   // 55
 uniform sampler2D menuBgTex;         // 56
 uniform sampler2D logoTex;           // 57
+uniform sampler2D bloodyXTex;        // 58
+uniform sampler2D settingsBgTex;     // 59
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity;
 uniform float horizon;
 uniform float flashIntensity;
+
+uniform float brightness; 
 
 void main() {
     if (useTexture) {
@@ -232,6 +236,8 @@ void main() {
         else if (ourColor.b > 89.9) texColor = texture(wallTexture, TexCoord);
         else if (ourColor.b > 79.9) texColor = texture(bloodPartTex, TexCoord);
         
+        else if (ourColor.b > 62.9) texColor = texture(settingsBgTex, TexCoord);
+        else if (ourColor.b > 61.9) texColor = texture(bloodyXTex, TexCoord);
         else if (ourColor.b > 60.9) texColor = texture(logoTex, TexCoord);
         else if (ourColor.b > 59.9) texColor = texture(menuBgTex, TexCoord);
         
@@ -323,6 +329,9 @@ void main() {
 
         if (!isBlood) FragColor = texColor * vec4(ourColor.r, ourColor.r, ourColor.r, 1.0);
         else FragColor = texColor;
+
+        FragColor = FragColor * vec4(brightness, brightness, brightness, 1.0);
+
     } else { FragColor = vec4(ourColor, 1.0); }
 }
 )glsl";
@@ -400,7 +409,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[58];
+    GLuint t[60];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -443,6 +452,8 @@ int main() {
     t[55] = loadTexture("shell_shotgun.png");
     t[56] = loadTexture("menu_bg.png");
     t[57] = loadTexture("logo.png");
+    t[58] = loadTexture("bloody_x.png");
+    t[59] = loadTexture("settings_bg.png");
 
     initAudio();
 
@@ -461,10 +472,10 @@ int main() {
         "dCodeL", "dCodeO", "keypadRed", "keypadGreen",
         "rifleTex", "rifleViewTex", "rifleShootTex", "ammoRifleTex", "hudTexture",
         "shellTex", "shellShotgunTex",
-        "menuBgTex", "logoTex" };
+        "menuBgTex", "logoTex", "bloodyXTex", "settingsBgTex" };
 
-    for (int i = 0; i < 58; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
-    for (int i = 0; i < 58; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 60; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 60; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -472,6 +483,8 @@ int main() {
 
     GameState gameState = MENU;
     MenuContext menuCtx;
+    menuCtx.brightness = 1.0f;
+
     static bool escPressedLastFrame = false;
 
     activeMapIndex = 1; switchMap(activeMapIndex); initMonsters(); initWeapons();
@@ -481,6 +494,9 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+
+        glUseProgram(p);
+        glUniform1f(glGetUniformLocation(p, "brightness"), menuCtx.brightness);
 
         float finalIntensity = 0.0f;
 
@@ -568,7 +584,7 @@ int main() {
 
                     if (currentWeapon == 1) { isShooting = true; shootTimer = 0.15f; }
                     else if (currentWeapon == 2) { isShooting = true; shootTimer = 0.40f; }
-                    else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.10f; }
+                    else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.35f; }
                     else if (currentWeapon == 0) { isShooting = true; shootTimer = 0.6f; maxShootTime = shootTimer; punchSide = 1 - punchSide; }
 
                     int pellets = 1; float spread = 0.0f; float spreadY = 0.0f;

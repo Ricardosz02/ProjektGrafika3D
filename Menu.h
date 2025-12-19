@@ -14,9 +14,13 @@ struct MenuContext {
     bool inSettings = false;
     int settingsOption = 0;
 
+    int settingsScrollOffset = 0;
+
     int resIndex = 0;
     bool isFullscreen = false;
     float volume = 1.0f;
+
+    float brightness = 1.0f;
 };
 
 void drawText(std::vector<float>& v, float sx, float sy, float s, const std::string& t);

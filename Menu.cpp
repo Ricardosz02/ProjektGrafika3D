@@ -4,6 +4,11 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <algorithm>
+#include <sstream>
+
+const int SETTINGS_COUNT = 5;
+const int VISIBLE_ROWS = 4;
 
 static bool keyUpPressed = false;
 static bool keyDownPressed = false;
@@ -24,7 +29,6 @@ void applyResolution(GLFWwindow* window, int index, int& w, int& h, bool fullscr
     else {
         glfwSetWindowSize(window, w, h);
         glViewport(0, 0, w, h);
-
         const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         glfwSetWindowPos(window, (mode->width - w) / 2, (mode->height - h) / 2);
     }
@@ -38,7 +42,6 @@ void setWindowMode(GLFWwindow* window, bool fullscreen, int w, int h) {
     }
     else {
         glfwSetWindowMonitor(window, nullptr, 100, 100, w, h, 0);
-
         const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         glfwSetWindowPos(window, (mode->width - w) / 2, (mode->height - h) / 2);
     }
@@ -56,7 +59,14 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
             }
             else {
                 menuCtx.settingsOption--;
-                if (menuCtx.settingsOption < 0) menuCtx.settingsOption = 3;
+                if (menuCtx.settingsOption < 0) {
+                    menuCtx.settingsOption = SETTINGS_COUNT - 1;
+                    menuCtx.settingsScrollOffset = SETTINGS_COUNT - VISIBLE_ROWS;
+                    if (menuCtx.settingsScrollOffset < 0) menuCtx.settingsScrollOffset = 0;
+                }
+                else if (menuCtx.settingsOption < menuCtx.settingsScrollOffset) {
+                    menuCtx.settingsScrollOffset--;
+                }
             }
             keyUpPressed = true;
         }
@@ -72,7 +82,13 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
             }
             else {
                 menuCtx.settingsOption++;
-                if (menuCtx.settingsOption > 3) menuCtx.settingsOption = 0;
+                if (menuCtx.settingsOption >= SETTINGS_COUNT) {
+                    menuCtx.settingsOption = 0;
+                    menuCtx.settingsScrollOffset = 0;
+                }
+                else if (menuCtx.settingsOption >= menuCtx.settingsScrollOffset + VISIBLE_ROWS) {
+                    menuCtx.settingsScrollOffset++;
+                }
             }
             keyDownPressed = true;
         }
@@ -80,24 +96,26 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
     else keyDownPressed = false;
 
     if (menuCtx.inSettings) {
-        bool changed = false;
-
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
             if (!keyLeftPressed) {
                 playMenuBeep();
-                if (menuCtx.settingsOption == 0) {
+                if (menuCtx.settingsOption == 0) { // RES
                     menuCtx.resIndex--;
                     if (menuCtx.resIndex < 0) menuCtx.resIndex = 2;
                     applyResolution(window, menuCtx.resIndex, scrW, scrH, menuCtx.isFullscreen);
                 }
-                else if (menuCtx.settingsOption == 1) {
+                else if (menuCtx.settingsOption == 1) { // SCREEN
                     menuCtx.isFullscreen = !menuCtx.isFullscreen;
                     setWindowMode(window, menuCtx.isFullscreen, scrW, scrH);
                 }
-                else if (menuCtx.settingsOption == 2) {
+                else if (menuCtx.settingsOption == 2) { // VOLUME
                     menuCtx.volume -= 0.1f;
                     if (menuCtx.volume < 0.0f) menuCtx.volume = 0.0f;
                     setGlobalVolume(menuCtx.volume);
+                }
+                else if (menuCtx.settingsOption == 3) { // BRIGHTNESS
+                    menuCtx.brightness -= 0.1f;
+                    if (menuCtx.brightness < 0.1f) menuCtx.brightness = 0.1f; // Minimum 0.1
                 }
                 keyLeftPressed = true;
             }
@@ -107,19 +125,23 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
             if (!keyRightPressed) {
                 playMenuBeep();
-                if (menuCtx.settingsOption == 0) {
+                if (menuCtx.settingsOption == 0) { // RES
                     menuCtx.resIndex++;
                     if (menuCtx.resIndex > 2) menuCtx.resIndex = 0;
                     applyResolution(window, menuCtx.resIndex, scrW, scrH, menuCtx.isFullscreen);
                 }
-                else if (menuCtx.settingsOption == 1) {
+                else if (menuCtx.settingsOption == 1) { // SCREEN
                     menuCtx.isFullscreen = !menuCtx.isFullscreen;
                     setWindowMode(window, menuCtx.isFullscreen, scrW, scrH);
                 }
-                else if (menuCtx.settingsOption == 2) {
+                else if (menuCtx.settingsOption == 2) { // VOLUME
                     menuCtx.volume += 0.1f;
                     if (menuCtx.volume > 1.0f) menuCtx.volume = 1.0f;
                     setGlobalVolume(menuCtx.volume);
+                }
+                else if (menuCtx.settingsOption == 3) { // BRIGHTNESS
+                    menuCtx.brightness += 0.1f;
+                    if (menuCtx.brightness > 2.0f) menuCtx.brightness = 2.0f; // Maximum 2.0
                 }
                 keyRightPressed = true;
             }
@@ -130,28 +152,17 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
     if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
         if (!keyEnterPressed) {
             playMenuBeep();
-
             if (!menuCtx.inSettings) {
-                if (menuCtx.selectedOption == 0) {
-                    resetGameFn();
-                    currentState = PLAYING;
-                }
+                if (menuCtx.selectedOption == 0) { resetGameFn(); currentState = PLAYING; }
                 else if (menuCtx.selectedOption == 1) {
                     menuCtx.inSettings = true;
                     menuCtx.settingsOption = 0;
+                    menuCtx.settingsScrollOffset = 0;
                 }
-                else if (menuCtx.selectedOption == 2) {
-                    shouldClose = true;
-                }
+                else if (menuCtx.selectedOption == 2) { shouldClose = true; }
             }
             else {
-                if (menuCtx.settingsOption == 3) {
-                    menuCtx.inSettings = false;
-                }
-                else if (menuCtx.settingsOption == 1) {
-                    menuCtx.isFullscreen = !menuCtx.isFullscreen;
-                    setWindowMode(window, menuCtx.isFullscreen, scrW, scrH);
-                }
+                if (menuCtx.settingsOption == 4) { menuCtx.inSettings = false; }
             }
             keyEnterPressed = true;
         }
@@ -160,48 +171,86 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
 }
 
 void renderMenu(std::vector<float>& vertices, const MenuContext& menuCtx) {
-    drawQuad2D(vertices, 0.0f, 0.0f, 1.0f, 1.0f, 60.0f);
+
+    float bgID = 60.0f;
+    if (menuCtx.inSettings) {
+        bgID = 63.0f;
+    }
+
+    drawQuad2D(vertices, 0.0f, 0.0f, 1.0f, 1.0f, bgID);
     drawQuad2D(vertices, 0.0f, 0.6f, 0.5f, 0.25f, 61.0f);
 
-    float startY = -0.1f;
-    float gap = 0.13f;
-    float scale = 0.05f;
+    float startY = 0.0f;
+    float gap = 0.20f;
+
+    float mainScale = 0.08f;
+    float exitScale = 0.06f;
+    float optionsScale = 0.07f;
+
+    auto drawCenteredOption = [&](int index, int selectedIndex, float y, std::string text, float itemScale) {
+        float textWidth = text.length() * itemScale * 0.65f;
+        float startX = 0.0f - (textWidth / 2.0f);
+        drawText(vertices, startX, y, itemScale, text);
+
+        if (index == selectedIndex) {
+            float iconSize = 0.05f;
+            float iconY = y + (itemScale * 0.3f);
+            float pushRight = 0.01f;
+
+            float leftIconPos = startX - iconSize + pushRight;
+            drawQuad2D(vertices, leftIconPos, iconY, iconSize, iconSize, 62.0f);
+
+            float rightIconPos = startX + textWidth + iconSize - pushRight - (itemScale * 0.2f);
+            drawQuad2D(vertices, rightIconPos, iconY, iconSize, iconSize, 62.0f);
+        }
+        };
 
     if (!menuCtx.inSettings) {
-        if (menuCtx.selectedOption == 0) drawText(vertices, -0.25f, startY, scale + 0.01f, "> NEW GAME <");
-        else drawText(vertices, -0.20f, startY, scale, "NEW GAME");
-
-        if (menuCtx.selectedOption == 1) drawText(vertices, -0.25f, startY - gap, scale + 0.01f, "> SETTINGS <");
-        else drawText(vertices, -0.20f, startY - gap, scale, "SETTINGS");
-
-        if (menuCtx.selectedOption == 2) drawText(vertices, -0.25f, startY - gap * 2, scale + 0.01f, "> EXIT GAME <");
-        else drawText(vertices, -0.20f, startY - gap * 2, scale, "EXIT GAME");
+        drawCenteredOption(0, menuCtx.selectedOption, startY, "NEW GAME ", mainScale);
+        drawCenteredOption(1, menuCtx.selectedOption, startY - gap, "SETTINGS ", mainScale);
+        drawCenteredOption(2, menuCtx.selectedOption, startY - gap * 2, "EXIT GAME ", exitScale);
     }
     else {
-        drawText(vertices, -0.25f, startY + 0.1f, scale, "--- OPTIONS ---");
 
-        std::string resText;
-        if (menuCtx.resIndex == 0) resText = "1920x1080";
-        else if (menuCtx.resIndex == 1) resText = "1280x720";
-        else resText = "640x480";
+        drawCenteredOption(-1, -1, startY + 0.15f, "--- OPTIONS ---", mainScale);
 
-        if (menuCtx.settingsOption == 0) drawText(vertices, -0.45f, startY, scale + 0.01f, "> RES: " + resText + " <");
-        else drawText(vertices, -0.40f, startY, scale, "RES: " + resText);
+        for (int i = 0; i < SETTINGS_COUNT; i++) {
+            if (i >= menuCtx.settingsScrollOffset && i < menuCtx.settingsScrollOffset + VISIBLE_ROWS) {
+                int relativeIndex = i - menuCtx.settingsScrollOffset;
+                float currentY = startY - (relativeIndex * gap);
 
-        std::string fsText = menuCtx.isFullscreen ? "ON" : "OFF";
+                std::string text = "";
+                if (i == 0) {
+                    std::string resText = (menuCtx.resIndex == 0) ? "1920x1080 " : ((menuCtx.resIndex == 1) ? "1280x720 " : "640x480 ");
+                    text = "RES: " + resText;
+                }
+                else if (i == 1) {
+                    text = "FULLSCREEN: " + std::string(menuCtx.isFullscreen ? "ON " : "OFF ");
+                }
+                else if (i == 2) {
+                    text = "VOLUME: " + std::to_string((int)(menuCtx.volume * 100)) + "% ";
+                }
+                else if (i == 3) {
+                    std::stringstream ss;
+                    ss << std::fixed << std::setprecision(1) << menuCtx.brightness;
+                    text = "BRIGHTNESS: " + ss.str() + " ";
+                }
+                else if (i == 4) {
+                    text = "BACK ";
+                }
 
-        if (menuCtx.settingsOption == 1) drawText(vertices, -0.45f, startY - gap, scale + 0.01f, "> SCREEN: " + fsText + " <");
-        else drawText(vertices, -0.40f, startY - gap, scale, "SCREEN: " + fsText);
+                drawCenteredOption(i, menuCtx.settingsOption, currentY, text, optionsScale);
+            }
+        }
 
-        int volPercent = (int)(menuCtx.volume * 100);
-        std::string volText = std::to_string(volPercent) + "%";
+        if (menuCtx.settingsScrollOffset > 0)
+            drawText(vertices, -0.02f, startY + 0.05f, 0.03f, "^");
 
-        if (menuCtx.settingsOption == 2) drawText(vertices, -0.45f, startY - gap * 2, scale + 0.01f, "> VOL: " + volText + " <");
-        else drawText(vertices, -0.40f, startY - gap * 2, scale, "VOL: " + volText);
-
-        if (menuCtx.settingsOption == 3) drawText(vertices, -0.25f, startY - gap * 3, scale + 0.01f, "> BACK <");
-        else drawText(vertices, -0.20f, startY - gap * 3, scale, "BACK");
+        if (menuCtx.settingsScrollOffset + VISIBLE_ROWS < SETTINGS_COUNT)
+            drawText(vertices, -0.02f, startY - (VISIBLE_ROWS * gap) + 0.05f, 0.03f, "v");
     }
 
-    drawText(vertices, -0.55f, -0.90f, 0.03f, "ARROWS TO MOVE, ENTER TO SELECT");
+    std::string footer = "ARROWS TO MOVE, ENTER TO SELECT";
+    float footerWidth = footer.length() * 0.03f * 0.65f;
+    drawText(vertices, 0.0f - (footerWidth / 2.0f), -0.90f, 0.03f, footer);
 }
