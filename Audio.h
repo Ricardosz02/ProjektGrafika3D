@@ -38,4 +38,6 @@ void playDryFireSound();
 
 void playPlayerDeath();
 
+void playMenuBeep();
+
 #endif

@@ -312,5 +312,17 @@
     <Media Include="flying_attack.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
+    <Media Include="walker_attack_1.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="walker_attack_2.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="walker_idle.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="walker_pain.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
   </ItemGroup>
 </Project>

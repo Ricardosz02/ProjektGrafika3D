@@ -236,6 +236,10 @@
     <Media Include="step_1.wav" />
     <Media Include="step_2.wav" />
     <Media Include="step_3.wav" />
+    <Media Include="walker_attack_1.wav" />
+    <Media Include="walker_attack_2.wav" />
+    <Media Include="walker_idle.wav" />
+    <Media Include="walker_pain.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

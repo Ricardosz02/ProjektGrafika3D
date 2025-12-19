@@ -115,3 +115,7 @@ void playPlayerDeath() {
     ma_engine_play_sound(&engine, "player_die.wav", NULL);
     ma_engine_play_sound(&engine, "game_over.wav", NULL);
 }
+
+void playMenuBeep() {
+    ma_engine_play_sound(&engine, "menu_blip.wav", NULL);
+}

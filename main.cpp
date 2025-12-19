@@ -188,6 +188,8 @@ uniform sampler2D ammoRifleTex;      // 52
 uniform sampler2D hudTexture;        // 53
 uniform sampler2D shellTex;          // 54
 uniform sampler2D shellShotgunTex;   // 55
+uniform sampler2D menuBgTex;         // 56
+uniform sampler2D logoTex;           // 57
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity;
@@ -224,10 +226,14 @@ void main() {
              texColor = vec4(0.0, 0.0, 0.0, alpha);
         }
         else if (ourColor.b > 94.9) {
-             texColor = vec4(0.0, 0.0, 0.0, 0.95);
+             texColor = vec4(0.0, 0.0, 0.0, 0.95); 
         }
         else if (ourColor.b > 89.9) texColor = texture(wallTexture, TexCoord);
         else if (ourColor.b > 79.9) texColor = texture(bloodPartTex, TexCoord);
+        
+        else if (ourColor.b > 60.9) texColor = texture(logoTex, TexCoord);
+        else if (ourColor.b > 59.9) texColor = texture(menuBgTex, TexCoord);
+        
         else if (ourColor.b > 52.9) texColor = texture(ammoRifleTex, TexCoord);
         else if (ourColor.b > 51.9) texColor = texture(rifleShootTex, TexCoord);
         else if (ourColor.b > 50.9) texColor = texture(rifleViewTex, TexCoord);
@@ -393,7 +399,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[56];
+    GLuint t[58];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -434,6 +440,8 @@ int main() {
     t[53] = loadTexture("hud_overlay.png");
     t[54] = loadTexture("shell.png");
     t[55] = loadTexture("shell_shotgun.png");
+    t[56] = loadTexture("menu_bg.png");
+    t[57] = loadTexture("logo.png");
 
     initAudio();
 
@@ -451,10 +459,11 @@ int main() {
         "dGreenL", "dGreenO", "dRedL", "dRedO", "dDualL", "dDualO",
         "dCodeL", "dCodeO", "keypadRed", "keypadGreen",
         "rifleTex", "rifleViewTex", "rifleShootTex", "ammoRifleTex", "hudTexture",
-        "shellTex", "shellShotgunTex" };
+        "shellTex", "shellShotgunTex",
+        "menuBgTex", "logoTex" };
 
-    for (int i = 0; i < 56; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
-    for (int i = 0; i < 56; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 58; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 58; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -558,7 +567,7 @@ int main() {
 
                     if (currentWeapon == 1) { isShooting = true; shootTimer = 0.15f; }
                     else if (currentWeapon == 2) { isShooting = true; shootTimer = 0.40f; }
-                    else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.35f; }
+                    else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.10f; }
                     else if (currentWeapon == 0) { isShooting = true; shootTimer = 0.6f; maxShootTime = shootTimer; punchSide = 1 - punchSide; }
 
                     int pellets = 1; float spread = 0.0f; float spreadY = 0.0f;
