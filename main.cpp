@@ -15,11 +15,12 @@
 #define M_PI 3.14159265358979323846f
 #endif
 
+int screenWidth = 1920;
+int screenHeight = 1080;
+
 float playerX = 2.5f;
 float playerY = 2.5f;
 float playerDir = 0.0f;
-const int screenWidth = 1920;
-const int screenHeight = 1080;
 
 int playerHealth = 100;
 int playerArmor = 0;
@@ -495,7 +496,7 @@ int main() {
         bool shouldClose = false;
 
         if (gameState == MENU) {
-            updateMenu(window, gameState, menuCtx, shouldClose, resetGame);
+            updateMenu(window, gameState, menuCtx, shouldClose, resetGame, screenWidth, screenHeight);
             if (shouldClose) glfwSetWindowShouldClose(window, true);
         }
         else if (gameState == PLAYING) {
@@ -703,6 +704,9 @@ int main() {
                             else hit = 1;
                         }
                     }
+
+                    if (zBuffer.size() != screenWidth) zBuffer.resize(screenWidth);
+
                     float perp = (side == 0) ? (mX - playerX + (1 - sX) / 2.0f) / rDX : (mY - playerY + (1 - sY) / 2.0f) / rDY; zBuffer[x] = perp;
                     int type = worldMap[mY][mX];
                     float r = (type == 9) ? 1 : (type == 1 ? 0.4 : ((type >= 2 && type <= 5) || type == 8 ? 1.0 : 0.6)), g = r, b = (type == 9) ? 0 : r;

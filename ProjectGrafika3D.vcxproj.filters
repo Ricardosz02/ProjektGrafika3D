@@ -235,6 +235,9 @@
     <Image Include="shell.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="menu_bg.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="shoot_shotgun.wav">
@@ -322,6 +325,9 @@
       <Filter>Pliki zasobów</Filter>
     </Media>
     <Media Include="walker_pain.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="menu_blip.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
   </ItemGroup>

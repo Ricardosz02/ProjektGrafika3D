@@ -119,3 +119,7 @@ void playPlayerDeath() {
 void playMenuBeep() {
     ma_engine_play_sound(&engine, "menu_blip.wav", NULL);
 }
+
+void setGlobalVolume(float volume) {
+    ma_engine_set_volume(&engine, volume);
+}
