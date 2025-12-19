@@ -485,9 +485,13 @@ int main() {
     MenuContext menuCtx;
     menuCtx.brightness = 1.0f;
 
+    bool isGameStarted = false;
+
     static bool escPressedLastFrame = false;
 
     activeMapIndex = 1; switchMap(activeMapIndex); initMonsters(); initWeapons();
+
+    playMenuMusic();
 
     static bool spacePressedLastFrame = false;
     static bool ePressedLastFrame = false;
@@ -498,12 +502,29 @@ int main() {
         glUseProgram(p);
         glUniform1f(glGetUniformLocation(p, "brightness"), menuCtx.brightness);
 
+        if (gameState == PLAYING) isGameStarted = true;
+
         float finalIntensity = 0.0f;
 
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             if (!escPressedLastFrame) {
-                if (gameState == PLAYING) gameState = MENU;
-                else if (gameState == MENU) gameState = PLAYING;
+
+                if (gameState == PLAYING) {
+                    gameState = MENU;
+                    playMenuBeep();
+                    playMenuMusic();
+                }
+                else if (gameState == MENU) {
+                    if (menuCtx.inSettings) {
+                        menuCtx.inSettings = false;
+                        playMenuBeep();
+                    }
+                    else if (isGameStarted) {
+                        gameState = PLAYING;
+                        stopMenuMusic();
+                    }
+                }
+
                 escPressedLastFrame = true;
             }
         }
@@ -512,7 +533,13 @@ int main() {
         bool shouldClose = false;
 
         if (gameState == MENU) {
+            GameState oldState = gameState;
             updateMenu(window, gameState, menuCtx, shouldClose, resetGame, screenWidth, screenHeight);
+
+            if (oldState == MENU && gameState == PLAYING) {
+                stopMenuMusic();
+            }
+
             if (shouldClose) glfwSetWindowShouldClose(window, true);
         }
         else if (gameState == PLAYING) {

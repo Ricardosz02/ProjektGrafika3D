@@ -5,15 +5,25 @@
 #include "miniaudio.h"
 
 ma_engine engine;
+ma_sound menuMusic;
 
 void initAudio() {
     ma_result result = ma_engine_init(NULL, &engine);
     if (result != MA_SUCCESS) {
         std::cout << "Blad inicjalizacji audio!" << std::endl;
     }
+
+    result = ma_sound_init_from_file(&engine, "menu_theme.mp3", MA_SOUND_FLAG_STREAM, NULL, NULL, &menuMusic);
+    if (result != MA_SUCCESS) {
+        std::cout << "Nie udalo sie zaladowac muzyki do menu (menu_theme.mp3)!" << std::endl;
+    }
+    else {
+        ma_sound_set_looping(&menuMusic, MA_TRUE);
+    }
 }
 
 void cleanupAudio() {
+    ma_sound_uninit(&menuMusic);
     ma_engine_uninit(&engine);
 }
 
@@ -118,6 +128,19 @@ void playPlayerDeath() {
 
 void playMenuBeep() {
     ma_engine_play_sound(&engine, "menu_blip.wav", NULL);
+}
+
+void playMenuMusic() {
+    if (!ma_sound_is_playing(&menuMusic)) {
+        ma_sound_start(&menuMusic);
+    }
+}
+
+void stopMenuMusic() {
+    if (ma_sound_is_playing(&menuMusic)) {
+        ma_sound_stop(&menuMusic);
+        ma_sound_seek_to_pcm_frame(&menuMusic, 0);
+    }
 }
 
 void setGlobalVolume(float volume) {

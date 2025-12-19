@@ -40,6 +40,9 @@ void playPlayerDeath();
 
 void playMenuBeep();
 
+void playMenuMusic();
+void stopMenuMusic();
+
 void setGlobalVolume(float volume);
 
 #endif
