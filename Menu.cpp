@@ -20,6 +20,7 @@ void applyResolution(GLFWwindow* window, int index, int& w, int& h, bool fullscr
     if (index == 0) { w = 1920; h = 1080; }
     else if (index == 1) { w = 1280; h = 720; }
     else if (index == 2) { w = 640; h = 480; }
+    else if (index == 3) { w = 2560; h = 1440; }
 
     if (fullscreen) {
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -101,7 +102,7 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
                 playMenuBeep();
                 if (menuCtx.settingsOption == 0) { // RES
                     menuCtx.resIndex--;
-                    if (menuCtx.resIndex < 0) menuCtx.resIndex = 2;
+                    if (menuCtx.resIndex < 0) menuCtx.resIndex = 3;
                     applyResolution(window, menuCtx.resIndex, scrW, scrH, menuCtx.isFullscreen);
                 }
                 else if (menuCtx.settingsOption == 1) { // SCREEN
@@ -127,7 +128,7 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
                 playMenuBeep();
                 if (menuCtx.settingsOption == 0) { // RES
                     menuCtx.resIndex++;
-                    if (menuCtx.resIndex > 2) menuCtx.resIndex = 0;
+                    if (menuCtx.resIndex > 3) menuCtx.resIndex = 0;
                     applyResolution(window, menuCtx.resIndex, scrW, scrH, menuCtx.isFullscreen);
                 }
                 else if (menuCtx.settingsOption == 1) { // SCREEN
@@ -221,7 +222,12 @@ void renderMenu(std::vector<float>& vertices, const MenuContext& menuCtx) {
 
                 std::string text = "";
                 if (i == 0) {
-                    std::string resText = (menuCtx.resIndex == 0) ? "1920x1080 " : ((menuCtx.resIndex == 1) ? "1280x720 " : "640x480 ");
+                    std::string resText;
+                    if (menuCtx.resIndex == 0) resText = "1920x1080 ";
+                    else if (menuCtx.resIndex == 1) resText = "1280x720 ";
+                    else if (menuCtx.resIndex == 2) resText = "640x480 ";
+                    else if (menuCtx.resIndex == 3) resText = "2560x1440 ";
+
                     text = "RES: " + resText;
                 }
                 else if (i == 1) {
