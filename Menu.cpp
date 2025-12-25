@@ -234,17 +234,22 @@ void renderMenu(std::vector<float>& vertices, const MenuContext& menuCtx) {
                     text = "FULLSCREEN: " + std::string(menuCtx.isFullscreen ? "ON " : "OFF ");
                 }
                 else if (i == 2) {
-                    text = "VOLUME: " + std::to_string((int)(menuCtx.volume * 100)) + "% ";
+                    text = "VOLUME: " + std::to_string((int)(menuCtx.volume * 100.0f + 0.5f)) + "% ";
                 }
                 else if (i == 3) {
-                    std::stringstream ss;
-                    ss << std::fixed << std::setprecision(1) << menuCtx.brightness;
-                    text = "BRIGHTNESS: " + ss.str() + " ";
+                    int bVal = (int)(menuCtx.brightness * 10.0f + 0.5f);
+                    std::string valStr;
+                    if (bVal < 10) {
+                        valStr = " " + std::to_string(bVal);
+                    }
+                    else {
+                        valStr = std::to_string(bVal);
+                    }
+                    text = "BRIGHTNESS: " + valStr + " ";
                 }
                 else if (i == 4) {
                     text = "BACK ";
                 }
-
                 drawCenteredOption(i, menuCtx.settingsOption, currentY, text, optionsScale);
             }
         }
