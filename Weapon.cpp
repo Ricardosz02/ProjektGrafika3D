@@ -17,6 +17,8 @@ int currentWeapon = 0;
 bool hasGreenKey = false;
 bool hasRedKey = false;
 
+bool hasSecretNote = false;
+
 void initWeapons() {
     weapons.clear();
 
@@ -33,6 +35,8 @@ void initWeapons() {
 
     weapons.push_back({ 5.5f, 5.5f, false, 0.0f, ITEM_KEY_GREEN });
     weapons.push_back({ 15.5f, 15.5f, false, 0.0f, ITEM_KEY_RED });
+
+    weapons.push_back({ 3.5f, 3.5f, false, 0.0f, WEAPON_TYPE_NOTE });
 
     hasPistol = false;
     hasShotgun = false;
@@ -118,6 +122,11 @@ void checkWeaponCollection(float playerX, float playerY, int& health, int& armor
                     hasRedKey = true;
                     playPickupSound(PICKUP_KEY);
                     std::cout << "ZEBRANO CZERWONA KARTE!" << std::endl;
+                }
+                else if (w.type == WEAPON_TYPE_NOTE) {
+                    hasSecretNote = true;
+                    playPickupSound(PICKUP_KEY);
+                    std::cout << "Podniesiono notatke! Nacisnij 'N' aby przeczytac." << std::endl;
                 }
             }
         }

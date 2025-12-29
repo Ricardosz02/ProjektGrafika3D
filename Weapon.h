@@ -17,6 +17,8 @@ const int ITEM_ARMOR = 5;
 const int ITEM_KEY_GREEN = 6;
 const int ITEM_KEY_RED = 7;
 
+const int WEAPON_TYPE_NOTE = 10;
+
 struct Weapon
 {
     float x, y;
@@ -36,6 +38,8 @@ extern int currentWeapon;
 
 extern bool hasGreenKey;
 extern bool hasRedKey;
+
+extern bool hasSecretNote;
 
 void initWeapons();
 void checkWeaponCollection(float playerX, float playerY, int& health, int& armor);

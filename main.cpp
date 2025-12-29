@@ -15,6 +15,10 @@
 #define M_PI 3.14159265358979323846f
 #endif
 
+#ifndef WEAPON_TYPE_NOTE
+#define WEAPON_TYPE_NOTE 10
+#endif
+
 int screenWidth = 1920;
 int screenHeight = 1080;
 
@@ -45,6 +49,9 @@ float flashIntensity = 0.0f;
 const float FISTS_DAMAGE = 15.0f;
 const float PISTOL_DAMAGE = 25.0f;
 const float SHOTGUN_DAMAGE = 100.0f;
+
+bool isViewingNote = false;
+extern bool hasSecretNote;
 
 struct HitMarker { float x_map, y_map, life; int side; float texX; };
 std::vector<HitMarker> hitMarkers;
@@ -91,6 +98,9 @@ void resetGame() {
     hasRifle = false;
     hasGreenKey = false;
     hasRedKey = false;
+
+    hasSecretNote = false;
+    isViewingNote = false;
 
     hitMarkers.clear();
     bulletFlashes.clear();
@@ -193,6 +203,8 @@ uniform sampler2D menuBgTex;         // 56
 uniform sampler2D logoTex;           // 57
 uniform sampler2D bloodyXTex;        // 58
 uniform sampler2D settingsBgTex;     // 59
+uniform sampler2D noteWorldTex;      // 60
+uniform sampler2D noteUiTex;         // 61
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity;
@@ -207,7 +219,9 @@ void main() {
         bool isBlood = false;
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        if (ourColor.b > 130.9)      texColor = texture(shellShotgunTex, TexCoord);
+        if (ourColor.b > 140.9)      texColor = texture(noteUiTex, TexCoord);
+        else if (ourColor.b > 139.9) texColor = texture(noteWorldTex, TexCoord);
+        else if (ourColor.b > 130.9)      texColor = texture(shellShotgunTex, TexCoord);
         else if (ourColor.b > 129.9) texColor = texture(shellTex, TexCoord);
         else if (ourColor.b > 124.9) texColor = texture(hudTexture, TexCoord);
         else if (ourColor.b > 119.9) texColor = texture(keypadGreen, TexCoord);
@@ -409,7 +423,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[60];
+    GLuint t[65];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -454,6 +468,8 @@ int main() {
     t[57] = loadTexture("logo.png");
     t[58] = loadTexture("bloody_x.png");
     t[59] = loadTexture("settings_bg.png");
+    t[60] = loadTexture("note_world.png");
+    t[61] = loadTexture("note_ui.png");
 
     initAudio();
 
@@ -472,10 +488,11 @@ int main() {
         "dCodeL", "dCodeO", "keypadRed", "keypadGreen",
         "rifleTex", "rifleViewTex", "rifleShootTex", "ammoRifleTex", "hudTexture",
         "shellTex", "shellShotgunTex",
-        "menuBgTex", "logoTex", "bloodyXTex", "settingsBgTex" };
+        "menuBgTex", "logoTex", "bloodyXTex", "settingsBgTex",
+        "noteWorldTex", "noteUiTex" };
 
-    for (int i = 0; i < 60; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
-    for (int i = 0; i < 60; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 62; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 62; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -509,7 +526,11 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             if (!escPressedLastFrame) {
 
-                if (gameState == PLAYING) {
+                if (isViewingNote) {
+                    isViewingNote = false;
+                    playMenuBeep();
+                }
+                else if (gameState == PLAYING) {
                     gameState = MENU;
                     playMenuBeep();
                     playMenuMusic();
@@ -545,10 +566,23 @@ int main() {
         else if (gameState == PLAYING) {
             updateShells(0.016f);
 
+            static bool nPressedLastFrame = false;
+            if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+                if (!nPressedLastFrame && hasSecretNote) {
+                    isViewingNote = !isViewingNote;
+                    if (isViewingNote) isKeypadActive = false;
+                    playMenuBeep();
+                }
+                nPressedLastFrame = true;
+            }
+            else nPressedLastFrame = false;
+
             if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !ePressedLastFrame) {
-                float checkX = playerX + cos(playerDir) * 1.0f;
-                float checkY = playerY + sin(playerDir) * 1.0f;
-                openDoorAt((int)checkX, (int)checkY);
+                if (!isViewingNote) {
+                    float checkX = playerX + cos(playerDir) * 1.0f;
+                    float checkY = playerY + sin(playerDir) * 1.0f;
+                    openDoorAt((int)checkX, (int)checkY);
+                }
                 ePressedLastFrame = true;
             }
             else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) ePressedLastFrame = false;
@@ -581,7 +615,7 @@ int main() {
 
             bool isRifle = (currentWeapon == 3);
             bool triggerPressed = false;
-            if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !isKeypadActive) {
+            if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !isKeypadActive && !isViewingNote) {
                 if (isRifle) triggerPressed = true;
                 else if (!spacePressedLastFrame) triggerPressed = true;
             }
@@ -668,7 +702,7 @@ int main() {
             }
             else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) spacePressedLastFrame = false;
 
-            if (!gameOver && !isKeypadActive) {
+            if (!gameOver && !isKeypadActive && !isViewingNote) {
                 float currentSpeed = moveSpeed;
                 if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) currentSpeed *= 2.0f;
                 float mS = currentSpeed; bool moving = false;
@@ -807,11 +841,14 @@ int main() {
                             if (s.type == 0)scale = 0.3f; if (s.type == 2 || s.type == 3 || s.type == 4 || s.type == 5)scale = 0.4f; else if (s.type == 6 || s.type == 7) scale = 0.4f;
                         }
                         if (s.type == 999) scale = 0.5f; if (s.type == OBJECT_BLOOD) scale = 0.1f; if (s.type == OBJECT_HOLE_PISTOL) scale = 0.15f; if (s.type == OBJECT_HOLE_SHOTGUN) scale = 0.30f;
+                        if (s.type == WEAPON_TYPE_NOTE) scale = 0.2f;
+
                         float vOffset = 0.0f; float shadowWidthFactor = 0.0f; float wallH = screenHeight / tY;
                         if (s.type == 999) { float time = (float)glfwGetTime(); vOffset = sin(time * 15.0f + s.x) * 5.0f; shadowWidthFactor = 0.8f; }
                         else if (s.isWeapon) {
                             float time = (float)glfwGetTime();
                             if (s.type == OBJECT_HOLE_PISTOL || s.type == OBJECT_HOLE_SHOTGUN) vOffset = 0.0f;
+                            else if (s.type == WEAPON_TYPE_NOTE) { vOffset = sin(time * 3.0f + s.x) * 5.0f + wallH * 0.4f; shadowWidthFactor = 0.8f; }
                             else if (s.type == 6 || s.type == 7 || s.type == 0 || s.type == 1 || s.type == 8) { vOffset = sin(time * 4.0f + s.x) * 10.0f; shadowWidthFactor = 1.0f - (sin(time * 4.0f + s.x) * 0.3f); }
                             else { vOffset = sin(time * 3.0f + s.x) * 3.0f + wallH * 0.6f; shadowWidthFactor = 1.0f - (sin(time * 3.0f + s.x) * 0.3f); }
                         }
@@ -854,6 +891,7 @@ int main() {
                                     if (s.type == 1)id = 9.0f; else if (s.type == 0)id = 2.0f; else if (s.type == 2)id = 11.0f; else if (s.type == 3)id = 12.0f; else if (s.type == 4)id = 23.0f; else if (s.type == 5)id = 25.0f;
                                     else if (s.type == 6) id = 101.0f; else if (s.type == 7) id = 102.0f; else if (s.type == 8) id = 50.0f; else if (s.type == 9) id = 53.0f;
                                     else if (s.type == OBJECT_HOLE_PISTOL) id = 98.0f; else if (s.type == OBJECT_HOLE_SHOTGUN) id = 99.0f;
+                                    else if (s.type == WEAPON_TYPE_NOTE) id = 140.0f;
                                 }
                                 else if (s.type == OBJECT_BLOOD) id = 80.0f;
                                 else if (s.type == 2) { if (s.state == 2)id = 15.0f; else if (s.state == 1)id = 14.0f; else id = 13.0f; }
@@ -923,9 +961,14 @@ int main() {
                 else if (currentWeapon == 2) { drawText(vertices, 0.28f, -0.85f, 0.04f, "WEAPON: SHOTGUN"); drawText(vertices, 0.28f, -0.93f, 0.04f, "AMMO: " + std::to_string(ammoShotgun)); }
                 else if (currentWeapon == 3) { drawText(vertices, 0.28f, -0.85f, 0.04f, "WEAPON: RIFLE"); drawText(vertices, 0.28f, -0.93f, 0.04f, "AMMO: " + std::to_string(ammoRifle)); }
 
+                if (hasSecretNote && !isViewingNote) {
+                    drawText(vertices, -0.2f, 0.8f, 0.03f, "PRESS 'N' TO READ NOTE");
+                }
+
                 float centerX = -0.1f; float cardY = -0.87f; float cardSize = 0.06f;
                 if (hasGreenKey) { drawQuad2D(vertices, centerX, cardY, cardSize, cardSize, 101.0f); centerX += 0.12f; }
-                if (hasRedKey) { drawQuad2D(vertices, centerX, cardY, cardSize, cardSize, 102.0f); }
+                if (hasRedKey) { drawQuad2D(vertices, centerX, cardY, cardSize, cardSize, 102.0f); centerX += 0.12f; }
+                if (hasSecretNote) { drawQuad2D(vertices, centerX, cardY, cardSize, cardSize, 140.0f); }
                 glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
                 glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
 
@@ -974,6 +1017,21 @@ int main() {
                         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
                         glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
                     }
+                }
+
+                if (isViewingNote) {
+                    vertices.clear(); glUseProgram(p);
+                    drawQuad2D(vertices, 0.0f, 0.0f, 1.0f, 1.0f, 95.0f);
+                    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+                    vertices.clear();
+
+                    glActiveTexture(GL_TEXTURE0 + 61); glBindTexture(GL_TEXTURE_2D, t[61]);
+                    drawQuad2D(vertices, 0.0f, 0.0f, 0.5f, 0.7f, 141.0f);
+                    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+
+                    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, t[0]);
                 }
             }
             else if (gameOver) {
