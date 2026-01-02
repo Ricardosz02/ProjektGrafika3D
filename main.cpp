@@ -256,8 +256,14 @@ void main() {
         else if (ourColor.b > 59.9) texColor = texture(menuBgTex, TexCoord);
         
         else if (ourColor.b > 52.9) texColor = texture(ammoRifleTex, TexCoord);
-        else if (ourColor.b > 51.9) texColor = texture(rifleShootTex, TexCoord);
-        else if (ourColor.b > 50.9) texColor = texture(rifleViewTex, TexCoord);
+        else if (ourColor.b > 51.9) {
+            vec4 wCol = texture(rifleShootTex, TexCoord);
+            texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
+        }
+        else if (ourColor.b > 50.9) {
+            vec4 wCol = texture(rifleViewTex, TexCoord);
+            texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
+        }
         else if (ourColor.b > 49.9) texColor = texture(rifleTex, TexCoord);
         else if (ourColor.b > 35.9) texColor = texture(doorTexture, TexCoord);
         else if (ourColor.b > 31.9) {
