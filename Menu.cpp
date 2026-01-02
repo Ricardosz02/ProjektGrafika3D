@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <sstream>
 
-const int SETTINGS_COUNT = 5;
+const int SETTINGS_COUNT = 6;
 const int VISIBLE_ROWS = 4;
 
 static bool keyUpPressed = false;
@@ -100,23 +100,26 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
             if (!keyLeftPressed) {
                 playMenuBeep();
-                if (menuCtx.settingsOption == 0) { // RES
+                if (menuCtx.settingsOption == 0) {
                     menuCtx.resIndex--;
                     if (menuCtx.resIndex < 0) menuCtx.resIndex = 3;
                     applyResolution(window, menuCtx.resIndex, scrW, scrH, menuCtx.isFullscreen);
                 }
-                else if (menuCtx.settingsOption == 1) { // SCREEN
+                else if (menuCtx.settingsOption == 1) {
                     menuCtx.isFullscreen = !menuCtx.isFullscreen;
                     setWindowMode(window, menuCtx.isFullscreen, scrW, scrH);
                 }
-                else if (menuCtx.settingsOption == 2) { // VOLUME
+                else if (menuCtx.settingsOption == 2) {
                     menuCtx.volume -= 0.1f;
                     if (menuCtx.volume < 0.0f) menuCtx.volume = 0.0f;
                     setGlobalVolume(menuCtx.volume);
                 }
-                else if (menuCtx.settingsOption == 3) { // BRIGHTNESS
+                else if (menuCtx.settingsOption == 3) {
                     menuCtx.brightness -= 0.1f;
-                    if (menuCtx.brightness < 0.1f) menuCtx.brightness = 0.1f; // Minimum 0.1
+                    if (menuCtx.brightness < 0.1f) menuCtx.brightness = 0.1f;
+                }
+                else if (menuCtx.settingsOption == 4) {
+                    menuCtx.useMouseLook = !menuCtx.useMouseLook;
                 }
                 keyLeftPressed = true;
             }
@@ -126,23 +129,26 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
             if (!keyRightPressed) {
                 playMenuBeep();
-                if (menuCtx.settingsOption == 0) { // RES
+                if (menuCtx.settingsOption == 0) {
                     menuCtx.resIndex++;
                     if (menuCtx.resIndex > 3) menuCtx.resIndex = 0;
                     applyResolution(window, menuCtx.resIndex, scrW, scrH, menuCtx.isFullscreen);
                 }
-                else if (menuCtx.settingsOption == 1) { // SCREEN
+                else if (menuCtx.settingsOption == 1) {
                     menuCtx.isFullscreen = !menuCtx.isFullscreen;
                     setWindowMode(window, menuCtx.isFullscreen, scrW, scrH);
                 }
-                else if (menuCtx.settingsOption == 2) { // VOLUME
+                else if (menuCtx.settingsOption == 2) {
                     menuCtx.volume += 0.1f;
                     if (menuCtx.volume > 1.0f) menuCtx.volume = 1.0f;
                     setGlobalVolume(menuCtx.volume);
                 }
-                else if (menuCtx.settingsOption == 3) { // BRIGHTNESS
+                else if (menuCtx.settingsOption == 3) {
                     menuCtx.brightness += 0.1f;
-                    if (menuCtx.brightness > 2.0f) menuCtx.brightness = 2.0f; // Maximum 2.0
+                    if (menuCtx.brightness > 2.0f) menuCtx.brightness = 2.0f;
+                }
+                else if (menuCtx.settingsOption == 4) {
+                    menuCtx.useMouseLook = !menuCtx.useMouseLook;
                 }
                 keyRightPressed = true;
             }
@@ -163,7 +169,12 @@ void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCt
                 else if (menuCtx.selectedOption == 2) { shouldClose = true; }
             }
             else {
-                if (menuCtx.settingsOption == 4) { menuCtx.inSettings = false; }
+                if (menuCtx.settingsOption == 4) {
+                    menuCtx.useMouseLook = !menuCtx.useMouseLook;
+                }
+                else if (menuCtx.settingsOption == 5) {
+                    menuCtx.inSettings = false;
+                }
             }
             keyEnterPressed = true;
         }
@@ -239,15 +250,14 @@ void renderMenu(std::vector<float>& vertices, const MenuContext& menuCtx) {
                 else if (i == 3) {
                     int bVal = (int)(menuCtx.brightness * 10.0f + 0.5f);
                     std::string valStr;
-                    if (bVal < 10) {
-                        valStr = " " + std::to_string(bVal);
-                    }
-                    else {
-                        valStr = std::to_string(bVal);
-                    }
+                    if (bVal < 10) valStr = " " + std::to_string(bVal);
+                    else valStr = std::to_string(bVal);
                     text = "BRIGHTNESS: " + valStr + " ";
                 }
                 else if (i == 4) {
+                    text = "CONTROLS: " + std::string(menuCtx.useMouseLook ? "WASD+MOUSE " : "ARROWS ");
+                }
+                else if (i == 5) {
                     text = "BACK ";
                 }
                 drawCenteredOption(i, menuCtx.settingsOption, currentY, text, optionsScale);

@@ -21,6 +21,8 @@ struct MenuContext {
     float volume = 1.0f;
 
     float brightness = 1.0f;
+
+    bool useMouseLook = false;
 };
 
 void drawText(std::vector<float>& v, float sx, float sy, float s, const std::string& t);

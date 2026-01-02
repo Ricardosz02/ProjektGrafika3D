@@ -199,6 +199,8 @@
     <Image Include="monster_walk_fight_1.png" />
     <Image Include="monster_walk_fight_2.png" />
     <Image Include="monster_walk_hit_5.png" />
+    <Image Include="note_ui.png" />
+    <Image Include="note_world.png" />
     <Image Include="pistol.png" />
     <Image Include="pistol_view_128.png" />
     <Image Include="pistol_view_128_shoot.png" />

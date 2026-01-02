@@ -247,6 +247,12 @@
     <Image Include="settings_bg.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="note_ui.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="note_world.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="shoot_shotgun.wav">

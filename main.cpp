@@ -76,6 +76,9 @@ int activeMapIndex = 1;
 std::string keypadInput = "";
 bool keysPressed[10] = { 0 };
 
+double lastMouseX = 0.0;
+bool firstMouse = true;
+
 void resetGame() {
     activeMapIndex = 1;
     switchMap(activeMapIndex);
@@ -510,6 +513,7 @@ int main() {
     GameState gameState = MENU;
     MenuContext menuCtx;
     menuCtx.brightness = 1.0f;
+    menuCtx.useMouseLook = false;
 
     bool isGameStarted = false;
 
@@ -522,8 +526,33 @@ int main() {
     static bool spacePressedLastFrame = false;
     static bool ePressedLastFrame = false;
 
+    double lastX = 0;
+    bool firstMouse = true;
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+
+        if (gameState == PLAYING && !gameOver && !isKeypadActive && !isViewingNote && menuCtx.useMouseLook) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+
+            if (firstMouse) {
+                lastX = xpos;
+                firstMouse = false;
+            }
+
+            double xoffset = xpos - lastX;
+            lastX = xpos;
+
+            playerDir += (float)xoffset * 0.002f;
+        }
+        else {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            firstMouse = true;
+        }
 
         glUseProgram(p);
         glUniform1f(glGetUniformLocation(p, "brightness"), menuCtx.brightness);
@@ -624,7 +653,13 @@ int main() {
 
             bool isRifle = (currentWeapon == 3);
             bool triggerPressed = false;
-            if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !isKeypadActive && !isViewingNote) {
+
+            bool mouseClick = false;
+            if (menuCtx.useMouseLook && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+                mouseClick = true;
+            }
+
+            if ((glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || mouseClick) && !isKeypadActive && !isViewingNote) {
                 if (isRifle) triggerPressed = true;
                 else if (!spacePressedLastFrame) triggerPressed = true;
             }
@@ -709,15 +744,24 @@ int main() {
                 }
                 if (!isRifle) spacePressedLastFrame = true;
             }
-            else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) spacePressedLastFrame = false;
+            else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && !mouseClick) spacePressedLastFrame = false;
 
             if (!gameOver && !isKeypadActive && !isViewingNote) {
                 float currentSpeed = moveSpeed;
                 if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) currentSpeed *= 2.0f;
                 float mS = currentSpeed; bool moving = false;
-                auto tryMove = [&](float moveStep) {
-                    float dx = cos(playerDir) * moveStep; float dy = sin(playerDir) * moveStep; float collisionRadius = 0.25f;
-                    float nextX = playerX + dx; float checkX = nextX + (dx > 0 ? collisionRadius : -collisionRadius);
+
+                // --- ZMODYFIKOWANA FUNKCJA RUCHU (Dla obslugi strafe) ---
+                auto tryMove = [&](float moveStep, float angleOffset) {
+                    // moveDir uwzglednia kierunek patrzenia + offset (np. 90 stopni dla strafe w prawo)
+                    float moveDir = playerDir + angleOffset;
+
+                    float dx = cos(moveDir) * moveStep;
+                    float dy = sin(moveDir) * moveStep;
+
+                    float collisionRadius = 0.25f;
+                    float nextX = playerX + dx;
+                    float checkX = nextX + (dx > 0 ? collisionRadius : -collisionRadius);
                     int typeX = worldMap[(int)playerY][(int)checkX];
                     bool doorBlockX = false;
                     if (typeX == 2 || (typeX >= 3 && typeX <= 5) || typeX == 8) { Door* d = getDoor((int)checkX, (int)playerY); if (d && d->openAmount < 0.7f) doorBlockX = true; }
@@ -727,7 +771,6 @@ int main() {
                             activeMapIndex = 2;
                             switchMap(activeMapIndex);
                             resetKeys();
-
                             playerX = 2.5f;
                             playerY = 2.5f;
                             initMonsters();
@@ -740,7 +783,9 @@ int main() {
                         }
                         return;
                     }
-                    float nextY = playerY + dy; float checkY = nextY + (dy > 0 ? collisionRadius : -collisionRadius);
+
+                    float nextY = playerY + dy;
+                    float checkY = nextY + (dy > 0 ? collisionRadius : -collisionRadius);
                     int typeY = worldMap[(int)checkY][(int)playerX];
                     bool doorBlockY = false;
                     if (typeY == 2 || (typeY >= 3 && typeY <= 5) || typeY == 8) { Door* d = getDoor((int)playerX, (int)checkY); if (d && d->openAmount < 0.7f) doorBlockY = true; }
@@ -750,7 +795,6 @@ int main() {
                             activeMapIndex = 2;
                             switchMap(activeMapIndex);
                             resetKeys();
-
                             playerX = 2.5f;
                             playerY = 2.5f;
                             initMonsters();
@@ -763,10 +807,19 @@ int main() {
                         }
                     }
                     };
-                if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) tryMove(mS);
-                if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) tryMove(-mS);
-                if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) playerDir -= rotSpeed;
-                if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) playerDir += rotSpeed;
+
+                if (menuCtx.useMouseLook) {
+                    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) tryMove(mS, 0.0f);
+                    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) tryMove(-mS, 0.0f);
+                    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) tryMove(mS, -M_PI / 2.0f);
+                    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) tryMove(mS, M_PI / 2.0f);
+                }
+                else {
+                    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) tryMove(mS, 0.0f);
+                    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) tryMove(-mS, 0.0f);
+                    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) playerDir -= rotSpeed;
+                    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) playerDir += rotSpeed;
+                }
 
                 if (moving) {
                     float rhythm = (currentSpeed > moveSpeed) ? 1.5f : 1.0f;
