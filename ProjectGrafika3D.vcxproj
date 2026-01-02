@@ -163,6 +163,8 @@
     <Image Include="bullethole_shotgun.png" />
     <Image Include="bulletproof_armor.png" />
     <Image Include="ceiling.png" />
+    <Image Include="crosshair.png" />
+    <Image Include="crosshair_shotgun.png" />
     <Image Include="death_word.png" />
     <Image Include="door.png" />
     <Image Include="door_code_locked.png" />

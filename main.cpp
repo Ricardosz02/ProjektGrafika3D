@@ -33,6 +33,12 @@ float moveSpeed = 0.035f;
 float rotSpeed = 0.03f;
 bool gameOver = false;
 
+bool useMouseControls = false;
+double lastMouseX = 0.0;
+bool firstMouse = true;
+
+float weaponSwitchTimer = 0.0f;
+
 float walkTimer = 0.0f;
 float shootTimer = 0.0f;
 bool isShooting = false;
@@ -76,9 +82,6 @@ int activeMapIndex = 1;
 std::string keypadInput = "";
 bool keysPressed[10] = { 0 };
 
-double lastMouseX = 0.0;
-bool firstMouse = true;
-
 void resetGame() {
     activeMapIndex = 1;
     switchMap(activeMapIndex);
@@ -102,6 +105,8 @@ void resetGame() {
     hasRifle = false;
     hasGreenKey = false;
     hasRedKey = false;
+
+    weaponSwitchTimer = 0.0f;
 
     hasSecretNote = false;
     isViewingNote = false;
@@ -209,13 +214,11 @@ uniform sampler2D bloodyXTex;        // 58
 uniform sampler2D settingsBgTex;     // 59
 uniform sampler2D noteWorldTex;      // 60
 uniform sampler2D noteUiTex;         // 61
+uniform sampler2D crosshairTex;      // 62
+uniform sampler2D crosshairShotgunTex;// 63
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
-uniform float damageIntensity;
-uniform float horizon;
-uniform float flashIntensity;
-
-uniform float brightness; 
+uniform float damageIntensity; uniform float horizon; uniform float flashIntensity; uniform float brightness; 
 
 void main() {
     if (useTexture) {
@@ -223,9 +226,11 @@ void main() {
         bool isBlood = false;
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        if (ourColor.b > 140.9)       texColor = texture(noteUiTex, TexCoord);
+        if (ourColor.b > 150.9)      texColor = texture(crosshairShotgunTex, TexCoord);
+        else if (ourColor.b > 149.9) texColor = texture(crosshairTex, TexCoord);
+        else if (ourColor.b > 140.9)       texColor = texture(noteUiTex, TexCoord);
         else if (ourColor.b > 139.9) texColor = texture(noteWorldTex, TexCoord);
-        else if (ourColor.b > 130.9)      texColor = texture(shellShotgunTex, TexCoord);
+        else if (ourColor.b > 130.9) texColor = texture(shellShotgunTex, TexCoord);
         else if (ourColor.b > 129.9) texColor = texture(shellTex, TexCoord);
         else if (ourColor.b > 124.9) texColor = texture(hudTexture, TexCoord);
         else if (ourColor.b > 119.9) texColor = texture(keypadGreen, TexCoord);
@@ -248,19 +253,14 @@ void main() {
              float alpha = 0.6 * (1.0 - dist * 2.0);
              texColor = vec4(0.0, 0.0, 0.0, alpha);
         }
-        else if (ourColor.b > 94.9) {
-             texColor = vec4(0.0, 0.0, 0.0, 0.95); 
-        }
+        else if (ourColor.b > 94.9) { texColor = vec4(0.0, 0.0, 0.0, 0.95); }
         else if (ourColor.b > 89.9) texColor = texture(wallTexture, TexCoord);
         else if (ourColor.b > 79.9) texColor = texture(bloodPartTex, TexCoord);
-        
         else if (ourColor.b > 62.9) texColor = texture(settingsBgTex, TexCoord);
         else if (ourColor.b > 61.9) texColor = texture(bloodyXTex, TexCoord);
         else if (ourColor.b > 60.9) texColor = texture(logoTex, TexCoord);
         else if (ourColor.b > 59.9) texColor = texture(menuBgTex, TexCoord);
-        
         else if (ourColor.b > 52.9) texColor = texture(ammoRifleTex, TexCoord);
-        
         else if (ourColor.b > 51.9) {
             vec4 wCol = texture(rifleShootTex, TexCoord);
             texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
@@ -269,7 +269,6 @@ void main() {
             vec4 wCol = texture(rifleViewTex, TexCoord);
             texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
         }
-
         else if (ourColor.b > 49.9) texColor = texture(rifleTex, TexCoord);
         else if (ourColor.b > 35.9) texColor = texture(doorTexture, TexCoord);
         else if (ourColor.b > 31.9) {
@@ -326,8 +325,7 @@ void main() {
              texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
         }
         else if (ourColor.b > 5.9) {
-            float p = gl_FragCoord.y - (screenHeight / 2.0);
-            if (p < 1.0) p = 1.0;
+            float p = gl_FragCoord.y - (screenHeight / 2.0); if (p < 1.0) p = 1.0;
             float posZ = 0.5 * screenHeight; float rowDistance = posZ / p;
             float cameraX = (gl_FragCoord.x / screenWidth) * 2.0 - 1.0;
             float rayDirX = cos(playerDir) + cos(playerDir+1.5708)*cameraX;
@@ -336,8 +334,7 @@ void main() {
             float light = min(1.0, 3.5 / rowDistance);
             texColor = texture(ceilingTexture, ceilPos) * vec4(light, light, light, 1.0);
         } else if (ourColor.b > 4.9) {
-            float p = (screenHeight / 2.0) - gl_FragCoord.y;
-            if (p < 1.0) p = 1.0;
+            float p = (screenHeight / 2.0) - gl_FragCoord.y; if (p < 1.0) p = 1.0;
             float posZ = 0.5 * screenHeight; float rowDistance = posZ / p;
             float cameraX = (gl_FragCoord.x / screenWidth) * 2.0 - 1.0;
             float rayDirX = cos(playerDir) + cos(playerDir+1.5708)*cameraX;
@@ -352,12 +349,9 @@ void main() {
         else texColor = texture(wallTexture, TexCoord);
 
         if (!isBlood && texColor.a < 0.1) discard;
-
         if (!isBlood) FragColor = texColor * vec4(ourColor.r, ourColor.r, ourColor.r, 1.0);
         else FragColor = texColor;
-
         FragColor = FragColor * vec4(brightness, brightness, brightness, 1.0);
-
     } else { FragColor = vec4(ourColor, 1.0); }
 }
 )glsl";
@@ -397,7 +391,6 @@ void drawRotatedQuad2D(std::vector<float>& v, float x, float y, float w, float h
     float localY[4] = { halfH,  halfH, -halfH, -halfH };
     float cosA = cos(angle); float sinA = sin(angle);
     float finalX[4], finalY[4];
-
     for (int i = 0; i < 4; i++) {
         finalX[i] = x + (localX[i] * cosA - localY[i] * sinA);
         finalY[i] = y + (localX[i] * sinA + localY[i] * cosA);
@@ -482,6 +475,8 @@ int main() {
     t[59] = loadTexture("settings_bg.png");
     t[60] = loadTexture("note_world.png");
     t[61] = loadTexture("note_ui.png");
+    t[62] = loadTexture("crosshair.png");
+    t[63] = loadTexture("crosshair_shotgun.png");
 
     initAudio();
 
@@ -501,10 +496,10 @@ int main() {
         "rifleTex", "rifleViewTex", "rifleShootTex", "ammoRifleTex", "hudTexture",
         "shellTex", "shellShotgunTex",
         "menuBgTex", "logoTex", "bloodyXTex", "settingsBgTex",
-        "noteWorldTex", "noteUiTex" };
+        "noteWorldTex", "noteUiTex", "crosshairTex", "crosshairShotgunTex" };
 
-    for (int i = 0; i < 62; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
-    for (int i = 0; i < 62; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 64; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 64; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -604,6 +599,11 @@ int main() {
         else if (gameState == PLAYING) {
             updateShells(0.016f);
 
+            if (weaponSwitchTimer > 0.0f) {
+                weaponSwitchTimer -= 0.016f;
+                if (weaponSwitchTimer < 0.0f) weaponSwitchTimer = 0.0f;
+            }
+
             static bool nPressedLastFrame = false;
             if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
                 if (!nPressedLastFrame && hasSecretNote) {
@@ -641,10 +641,36 @@ int main() {
             finalIntensity = std::max(damageAlpha, healthAlpha);
             glUniform1f(dmgIntLoc, finalIntensity);
 
-            if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) currentWeapon = 0;
-            if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) if (hasPistol) currentWeapon = 1;
-            if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) if (hasShotgun) currentWeapon = 2;
-            if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) if (hasRifle) currentWeapon = 3;
+            if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+                if (currentWeapon != 0 && weaponSwitchTimer <= 0.0f) {
+                    currentWeapon = 0;
+                    weaponSwitchTimer = 1.0f;
+                }
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+                if (hasPistol && currentWeapon != 1 && weaponSwitchTimer <= 0.0f) {
+                    currentWeapon = 1;
+                    playPickupSound(3);
+                    weaponSwitchTimer = 1.0f;
+                }
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+                if (hasShotgun && currentWeapon != 2 && weaponSwitchTimer <= 0.0f) {
+                    currentWeapon = 2;
+                    playPickupSound(3);
+                    weaponSwitchTimer = 1.0f;
+                }
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+                if (hasRifle && currentWeapon != 3 && weaponSwitchTimer <= 0.0f) {
+                    currentWeapon = 3;
+                    playPickupSound(3);
+                    weaponSwitchTimer = 1.0f;
+                }
+            }
 
             if (shootTimer > 0.0f) {
                 shootTimer -= 0.016f;
@@ -751,9 +777,7 @@ int main() {
                 if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) currentSpeed *= 2.0f;
                 float mS = currentSpeed; bool moving = false;
 
-                // --- ZMODYFIKOWANA FUNKCJA RUCHU (Dla obslugi strafe) ---
                 auto tryMove = [&](float moveStep, float angleOffset) {
-                    // moveDir uwzglednia kierunek patrzenia + offset (np. 90 stopni dla strafe w prawo)
                     float moveDir = playerDir + angleOffset;
 
                     float dx = cos(moveDir) * moveStep;
@@ -1041,6 +1065,16 @@ int main() {
                 glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
                 glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
                 vertices.clear();
+
+                if (currentWeapon != 0 && !isViewingNote && !isKeypadActive && !gameOver) {
+                    float crosshairID = (currentWeapon == 2) ? 151.0f : 150.0f;
+
+                    drawQuad2D(vertices, 0.0f, 0.0f, 0.02f, 0.03f, crosshairID);
+
+                    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+                    vertices.clear();
+                }
 
                 glActiveTexture(GL_TEXTURE3);
                 drawText(vertices, -0.60f, -0.84f, 0.04f, "HP"); drawText(vertices, -0.65f, -0.92f, 0.07f, std::to_string(playerHealth));

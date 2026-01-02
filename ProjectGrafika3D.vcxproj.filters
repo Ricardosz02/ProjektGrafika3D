@@ -253,6 +253,12 @@
     <Image Include="note_world.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="crosshair_shotgun.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="crosshair.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="shoot_shotgun.wav">
