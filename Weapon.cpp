@@ -132,3 +132,10 @@ void checkWeaponCollection(float playerX, float playerY, int& health, int& armor
         }
     }
 }
+
+void resetKeys() {
+    hasGreenKey = false;
+    hasRedKey = false;
+    hasSecretNote = false;
+    std::cout << "Klucze i kartki zostaly usuniete!" << std::endl;
+}

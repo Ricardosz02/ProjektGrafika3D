@@ -44,4 +44,6 @@ extern bool hasSecretNote;
 void initWeapons();
 void checkWeaponCollection(float playerX, float playerY, int& health, int& armor);
 
+void resetKeys();
+
 #endif

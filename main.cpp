@@ -81,6 +81,7 @@ void resetGame() {
     switchMap(activeMapIndex);
     initMonsters();
     initWeapons();
+    resetKeys();
 
     playerX = 2.5f;
     playerY = 2.5f;
@@ -219,7 +220,7 @@ void main() {
         bool isBlood = false;
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        if (ourColor.b > 140.9)      texColor = texture(noteUiTex, TexCoord);
+        if (ourColor.b > 140.9)       texColor = texture(noteUiTex, TexCoord);
         else if (ourColor.b > 139.9) texColor = texture(noteWorldTex, TexCoord);
         else if (ourColor.b > 130.9)      texColor = texture(shellShotgunTex, TexCoord);
         else if (ourColor.b > 129.9) texColor = texture(shellTex, TexCoord);
@@ -256,6 +257,7 @@ void main() {
         else if (ourColor.b > 59.9) texColor = texture(menuBgTex, TexCoord);
         
         else if (ourColor.b > 52.9) texColor = texture(ammoRifleTex, TexCoord);
+        
         else if (ourColor.b > 51.9) {
             vec4 wCol = texture(rifleShootTex, TexCoord);
             texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
@@ -264,6 +266,7 @@ void main() {
             vec4 wCol = texture(rifleViewTex, TexCoord);
             texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
         }
+
         else if (ourColor.b > 49.9) texColor = texture(rifleTex, TexCoord);
         else if (ourColor.b > 35.9) texColor = texture(doorTexture, TexCoord);
         else if (ourColor.b > 31.9) {
@@ -720,8 +723,22 @@ int main() {
                     if (typeX == 2 || (typeX >= 3 && typeX <= 5) || typeX == 8) { Door* d = getDoor((int)checkX, (int)playerY); if (d && d->openAmount < 0.7f) doorBlockX = true; }
                     if (typeX == 0 || ((typeX >= 2 && typeX <= 5 || typeX == 8) && !doorBlockX)) { playerX = nextX; moving = true; }
                     else if (typeX == 9) {
-                        if (activeMapIndex == 1) { switchMap(2); activeMapIndex = 2; playerX = 2.5f; playerY = 2.5f; initMonsters(); initWeapons(); }
-                        else { switchMap(1); activeMapIndex = 1; playerX = 2.5f; playerY = 7.5f; initMonsters(); initWeapons(); } return;
+                        if (activeMapIndex == 1) {
+                            activeMapIndex = 2;
+                            switchMap(activeMapIndex);
+                            resetKeys();
+
+                            playerX = 2.5f;
+                            playerY = 2.5f;
+                            initMonsters();
+                            initWeapons();
+                            std::cout << "Przejscie do Levelu 2!" << std::endl;
+                        }
+                        else {
+                            std::cout << "KONIEC GRY!" << std::endl;
+                            gameOver = true;
+                        }
+                        return;
                     }
                     float nextY = playerY + dy; float checkY = nextY + (dy > 0 ? collisionRadius : -collisionRadius);
                     int typeY = worldMap[(int)checkY][(int)playerX];
@@ -729,8 +746,21 @@ int main() {
                     if (typeY == 2 || (typeY >= 3 && typeY <= 5) || typeY == 8) { Door* d = getDoor((int)playerX, (int)checkY); if (d && d->openAmount < 0.7f) doorBlockY = true; }
                     if (typeY == 0 || ((typeY >= 2 && typeY <= 5 || typeY == 8) && !doorBlockY)) { playerY = nextY; moving = true; }
                     else if (typeY == 9) {
-                        if (activeMapIndex == 1) { switchMap(2); activeMapIndex = 2; playerX = 2.5f; playerY = 2.5f; initMonsters(); initWeapons(); }
-                        else { switchMap(1); activeMapIndex = 1; playerX = 2.5f; playerY = 7.5f; initMonsters(); initWeapons(); }
+                        if (activeMapIndex == 1) {
+                            activeMapIndex = 2;
+                            switchMap(activeMapIndex);
+                            resetKeys();
+
+                            playerX = 2.5f;
+                            playerY = 2.5f;
+                            initMonsters();
+                            initWeapons();
+                            std::cout << "Przejscie do Levelu 2!" << std::endl;
+                        }
+                        else {
+                            std::cout << "KONIEC GRY!" << std::endl;
+                            gameOver = true;
+                        }
                     }
                     };
                 if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) tryMove(mS);
