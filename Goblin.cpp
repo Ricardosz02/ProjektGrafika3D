@@ -81,6 +81,30 @@ void applyDamage(int& health, int& armor, int damage, float& damageAlpha) {
 void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHealth, int& playerArmor, float& damageAlpha) {
     for (auto& m : sprites) {
         if (!m.isAlive || m.isWeapon) continue;
+
+        for (const auto& other : sprites) {
+            if (&m == &other || !other.isAlive || other.isWeapon) continue;
+
+            float dx = m.x - other.x;
+            float dy = m.y - other.y;
+            float dist = std::sqrt(dx * dx + dy * dy);
+
+            float minSpacing = 0.6f;
+
+            if (dist < minSpacing && dist > 0.001f) {
+                float pushX = dx / dist;
+                float pushY = dy / dist;
+
+                float pushStrength = (minSpacing - dist) * 2.0f * deltaTime;
+
+                float newX = m.x + pushX * pushStrength;
+                float newY = m.y + pushY * pushStrength;
+
+                if (worldMap[(int)m.y][(int)newX] == 0) m.x = newX;
+                if (worldMap[(int)newY][(int)m.x] == 0) m.y = newY;
+            }
+        }
+
         float dx = playerX - m.x; float dy = playerY - m.y;
         float dist = std::sqrt(dx * dx + dy * dy);
         m.dist = dist * dist;
