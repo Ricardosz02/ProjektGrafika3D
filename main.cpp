@@ -53,8 +53,8 @@ float damageAlpha = 0.0f;
 float flashIntensity = 0.0f;
 
 const float FISTS_DAMAGE = 15.0f;
-const float PISTOL_DAMAGE = 25.0f;
-const float SHOTGUN_DAMAGE = 100.0f;
+const float PISTOL_DAMAGE = 20.0f; // 25.0
+const float SHOTGUN_DAMAGE = 75.0f; //100.0
 
 bool isViewingNote = false;
 extern bool hasSecretNote;
@@ -713,9 +713,9 @@ int main() {
                         shells.push_back(s);
                     }
 
-                    if (currentWeapon == 1) { isShooting = true; shootTimer = 0.15f; }
-                    else if (currentWeapon == 2) { isShooting = true; shootTimer = 0.40f; }
-                    else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.35f; }
+                    if (currentWeapon == 1) { isShooting = true; shootTimer = 0.50f; } //Pistol
+                    else if (currentWeapon == 2) { isShooting = true; shootTimer = 1.00f; } //Shotgun
+                    else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.35f; } //Rifle
                     else if (currentWeapon == 0) { isShooting = true; shootTimer = 0.6f; maxShootTime = shootTimer; punchSide = 1 - punchSide; }
 
                     int pellets = 1; float spread = 0.0f; float spreadY = 0.0f;

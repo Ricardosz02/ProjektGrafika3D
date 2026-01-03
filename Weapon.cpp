@@ -68,16 +68,16 @@ void checkWeaponCollection(float playerX, float playerY, int& health, int& armor
                 if (w.type == WEAPON_PISTOL) {
                     hasPistol = true;
                     if (currentWeapon == 0) currentWeapon = 1;
-                    ammoPistol += 10;
+                    ammoPistol += 20;
                     playPickupSound(PICKUP_WEAPON);
-                    std::cout << "ZEBRANO PISTOLET! (+10 Ammo)" << std::endl;
+                    std::cout << "ZEBRANO PISTOLET! (+20 Ammo)" << std::endl;
                 }
                 else if (w.type == WEAPON_SHOTGUN) {
                     hasShotgun = true;
                     if (currentWeapon == 0 || currentWeapon == 1) currentWeapon = 2;
-                    ammoShotgun += 5;
+                    ammoShotgun += 10;
                     playPickupSound(PICKUP_WEAPON);
-                    std::cout << "ZEBRANO SHOTGUN! (+5 Ammo)" << std::endl;
+                    std::cout << "ZEBRANO SHOTGUN! (+10 Ammo)" << std::endl;
                 }
                 else if (w.type == WEAPON_RIFLE) {
                     hasRifle = true;
@@ -87,19 +87,19 @@ void checkWeaponCollection(float playerX, float playerY, int& health, int& armor
                     std::cout << "ZEBRANO KARABIN! (+50 Ammo)" << std::endl;
                 }
                 else if (w.type == AMMO_PISTOL_BOX) {
-                    ammoPistol += 10;
+                    ammoPistol += 20;
                     playPickupSound(PICKUP_AMMO);
-                    std::cout << "Amunicja Pistoletu (+10)" << std::endl;
+                    std::cout << "Amunicja Pistoletu (+20)" << std::endl;
                 }
                 else if (w.type == AMMO_SHOTGUN_BOX) {
-                    ammoShotgun += 5;
+                    ammoShotgun += 10;
                     playPickupSound(PICKUP_AMMO);
-                    std::cout << "Amunicja Shotguna (+5)" << std::endl;
+                    std::cout << "Amunicja Shotguna (+10)" << std::endl;
                 }
                 else if (w.type == AMMO_RIFLE_BOX) {
-                    ammoRifle += 20;
+                    ammoRifle += 25;
                     playPickupSound(PICKUP_AMMO);
-                    std::cout << "Amunicja Karabinu (+20)" << std::endl;
+                    std::cout << "Amunicja Karabinu (+25)" << std::endl;
                 }
                 else if (w.type == ITEM_MEDKIT) {
                     health += 50;

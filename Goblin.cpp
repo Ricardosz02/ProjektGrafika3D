@@ -16,8 +16,8 @@ void initMonsters() {
     bloodParticles.clear();
 
     //Sprite goblin; goblin.x = 13.5f; goblin.y = 13.5f; goblin.type = MONSTER_TYPE_GOBLIN; goblin.health = 100; sprites.push_back(goblin);
-    //Sprite flying; flying.x = 12.5f; flying.y = 12.5f; flying.type = MONSTER_TYPE_FLYING; flying.health = 150; sprites.push_back(flying);
-    //Sprite walker; walker.x = 10.5f; walker.y = 10.5f; walker.type = MONSTER_TYPE_WALKING; walker.health = 200; sprites.push_back(walker);
+    //Sprite flying; flying.x = 12.5f; flying.y = 12.5f; flying.type = MONSTER_TYPE_FLYING; flying.health = 200; sprites.push_back(flying);
+    //Sprite walker; walker.x = 10.5f; walker.y = 10.5f; walker.type = MONSTER_TYPE_WALKING; walker.health = 140; sprites.push_back(walker);
 
     std::cout << "Potwory zainicjowane.\n";
 }
@@ -136,7 +136,7 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
 
                     playWalkerAttack();
 
-                    applyDamage(playerHealth, playerArmor, 10, damageAlpha);
+                    applyDamage(playerHealth, playerArmor, 15, damageAlpha); // Obrażenia Walker
                     m.attackCooldown = 1.0f;
                     std::cout << "Walker uderza!\n";
                 }
@@ -242,7 +242,7 @@ void updateFireballs(float playerX, float playerY, float deltaTime, int& playerH
         if (tile == 1 || tile == 2) { fb.active = false; continue; }
         float dx = fb.x - playerX; float dy = fb.y - playerY;
         if (dx * dx + dy * dy < 0.2f) {
-            applyDamage(playerHealth, playerArmor, 15, damageAlpha);
+            applyDamage(playerHealth, playerArmor, 20, damageAlpha); // Obrażenia Flying
             fb.active = false;
             std::cout << "Kula ognia trafia!\n";
         }
