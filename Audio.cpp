@@ -146,3 +146,7 @@ void stopMenuMusic() {
 void setGlobalVolume(float volume) {
     ma_engine_set_volume(&engine, volume);
 }
+
+void playExplosionSound() {
+    ma_engine_play_sound(&engine, "barrel_explode.wav", NULL);
+}

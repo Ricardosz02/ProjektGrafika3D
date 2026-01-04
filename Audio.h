@@ -45,4 +45,6 @@ void stopMenuMusic();
 
 void setGlobalVolume(float volume);
 
+void playExplosionSound();
+
 #endif

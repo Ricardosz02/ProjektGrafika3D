@@ -59,6 +59,8 @@ const float SHOTGUN_DAMAGE = 75.0f; //100.0
 bool isViewingNote = false;
 extern bool hasSecretNote;
 
+extern std::vector<BloodParticle> fireParticles;
+
 struct HitMarker { float x_map, y_map, life; int side; float texX; };
 std::vector<HitMarker> hitMarkers;
 
@@ -216,6 +218,9 @@ uniform sampler2D noteWorldTex;      // 60
 uniform sampler2D noteUiTex;         // 61
 uniform sampler2D crosshairTex;      // 62
 uniform sampler2D crosshairShotgunTex;// 63
+uniform sampler2D barrelTex;         // 64
+uniform sampler2D explosionTex;      // 65
+uniform sampler2D fireTex;           // 66
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity; uniform float horizon; uniform float flashIntensity; uniform float brightness; 
@@ -226,9 +231,12 @@ void main() {
         bool isBlood = false;
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        if (ourColor.b > 150.9)      texColor = texture(crosshairShotgunTex, TexCoord);
+        if (ourColor.b > 153.9)      texColor = texture(fireTex, TexCoord);
+        else if (ourColor.b > 152.9) texColor = texture(explosionTex, TexCoord);
+        else if (ourColor.b > 151.9) texColor = texture(barrelTex, TexCoord);
+        else if (ourColor.b > 150.9) texColor = texture(crosshairShotgunTex, TexCoord);
         else if (ourColor.b > 149.9) texColor = texture(crosshairTex, TexCoord);
-        else if (ourColor.b > 140.9)       texColor = texture(noteUiTex, TexCoord);
+        else if (ourColor.b > 140.9) texColor = texture(noteUiTex, TexCoord);
         else if (ourColor.b > 139.9) texColor = texture(noteWorldTex, TexCoord);
         else if (ourColor.b > 130.9) texColor = texture(shellShotgunTex, TexCoord);
         else if (ourColor.b > 129.9) texColor = texture(shellTex, TexCoord);
@@ -428,7 +436,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[65];
+    GLuint t[67];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -477,6 +485,9 @@ int main() {
     t[61] = loadTexture("note_ui.png");
     t[62] = loadTexture("crosshair.png");
     t[63] = loadTexture("crosshair_shotgun.png");
+    t[64] = loadTexture("barrel.png");
+    t[65] = loadTexture("explosion.png");
+    t[66] = loadTexture("fire_particle.png");
 
     initAudio();
 
@@ -496,10 +507,11 @@ int main() {
         "rifleTex", "rifleViewTex", "rifleShootTex", "ammoRifleTex", "hudTexture",
         "shellTex", "shellShotgunTex",
         "menuBgTex", "logoTex", "bloodyXTex", "settingsBgTex",
-        "noteWorldTex", "noteUiTex", "crosshairTex", "crosshairShotgunTex" };
+        "noteWorldTex", "noteUiTex", "crosshairTex", "crosshairShotgunTex",
+        "barrelTex", "explosionTex", "fireTex" };
 
-    for (int i = 0; i < 64; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
-    for (int i = 0; i < 64; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 67; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 67; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -713,9 +725,9 @@ int main() {
                         shells.push_back(s);
                     }
 
-                    if (currentWeapon == 1) { isShooting = true; shootTimer = 0.50f; } //Pistol
-                    else if (currentWeapon == 2) { isShooting = true; shootTimer = 1.00f; } //Shotgun
-                    else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.35f; } //Rifle
+                    if (currentWeapon == 1) { isShooting = true; shootTimer = 0.15f; }
+                    else if (currentWeapon == 2) { isShooting = true; shootTimer = 0.40f; }
+                    else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.35f; }
                     else if (currentWeapon == 0) { isShooting = true; shootTimer = 0.6f; maxShootTime = shootTimer; punchSide = 1 - punchSide; }
 
                     int pellets = 1; float spread = 0.0f; float spreadY = 0.0f;
@@ -940,6 +952,15 @@ int main() {
                 std::vector<Sprite> toRender;
                 for (const auto& s : sprites) if (s.isAlive) toRender.push_back(s);
                 for (const auto& bp : bloodParticles) { Sprite s; s.x = bp.x; s.y = bp.y; s.zOffset = bp.z; s.type = OBJECT_BLOOD; s.isWeapon = false; s.dist = (playerX - bp.x) * (playerX - bp.x) + (playerY - bp.y) * (playerY - bp.y); toRender.push_back(s); }
+
+                for (const auto& fp : fireParticles) {
+                    Sprite s; s.x = fp.x; s.y = fp.y; s.zOffset = fp.z;
+                    s.type = 91;
+                    s.isWeapon = false;
+                    s.dist = (playerX - fp.x) * (playerX - fp.x) + (playerY - fp.y) * (playerY - fp.y);
+                    toRender.push_back(s);
+                }
+
                 for (const auto& w : weapons) if (!w.isCollected) { Sprite t; t.x = w.x; t.y = w.y; t.isWeapon = true; t.type = w.type; t.dist = (playerX - w.x) * (playerX - w.x) + (playerY - w.y) * (playerY - w.y); toRender.push_back(t); }
                 for (const auto& f : fireballs) { Sprite t; t.x = f.x; t.y = f.y; t.type = 999; t.isWeapon = true; t.dist = (playerX - f.x) * (playerX - f.x) + (playerY - f.y) * (playerY - f.y); toRender.push_back(t); }
                 std::sort(toRender.begin(), toRender.end(), [](const Sprite& a, const Sprite& b) {return a.dist > b.dist; });
@@ -970,6 +991,19 @@ int main() {
                         else if (!s.isWeapon && s.type == 3) { scale = 0.5f; int normalH = abs(int(screenHeight / tY)); int sH_calc = abs(int((screenHeight / tY) * scale)); vOffset = (normalH - sH_calc) / 2.0f; }
                         else if (s.type == 999) vOffset = -abs(int(screenHeight / tY)) * 0.3f;
 
+                        if (s.type == 50) {
+                            scale = 0.6f; vOffset = wallH * 0.25f;
+                        }
+                        else if (s.type == 90) {
+                            float explosionProgress = 1.0f - (s.stateTimer / 0.5f);
+                            scale = 0.5f + explosionProgress * 2.5f;
+                            vOffset = 0.0f;
+                        }
+                        else if (s.type == 91) {
+                            scale = 0.05f;
+                            vOffset = -s.zOffset * abs(int(screenHeight / tY));
+                        }
+
                         if (shadowWidthFactor > 0.0f) {
                             int sH_item = abs(int(screenHeight / tY * scale)); int sW_item = sH_item / 2;
                             int sW_shadow = sW_item * shadowWidthFactor * 1.2f; int sH_shadow = sH_item * 0.15f;
@@ -990,6 +1024,7 @@ int main() {
                         int sH = abs(int(screenHeight / tY * scale)); int sW = sH / 2;
                         if (!s.isWeapon && s.type == 3) sW = sH / 1.0;
                         if (s.type == OBJECT_HOLE_PISTOL || s.type == OBJECT_HOLE_SHOTGUN || s.type == OBJECT_BLOOD) sW = sH;
+                        if (s.type == 50) sW = sH / 1.0;
                         int dS = scrX - sW / 2, dE = scrX + sW / 2;
                         for (int str = dS; str < dE; str++) {
                             if (str >= 0 && str < screenWidth && tY < zBuffer[str]) {
@@ -1013,6 +1048,10 @@ int main() {
                                     else if (s.state == 1) { if (s.fightFrame == 0) id = 21.0f; else id = 22.0f; }
                                     else { if (s.walkStep == 0) id = 17.0f; else if (s.walkStep == 1) id = 19.0f; else if (s.walkStep == 2) id = 17.0f; else id = 18.0f; }
                                 }
+                                else if (s.type == 50) id = 152.0f;
+                                else if (s.type == 90) id = 153.0f;
+                                else if (s.type == 91) id = 154.0f;
+
                                 vertices.insert(vertices.end(), { xL,ndcS,sLight,sLight,id,texX,1, xR,ndcS,sLight,sLight,id,texX,1, xR,ndcE,sLight,sLight,id,texX,0, xL,ndcS,sLight,sLight,id,texX,1, xR,ndcE,sLight,sLight,id,texX,0, xL,ndcE,sLight,sLight,id,texX,0 });
                             }
                         }

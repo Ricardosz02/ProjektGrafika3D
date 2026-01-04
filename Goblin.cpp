@@ -9,15 +9,32 @@
 std::vector<Sprite> sprites;
 std::vector<Fireball> fireballs;
 std::vector<BloodParticle> bloodParticles;
+std::vector<BloodParticle> fireParticles;
+
+const int TYPE_BARREL = 50;
+const int TYPE_EXPLOSION = 90;
+const int TYPE_FIRE = 91;
+
+const float BARREL_RADIUS = 8.0f;
+const int BARREL_DAMAGE = 150;
 
 void initMonsters() {
     sprites.clear();
     fireballs.clear();
     bloodParticles.clear();
+    fireParticles.clear();
 
-    //Sprite goblin; goblin.x = 13.5f; goblin.y = 13.5f; goblin.type = MONSTER_TYPE_GOBLIN; goblin.health = 100; sprites.push_back(goblin);
-    //Sprite flying; flying.x = 12.5f; flying.y = 12.5f; flying.type = MONSTER_TYPE_FLYING; flying.health = 200; sprites.push_back(flying);
-    //Sprite walker; walker.x = 10.5f; walker.y = 10.5f; walker.type = MONSTER_TYPE_WALKING; walker.health = 140; sprites.push_back(walker);
+    Sprite goblin; goblin.x = 13.5f; goblin.y = 13.5f; goblin.type = MONSTER_TYPE_GOBLIN; goblin.health = 100; sprites.push_back(goblin);
+    Sprite flying; flying.x = 12.5f; flying.y = 12.5f; flying.type = MONSTER_TYPE_FLYING; flying.health = 200; sprites.push_back(flying);
+    Sprite walker; walker.x = 10.5f; walker.y = 10.5f; walker.type = MONSTER_TYPE_WALKING; walker.health = 140; sprites.push_back(walker);
+
+    Sprite barrel;
+    barrel.x = 12.0f;
+    barrel.y = 12.0f;
+    barrel.type = TYPE_BARREL;
+    barrel.health = 1;
+    barrel.isAlive = true;
+    sprites.push_back(barrel);
 
     std::cout << "Potwory zainicjowane.\n";
 }
@@ -26,10 +43,75 @@ void removeDeadMonsters() {
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](const Sprite& s) { return !s.isAlive; }), sprites.end());
 }
 
+extern int (*worldMap)[MAP_WIDTH];
+
+void updateFireParticles(float dt) {
+    for (auto& fp : fireParticles) {
+        fp.x += fp.velX;
+        fp.y += fp.velY;
+        fp.z += fp.velZ;
+
+        fp.velZ -= 0.5f * dt;
+        fp.life -= 1.5f * dt;
+
+        if (fp.z < -0.5f || fp.z > 0.5f) {
+            fp.life = -1.0f;
+            continue;
+        }
+
+        int mapX = (int)fp.x;
+        int mapY = (int)fp.y;
+
+        if (mapX >= 0 && mapX < MAP_WIDTH && mapY >= 0 && mapY < MAP_HEIGHT) {
+            if (worldMap[mapY][mapX] > 0) {
+                fp.life = -1.0f;
+            }
+        }
+    }
+
+    fireParticles.erase(std::remove_if(fireParticles.begin(), fireParticles.end(),
+        [](const BloodParticle& p) { return p.life <= 0.0f; }), fireParticles.end());
+}
+
 bool hitMonster(int index, float hitDamage) {
     if (index < 0 || index >= sprites.size()) return false;
     Sprite& m = sprites[index];
     if (!m.isAlive) return false;
+    if (m.type == TYPE_EXPLOSION) return false;
+
+    if (m.type == TYPE_BARREL) {
+        m.health -= (int)hitDamage;
+        if (m.health <= 0) {
+            m.type = TYPE_EXPLOSION;
+            m.stateTimer = 0.5f;
+            m.isAlive = true;
+
+            playExplosionSound();
+
+            for (int i = 0; i < 500; i++) {
+                BloodParticle fp;
+                fp.x = m.x; fp.y = m.y; fp.z = 0.0f; fp.life = 1.0f;
+                fp.velX = ((float)rand() / RAND_MAX - 0.5f) * 0.4f;
+                fp.velY = ((float)rand() / RAND_MAX - 0.5f) * 0.4f;
+                fp.velZ = ((float)rand() / RAND_MAX) * 0.5f;
+                fireParticles.push_back(fp);
+            }
+
+            for (auto& other : sprites) {
+                if (&other == &m || !other.isAlive || other.type == TYPE_BARREL || other.type == TYPE_EXPLOSION) continue;
+                float dx = m.x - other.x;
+                float dy = m.y - other.y;
+                float dist = std::sqrt(dx * dx + dy * dy);
+
+                if (dist < 3.0f) {
+                    other.health -= 150;
+                    other.state = STATE_PAIN;
+                    if (other.health <= 0) other.isAlive = false;
+                }
+            }
+        }
+        return true;
+    }
 
     if (m.type == MONSTER_TYPE_GOBLIN) {
         playGoblinPain();
@@ -79,11 +161,28 @@ void applyDamage(int& health, int& armor, int damage, float& damageAlpha) {
 }
 
 void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHealth, int& playerArmor, float& damageAlpha) {
+    updateFireParticles(deltaTime);
+
     for (auto& m : sprites) {
         if (!m.isAlive || m.isWeapon) continue;
 
+        if (m.type == TYPE_EXPLOSION) {
+            if (m.stateTimer > 0.45f) {
+                float dx = m.x - playerX; float dy = m.y - playerY;
+                float dist = std::sqrt(dx * dx + dy * dy);
+                if (dist < 3.0f) {
+                    applyDamage(playerHealth, playerArmor, 30, damageAlpha);
+                }
+            }
+            m.stateTimer -= deltaTime;
+            if (m.stateTimer <= 0.0f) m.isAlive = false;
+            continue;
+        }
+        if (m.type == TYPE_BARREL) continue;
+
         for (const auto& other : sprites) {
             if (&m == &other || !other.isAlive || other.isWeapon) continue;
+            if (other.type == TYPE_BARREL || other.type == TYPE_EXPLOSION) continue;
 
             float dx = m.x - other.x;
             float dy = m.y - other.y;
@@ -253,6 +352,9 @@ void updateFireballs(float playerX, float playerY, float deltaTime, int& playerH
 bool checkCollision(float playerX, float playerY) {
     for (const auto& m : sprites) {
         if (!m.isAlive || m.isWeapon) continue;
+
+        if (m.type == TYPE_BARREL || m.type == TYPE_EXPLOSION) continue;
+
         if (m.type == MONSTER_TYPE_GOBLIN) {
             float dx = playerX - m.x; float dy = playerY - m.y;
             if (dx * dx + dy * dy < COLLISION_RADIUS * COLLISION_RADIUS) return true;

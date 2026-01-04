@@ -259,6 +259,15 @@
     <Image Include="crosshair.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="explosion.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="fire_particle.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="barrel.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="shoot_shotgun.wav">
@@ -352,5 +361,8 @@
       <Filter>Pliki zasobów</Filter>
     </Media>
     <Media Include="menu_theme.mp3" />
+    <Media Include="barrel_explode.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
   </ItemGroup>
 </Project>

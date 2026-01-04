@@ -156,6 +156,7 @@
     <Image Include="ammunition_pistol.png" />
     <Image Include="ammunition_rifle.png" />
     <Image Include="ammunition_shotgun.png" />
+    <Image Include="barrel.png" />
     <Image Include="bloody_x.png" />
     <Image Include="blood_particle.png" />
     <Image Include="blood_screen_damage.png" />
@@ -175,7 +176,9 @@
     <Image Include="door_green_open.png" />
     <Image Include="door_red_locked.png" />
     <Image Include="door_red_open.png" />
+    <Image Include="explosion.png" />
     <Image Include="fireball.png" />
+    <Image Include="fire_particle.png" />
     <Image Include="floor.png" />
     <Image Include="font.png" />
     <Image Include="green_card.png" />
@@ -220,6 +223,7 @@
   </ItemGroup>
   <ItemGroup>
     <Media Include="access_denied.wav" />
+    <Media Include="barrel_explode.wav" />
     <Media Include="door_open.wav" />
     <Media Include="dry_fire.wav" />
     <Media Include="flying_attack.wav" />
