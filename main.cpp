@@ -23,7 +23,7 @@ int screenWidth = 1920;
 int screenHeight = 1080;
 
 float playerX = 2.5f;
-float playerY = 2.5f;
+float playerY = 57.5f;
 float playerDir = 0.0f;
 
 int playerHealth = 100;
@@ -92,7 +92,7 @@ void resetGame() {
     resetKeys();
 
     playerX = 2.5f;
-    playerY = 2.5f;
+    playerY = 57.5f;
     playerDir = 0.0f;
     playerHealth = 100;
     playerArmor = 0;
@@ -806,7 +806,8 @@ int main() {
                         if (activeMapIndex == 1) {
                             activeMapIndex = 2;
                             switchMap(activeMapIndex);
-                            resetKeys();
+                            hasGreenKey = false;
+                            hasRedKey = false;
                             playerX = 2.5f;
                             playerY = 2.5f;
                             initMonsters();
@@ -830,7 +831,8 @@ int main() {
                         if (activeMapIndex == 1) {
                             activeMapIndex = 2;
                             switchMap(activeMapIndex);
-                            resetKeys();
+                            hasGreenKey = false;
+                            hasRedKey = false;
                             playerX = 2.5f;
                             playerY = 2.5f;
                             initMonsters();

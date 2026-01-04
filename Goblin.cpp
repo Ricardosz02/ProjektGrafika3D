@@ -18,16 +18,19 @@ const int TYPE_FIRE = 91;
 const float BARREL_RADIUS = 8.0f;
 const int BARREL_DAMAGE = 150;
 
+extern int (*worldMap)[MAP_WIDTH];
+extern int activeMapIndex;
+
 void initMonsters() {
     sprites.clear();
     fireballs.clear();
     bloodParticles.clear();
     fireParticles.clear();
 
-    Sprite goblin; goblin.x = 13.5f; goblin.y = 13.5f; goblin.type = MONSTER_TYPE_GOBLIN; goblin.health = 100; sprites.push_back(goblin);
-    Sprite flying; flying.x = 12.5f; flying.y = 12.5f; flying.type = MONSTER_TYPE_FLYING; flying.health = 200; sprites.push_back(flying);
-    Sprite walker; walker.x = 10.5f; walker.y = 10.5f; walker.type = MONSTER_TYPE_WALKING; walker.health = 140; sprites.push_back(walker);
-
+    //Sprite goblin; goblin.x = 13.5f; goblin.y = 13.5f; goblin.type = MONSTER_TYPE_GOBLIN; goblin.health = 100; sprites.push_back(goblin);
+    //Sprite flying; flying.x = 12.5f; flying.y = 12.5f; flying.type = MONSTER_TYPE_FLYING; flying.health = 200; sprites.push_back(flying);
+    //Sprite walker; walker.x = 10.5f; walker.y = 10.5f; walker.type = MONSTER_TYPE_WALKING; walker.health = 140; sprites.push_back(walker);
+    /*
     Sprite barrel;
     barrel.x = 12.0f;
     barrel.y = 12.0f;
@@ -35,15 +38,48 @@ void initMonsters() {
     barrel.health = 1;
     barrel.isAlive = true;
     sprites.push_back(barrel);
+    */
 
-    std::cout << "Potwory zainicjowane.\n";
+    if (activeMapIndex == 1) {
+        Sprite w1;
+        w1.x = 3.0f;
+        w1.y = 42.0f;
+        w1.type = MONSTER_TYPE_WALKING;
+        w1.health = 140;
+        w1.isAlive = true;
+        sprites.push_back(w1);
+
+        Sprite w2;
+        w2.x = 11.0f;
+        w2.y = 42.0f;
+        w2.type = MONSTER_TYPE_WALKING;
+        w2.health = 140;
+        w2.isAlive = true;
+        sprites.push_back(w2);
+
+        Sprite w3;
+        w3.x = 29.0f;
+        w3.y = 54.0f;
+        w3.type = MONSTER_TYPE_WALKING;
+        w3.health = 140;
+        w3.isAlive = true;
+        sprites.push_back(w3);
+ 
+        Sprite w4;
+        w4.x = 37.0f;
+        w4.y = 53.0f;
+        w4.type = MONSTER_TYPE_WALKING;
+        w4.health = 140;
+        w4.isAlive = true;
+        sprites.push_back(w4);
+
+        std::cout << "Potwory zainicjowane.\n";
+    }
 }
 
 void removeDeadMonsters() {
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](const Sprite& s) { return !s.isAlive; }), sprites.end());
 }
-
-extern int (*worldMap)[MAP_WIDTH];
 
 void updateFireParticles(float dt) {
     for (auto& fp : fireParticles) {
@@ -160,6 +196,45 @@ void applyDamage(int& health, int& armor, int damage, float& damageAlpha) {
     damageAlpha = 1.0f;
 }
 
+bool checkLineOfSight(float mx, float my, float px, float py) {
+    float dx = px - mx;
+    float dy = py - my;
+    float dist = std::sqrt(dx * dx + dy * dy);
+
+    if (dist < 0.5f) return true;
+
+    float steps = dist / 0.5f;
+    float stepX = dx / steps;
+    float stepY = dy / steps;
+
+    float currentX = mx;
+    float currentY = my;
+
+    for (int i = 0; i < (int)steps; i++) {
+        currentX += stepX;
+        currentY += stepY;
+
+        if (currentX < 0 || currentX >= MAP_WIDTH || currentY < 0 || currentY >= MAP_HEIGHT) return false;
+
+        int mapX = (int)currentX;
+        int mapY = (int)currentY;
+        int tile = worldMap[mapY][mapX];
+
+        if (tile == 1) return false;
+
+        if ((tile >= 2 && tile <= 5) || tile == 8) {
+            for (const auto& d : doors) {
+                if (d.x == mapX && d.y == mapY) {
+                    if (d.openAmount < 0.7f) return false;
+                    break;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHealth, int& playerArmor, float& damageAlpha) {
     updateFireParticles(deltaTime);
 
@@ -208,9 +283,16 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
         float dist = std::sqrt(dx * dx + dy * dy);
         m.dist = dist * dist;
 
+        bool canSee = checkLineOfSight(m.x, m.y, playerX, playerY);
+
         if (m.state == STATE_PAIN) {
             m.stateTimer -= deltaTime;
             if (m.stateTimer <= 0.0f) m.state = STATE_IDLE;
+            continue;
+        }
+
+        if (!canSee && dist > 1.5f) {
+            m.state = STATE_IDLE;
             continue;
         }
 

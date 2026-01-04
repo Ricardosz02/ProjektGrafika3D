@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 
-#define MAP_WIDTH 20
-#define MAP_HEIGHT 20
+#define MAP_WIDTH 60
+#define MAP_HEIGHT 60
 
 enum DoorState { CLOSED, OPENING, OPEN, CLOSING };
 
@@ -29,6 +29,10 @@ extern Door* targetKeypadDoor;
 
 extern int worldMap1[MAP_HEIGHT][MAP_WIDTH];
 extern int worldMap2[MAP_HEIGHT][MAP_WIDTH];
+extern int worldMap3[MAP_HEIGHT][MAP_WIDTH];
+extern int worldMap4[MAP_HEIGHT][MAP_WIDTH];
+extern int worldMap5[MAP_HEIGHT][MAP_WIDTH];
+extern int worldMap6[MAP_HEIGHT][MAP_WIDTH];
 
 extern int (*worldMap)[MAP_WIDTH];
 extern std::vector<Door> doors;

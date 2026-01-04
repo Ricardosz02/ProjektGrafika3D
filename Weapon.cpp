@@ -16,12 +16,13 @@ int currentWeapon = 0;
 
 bool hasGreenKey = false;
 bool hasRedKey = false;
-
 bool hasSecretNote = false;
+
+extern int activeMapIndex;
 
 void initWeapons() {
     weapons.clear();
-
+    /*
     weapons.push_back({ 3.5f, 9.5f, false, 0.0f, WEAPON_PISTOL });
     weapons.push_back({ 16.5f, 9.5f, false, 0.0f, WEAPON_SHOTGUN });
     weapons.push_back({ 13.5f, 7.5f, false, 0.0f, WEAPON_RIFLE });
@@ -37,18 +38,38 @@ void initWeapons() {
     weapons.push_back({ 15.5f, 15.5f, false, 0.0f, ITEM_KEY_RED });
 
     weapons.push_back({ 3.5f, 3.5f, false, 0.0f, WEAPON_TYPE_NOTE });
+    */
 
-    hasPistol = false;
-    hasShotgun = false;
-    hasRifle = false;
+    if (activeMapIndex == 1) {
 
-    hasGreenKey = false;
-    hasRedKey = false;
+        weapons.push_back({ 15.0f, 58.0f, false, 0.0f, WEAPON_PISTOL });
 
-    currentWeapon = 0;
-    ammoPistol = 0;
-    ammoShotgun = 0;
-    ammoRifle = 0;
+        weapons.push_back({ 19.0f, 38.0f, false, 0.0f, AMMO_PISTOL_BOX });
+
+        weapons.push_back({ 35.0f, 53.0f, false, 0.0f, ITEM_MEDKIT });
+
+        std::cout << "Dodano przedmioty dla Mapy 1.\n";
+    }
+
+    else if (activeMapIndex == 2) {
+
+    }
+
+    else if (activeMapIndex == 3) {
+
+    }
+
+    else if (activeMapIndex == 4) {
+
+    }
+
+    else if (activeMapIndex == 5) {
+
+    }
+
+    else if (activeMapIndex == 6) {
+
+    }
 
     std::cout << "Inicjalizacja przedmiotow zakonczona." << std::endl;
 }
