@@ -808,8 +808,8 @@ int main() {
                             switchMap(activeMapIndex);
                             hasGreenKey = false;
                             hasRedKey = false;
-                            playerX = 2.5f;
-                            playerY = 2.5f;
+                            playerX = 3.0f;
+                            playerY = 25.0f;
                             initMonsters();
                             initWeapons();
                             std::cout << "Przejscie do Levelu 2!" << std::endl;
@@ -833,8 +833,8 @@ int main() {
                             switchMap(activeMapIndex);
                             hasGreenKey = false;
                             hasRedKey = false;
-                            playerX = 2.5f;
-                            playerY = 2.5f;
+                            playerX = 3.0f;
+                            playerY = 25.0f;
                             initMonsters();
                             initWeapons();
                             std::cout << "Przejscie do Levelu 2!" << std::endl;
