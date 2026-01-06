@@ -75,6 +75,52 @@ void initMonsters() {
 
         std::cout << "Potwory zainicjowane.\n";
     }
+
+    if (activeMapIndex == 2) {
+        Sprite w1;
+        w1.x = 9.5f;
+        w1.y = 6.0f;
+        w1.type = MONSTER_TYPE_WALKING;
+        w1.health = 140;
+        w1.isAlive = true;
+        sprites.push_back(w1);
+
+        Sprite w2;
+        w2.x = 9.5f;
+        w2.y = 9.0f;
+        w2.type = MONSTER_TYPE_WALKING;
+        w2.health = 140;
+        w2.isAlive = true;
+        sprites.push_back(w2);
+
+        Sprite w3;
+        w3.x = 41.0f;
+        w3.y = 23.5f;
+        w3.type = MONSTER_TYPE_WALKING;
+        w3.health = 140;
+        w3.isAlive = true;
+        sprites.push_back(w3);
+
+
+        Sprite w4;
+        w4.x = 26.5f;
+        w4.y = 7.5f;
+        w4.type = MONSTER_TYPE_FLYING;
+        w4.health = 200;
+        w4.isAlive = true;
+        sprites.push_back(w4);
+
+
+        Sprite w5;
+        w5.x = 25.0f;
+        w5.y = 25.0f;
+        w5.type = MONSTER_TYPE_FLYING;
+        w5.health = 200;
+        w5.isAlive = true;
+        sprites.push_back(w5);
+
+
+    }
 }
 
 void removeDeadMonsters() {

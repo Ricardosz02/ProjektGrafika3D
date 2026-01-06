@@ -53,6 +53,16 @@ void initWeapons() {
 
     else if (activeMapIndex == 2) {
 
+        weapons.push_back({ 9.0f, 36.0f, false, 0.0f, AMMO_PISTOL_BOX });
+
+        weapons.push_back({ 2.0f, 8.0f, false, 0.0f, AMMO_PISTOL_BOX });
+
+        weapons.push_back({ 3.0f, 32.0f, false, 0.0f, AMMO_PISTOL_BOX });
+
+        weapons.push_back({ 32.0f, 3.0f, false, 0.0f, ITEM_KEY_GREEN });
+
+        std::cout << "Dodano przedmioty dla Mapy 1.\n";
+
     }
 
     else if (activeMapIndex == 3) {

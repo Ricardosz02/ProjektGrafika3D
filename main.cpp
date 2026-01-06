@@ -53,8 +53,8 @@ float damageAlpha = 0.0f;
 float flashIntensity = 0.0f;
 
 const float FISTS_DAMAGE = 15.0f;
-const float PISTOL_DAMAGE = 20.0f; // 25.0
-const float SHOTGUN_DAMAGE = 75.0f; //100.0
+const float PISTOL_DAMAGE = 20.0f;
+const float SHOTGUN_DAMAGE = 75.0f;
 
 bool isViewingNote = false;
 extern bool hasSecretNote;
@@ -83,6 +83,8 @@ int activeMapIndex = 1;
 
 std::string keypadInput = "";
 bool keysPressed[10] = { 0 };
+
+extern bool checkCollision(float px, float py);
 
 void resetGame() {
     activeMapIndex = 1;
@@ -221,6 +223,7 @@ uniform sampler2D crosshairShotgunTex;// 63
 uniform sampler2D barrelTex;         // 64
 uniform sampler2D explosionTex;      // 65
 uniform sampler2D fireTex;           // 66
+uniform sampler2D portalTex;         // 67
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity; uniform float horizon; uniform float flashIntensity; uniform float brightness; 
@@ -278,6 +281,7 @@ void main() {
             texColor = vec4(mix(wCol.rgb, bloodRed, damageIntensity * 0.4), wCol.a);
         }
         else if (ourColor.b > 49.9) texColor = texture(rifleTex, TexCoord);
+        else if (ourColor.b > 36.9) texColor = texture(portalTex, TexCoord);
         else if (ourColor.b > 35.9) texColor = texture(doorTexture, TexCoord);
         else if (ourColor.b > 31.9) {
              vec4 wCol;
@@ -436,7 +440,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[67];
+    GLuint t[68];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -488,6 +492,7 @@ int main() {
     t[64] = loadTexture("barrel.png");
     t[65] = loadTexture("explosion.png");
     t[66] = loadTexture("fire_particle.png");
+    t[67] = loadTexture("portal.png");
 
     initAudio();
 
@@ -508,10 +513,10 @@ int main() {
         "shellTex", "shellShotgunTex",
         "menuBgTex", "logoTex", "bloodyXTex", "settingsBgTex",
         "noteWorldTex", "noteUiTex", "crosshairTex", "crosshairShotgunTex",
-        "barrelTex", "explosionTex", "fireTex" };
+        "barrelTex", "explosionTex", "fireTex", "portalTex" };
 
-    for (int i = 0; i < 67; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
-    for (int i = 0; i < 67; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 68; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 68; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -534,7 +539,6 @@ int main() {
     static bool ePressedLastFrame = false;
 
     double lastX = 0;
-    bool firstMouse = true;
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     while (!glfwWindowShouldClose(window)) {
@@ -801,7 +805,10 @@ int main() {
                     int typeX = worldMap[(int)playerY][(int)checkX];
                     bool doorBlockX = false;
                     if (typeX == 2 || (typeX >= 3 && typeX <= 5) || typeX == 8) { Door* d = getDoor((int)checkX, (int)playerY); if (d && d->openAmount < 0.7f) doorBlockX = true; }
-                    if (typeX == 0 || ((typeX >= 2 && typeX <= 5 || typeX == 8) && !doorBlockX)) { playerX = nextX; moving = true; }
+
+                    if ((typeX == 0 || ((typeX >= 2 && typeX <= 5 || typeX == 8) && !doorBlockX)) && !checkCollision(nextX, playerY)) {
+                        playerX = nextX; moving = true;
+                    }
                     else if (typeX == 9) {
                         if (activeMapIndex == 1) {
                             activeMapIndex = 2;
@@ -826,7 +833,10 @@ int main() {
                     int typeY = worldMap[(int)checkY][(int)playerX];
                     bool doorBlockY = false;
                     if (typeY == 2 || (typeY >= 3 && typeY <= 5) || typeY == 8) { Door* d = getDoor((int)playerX, (int)checkY); if (d && d->openAmount < 0.7f) doorBlockY = true; }
-                    if (typeY == 0 || ((typeY >= 2 && typeY <= 5 || typeY == 8) && !doorBlockY)) { playerY = nextY; moving = true; }
+
+                    if ((typeY == 0 || ((typeY >= 2 && typeY <= 5 || typeY == 8) && !doorBlockY)) && !checkCollision(playerX, nextY)) {
+                        playerY = nextY; moving = true;
+                    }
                     else if (typeY == 9) {
                         if (activeMapIndex == 1) {
                             activeMapIndex = 2;
@@ -870,7 +880,10 @@ int main() {
                 checkWeaponCollection(playerX, playerY, playerHealth, playerArmor);
                 updateSprites(playerX, playerY, playerHealth, playerArmor);
                 updateFireballs(playerX, playerY, 0.016f, playerHealth, playerArmor, damageAlpha);
-                if (checkCollision(playerX, playerY) || playerHealth <= 0) { gameOver = true; playPlayerDeath(); }
+
+                if (checkCollision(playerX, playerY) && !gameOver) {
+                }
+                if (playerHealth <= 0) { gameOver = true; playPlayerDeath(); }
             }
         }
 
@@ -913,7 +926,7 @@ int main() {
 
                     float perp = (side == 0) ? (mX - playerX + (1 - sX) / 2.0f) / rDX : (mY - playerY + (1 - sY) / 2.0f) / rDY; zBuffer[x] = perp;
                     int type = worldMap[mY][mX];
-                    float r = (type == 9) ? 1 : (type == 1 ? 0.4 : ((type >= 2 && type <= 5) || type == 8 ? 1.0 : 0.6)), g = r, b = (type == 9) ? 0 : r;
+                    float r = (type == 9) ? 0.6 : (type == 1 ? 0.4 : ((type >= 2 && type <= 5) || type == 8 ? 1.0 : 0.6)), g = r, b = r;
                     if (side) { r *= 0.7; g *= 0.7; b *= 0.7; }
                     float light = 3.5f / (perp + 0.1f); if (light > 1.0f) light = 1.0f; r *= light; g *= light;
 
@@ -924,7 +937,7 @@ int main() {
                     float lH = screenHeight / perp, dS = -lH / 2 + screenHeight / 2, dE = lH / 2 + screenHeight / 2;
                     float nS = 1 - 2 * dS / screenHeight, nE = 1 - 2 * dE / screenHeight, xL = 2.0f * x / screenWidth - 1, xR = 2.0f * (x + 1) / screenWidth - 1;
                     float blueChannelID = 0.0f;
-                    if (type == 9) blueChannelID = 31.0f;
+                    if (type == 9) blueChannelID = 37.0f;
                     else if (type == 2) blueChannelID = 36.0f;
                     else if (type == 3) { Door* d = getDoor(mX, mY); blueChannelID = (d && d->isLocked) ? 103.0f : 104.0f; }
                     else if (type == 4) { Door* d = getDoor(mX, mY); blueChannelID = (d && d->isLocked) ? 105.0f : 106.0f; }
