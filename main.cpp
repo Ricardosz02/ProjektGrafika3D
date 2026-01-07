@@ -539,6 +539,7 @@ int main() {
     static bool ePressedLastFrame = false;
 
     double lastX = 0;
+    // bool firstMouse = true;
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     while (!glfwWindowShouldClose(window)) {
@@ -811,18 +812,37 @@ int main() {
                     }
                     else if (typeX == 9) {
                         if (activeMapIndex == 1) {
-                            activeMapIndex = 2;
-                            switchMap(activeMapIndex);
-                            hasGreenKey = false;
-                            hasRedKey = false;
-                            playerX = 3.0f;
-                            playerY = 25.0f;
-                            initMonsters();
-                            initWeapons();
-                            std::cout << "Przejscie do Levelu 2!" << std::endl;
+                            activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            playerX = 3.0f; playerY = 25.0f;
+                            initMonsters(); initWeapons();
+                            std::cout << "Poziom 2 rozpoczety!" << std::endl;
                         }
-                        else {
-                            std::cout << "KONIEC GRY!" << std::endl;
+                        else if (activeMapIndex == 2) {
+                            activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            playerX = 3.0f; playerY = 30.0f;
+                            initMonsters(); initWeapons();
+                            std::cout << "Poziom 3 rozpoczety!" << std::endl;
+                        }
+                        else if (activeMapIndex == 3) {
+                            activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            playerX = 2.5f; playerY = 2.5f;
+                            initMonsters(); initWeapons();
+                            std::cout << "Poziom 4 rozpoczety!" << std::endl;
+                        }
+                        else if (activeMapIndex == 4) {
+                            activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            playerX = 3.0f; playerY = 30.0f;
+                            initMonsters(); initWeapons();
+                            std::cout << "Poziom 5 rozpoczety!" << std::endl;
+                        }
+                        else if (activeMapIndex == 5) {
+                            activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            playerX = 3.0f; playerY = 30.0f;
+                            initMonsters(); initWeapons();
+                            std::cout << "FINALNY POZIOM 6!" << std::endl;
+                        }
+                        else if (activeMapIndex == 6) {
+                            std::cout << "GRATULACJE! UKONCZYLES WSZYSTKIE POZIOMY!" << std::endl;
                             gameOver = true;
                         }
                         return;
@@ -839,18 +859,37 @@ int main() {
                     }
                     else if (typeY == 9) {
                         if (activeMapIndex == 1) {
-                            activeMapIndex = 2;
-                            switchMap(activeMapIndex);
-                            hasGreenKey = false;
-                            hasRedKey = false;
-                            playerX = 3.0f;
-                            playerY = 25.0f;
-                            initMonsters();
-                            initWeapons();
-                            std::cout << "Przejscie do Levelu 2!" << std::endl;
+                            activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            playerX = 3.0f; playerY = 25.0f;
+                            initMonsters(); initWeapons();
+                            std::cout << "Poziom 2 rozpoczety!" << std::endl;
                         }
-                        else {
-                            std::cout << "KONIEC GRY!" << std::endl;
+                        else if (activeMapIndex == 2) {
+                            activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            playerX = 3.0f; playerY = 30.0f;
+                            initMonsters(); initWeapons();
+                            std::cout << "Poziom 3 rozpoczety!" << std::endl;
+                        }
+                        else if (activeMapIndex == 3) {
+                            activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            playerX = 2.5f; playerY = 2.5f;
+                            initMonsters(); initWeapons();
+                            std::cout << "Poziom 4 rozpoczety!" << std::endl;
+                        }
+                        else if (activeMapIndex == 4) {
+                            activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            playerX = 3.0f; playerY = 30.0f;
+                            initMonsters(); initWeapons();
+                            std::cout << "Poziom 5 rozpoczety!" << std::endl;
+                        }
+                        else if (activeMapIndex == 5) {
+                            activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            playerX = 3.0f; playerY = 30.0f;
+                            initMonsters(); initWeapons();
+                            std::cout << "FINALNY POZIOM 6!" << std::endl;
+                        }
+                        else if (activeMapIndex == 6) {
+                            std::cout << "GRATULACJE! UKONCZYLES WSZYSTKIE POZIOMY!" << std::endl;
                             gameOver = true;
                         }
                     }
