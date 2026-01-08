@@ -45,8 +45,10 @@ void initWeapons() {
         weapons.push_back({ 15.0f, 58.0f, false, 0.0f, WEAPON_PISTOL });
 
         weapons.push_back({ 19.0f, 38.0f, false, 0.0f, AMMO_PISTOL_BOX });
+        weapons.push_back({ 19.0f, 58.0f, false, 0.0f, AMMO_PISTOL_BOX });
 
-        weapons.push_back({ 35.0f, 53.0f, false, 0.0f, ITEM_MEDKIT });
+        weapons.push_back({ 8.0f, 54.0f, false, 0.0f, ITEM_MEDKIT });
+        weapons.push_back({ 37.0f, 58.0f, false, 0.0f, ITEM_ARMOR });
 
         std::cout << "Dodano przedmioty dla Mapy 1.\n";
     }
@@ -55,7 +57,7 @@ void initWeapons() {
 
         weapons.push_back({ 9.0f, 36.0f, false, 0.0f, AMMO_PISTOL_BOX });
         weapons.push_back({ 2.0f, 8.0f, false, 0.0f, AMMO_PISTOL_BOX });
-        weapons.push_back({ 3.0f, 32.0f, false, 0.0f, AMMO_PISTOL_BOX });
+        weapons.push_back({ 2.0f, 4.0f, false, 0.0f, AMMO_PISTOL_BOX });
         weapons.push_back({ 2.0f, 6.0f, false, 0.0f, AMMO_PISTOL_BOX });
 
         weapons.push_back({ 32.0f, 3.0f, false, 0.0f, ITEM_KEY_GREEN });
@@ -63,7 +65,7 @@ void initWeapons() {
         weapons.push_back({ 21.0f, 25.0f, false, 0.0f, ITEM_MEDKIT });
         weapons.push_back({ 46.0f, 23.5f, false, 0.0f, ITEM_MEDKIT });
 
-        weapons.push_back({ 2.0f, 8.0f, false, 0.0f, ITEM_ARMOR });
+        weapons.push_back({ 2.0f, 25.0f, false, 0.0f, ITEM_ARMOR });
         weapons.push_back({ 13.0f, 36.0f, false, 0.0f, ITEM_ARMOR });
 
         std::cout << "Dodano przedmioty dla Mapy 1.\n";
@@ -75,14 +77,14 @@ void initWeapons() {
         weapons.push_back({ 6.0f, 13.0f, false, 0.0f, WEAPON_SHOTGUN });
 
         weapons.push_back({ 22.0f, 15.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
-        weapons.push_back({ 25.0f, 15.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
+        weapons.push_back({ 3.0f, 26.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
 
-        weapons.push_back({ 3.5f, 52.0f, false, 0.0f, AMMO_PISTOL_BOX });
-        weapons.push_back({ 30.5f, 52.5f, false, 0.0f, AMMO_PISTOL_BOX });
+        weapons.push_back({ 3.0f, 34.0f, false, 0.0f, AMMO_PISTOL_BOX });
+        weapons.push_back({ 31.0f, 52.0f, false, 0.0f, AMMO_PISTOL_BOX });
 
-        weapons.push_back({ 27.5f, 45.5f, false, 0.0f, ITEM_KEY_GREEN });
+        weapons.push_back({ 27.0f, 45.0f, false, 0.0f, ITEM_KEY_GREEN });
 
-        weapons.push_back({ 23.5f, 14.0f, false, 0.0f, ITEM_KEY_RED });
+        weapons.push_back({ 25.0f, 15.0f, false, 0.0f, ITEM_KEY_RED });
 
         std::cout << "Dodano przedmioty dla Mapy 3.\n";
 
@@ -94,12 +96,12 @@ void initWeapons() {
 
         weapons.push_back({ 24.0f, 36.0f, false, 0.0f, ITEM_KEY_GREEN });
 
-        weapons.push_back({ 44.0f, 16.0f, false, 0.0f, ITEM_KEY_RED });
+        weapons.push_back({ 44.0f, 15.0f, false, 0.0f, ITEM_KEY_RED });
 
         weapons.push_back({ 24.0f, 4.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
         weapons.push_back({ 20.0f, 28.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
 
-        weapons.push_back({ 28.0f, 12.0f, false, 0.0f, AMMO_PISTOL_BOX });
+        weapons.push_back({ 28.0f, 13.0f, false, 0.0f, AMMO_PISTOL_BOX });
         weapons.push_back({ 36.0f, 36.0f, false, 0.0f, AMMO_PISTOL_BOX });
 
         weapons.push_back({ 48.0f, 27.0f, false, 0.0f, AMMO_RIFLE_BOX });
@@ -110,19 +112,19 @@ void initWeapons() {
 
     else if (activeMapIndex == 5) {
 
-        weapons.push_back({ 3.0f, 54.5f, false, 0.0f, ITEM_KEY_RED });
+        weapons.push_back({ 3.0f, 54.0f, false, 0.0f, ITEM_KEY_RED });
 
-        weapons.push_back({ 52.0f, 52.5f, false, 0.0f, WEAPON_TYPE_NOTE });
+        weapons.push_back({ 52.0f, 52.0f, false, 0.0f, WEAPON_TYPE_NOTE });
 
         weapons.push_back({ 9.0f, 53.0f, false, 0.0f, AMMO_RIFLE_BOX });
-        weapons.push_back({ 45.0f, 58.0f, false, 0.0f, AMMO_RIFLE_BOX });
+        weapons.push_back({ 45.0f, 59.0f, false, 0.0f, AMMO_RIFLE_BOX });
 
-        weapons.push_back({ 39.0f, 52.5f, false, 0.0f, AMMO_SHOTGUN_BOX });
+        weapons.push_back({ 39.0f, 53.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
 
-        weapons.push_back({ 45.0f, 52.5f, false, 0.0f, ITEM_ARMOR });
-        weapons.push_back({ 52.0f, 41.5f, false, 0.0f, ITEM_ARMOR });
+        weapons.push_back({ 45.0f, 52.0f, false, 0.0f, ITEM_ARMOR });
+        weapons.push_back({ 52.0f, 41.0f, false, 0.0f, ITEM_ARMOR });
 
-        weapons.push_back({ 4.5f, 41.0f, false, 0.0f, ITEM_MEDKIT });
+        weapons.push_back({ 9.0f, 55.0f, false, 0.0f, ITEM_MEDKIT });
 
         std::cout << "Dodano przedmioty dla Mapy 5.\n";
 
