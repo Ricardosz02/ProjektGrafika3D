@@ -825,7 +825,7 @@ int main() {
                         }
                         else if (activeMapIndex == 3) {
                             activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 2.5f; playerY = 2.5f;
+                            playerX = 2.5f; playerY = 4.0f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 4 rozpoczety!" << std::endl;
                         }
@@ -872,7 +872,7 @@ int main() {
                         }
                         else if (activeMapIndex == 3) {
                             activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 2.5f; playerY = 2.5f;
+                            playerX = 2.5f; playerY = 4.0f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 4 rozpoczety!" << std::endl;
                         }
