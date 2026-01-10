@@ -160,6 +160,7 @@
     <Image Include="bloody_x.png" />
     <Image Include="blood_particle.png" />
     <Image Include="blood_screen_damage.png" />
+    <Image Include="boss.png" />
     <Image Include="bullethole_pistol.png" />
     <Image Include="bullethole_shotgun.png" />
     <Image Include="bulletproof_armor.png" />
@@ -224,6 +225,10 @@
   <ItemGroup>
     <Media Include="access_denied.wav" />
     <Media Include="barrel_explode.wav" />
+    <Media Include="boss_cone.wav" />
+    <Media Include="boss_death.wav" />
+    <Media Include="boss_idle.wav" />
+    <Media Include="boss_line.wav" />
     <Media Include="door_open.wav" />
     <Media Include="dry_fire.wav" />
     <Media Include="flying_attack.wav" />

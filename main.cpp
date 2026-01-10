@@ -19,6 +19,8 @@
 #define WEAPON_TYPE_NOTE 10
 #endif
 
+#define MONSTER_TYPE_CYBERBOSS 666
+
 int screenWidth = 1920;
 int screenHeight = 1080;
 
@@ -87,19 +89,21 @@ bool keysPressed[10] = { 0 };
 extern bool checkCollision(float px, float py);
 
 void resetGame() {
-    activeMapIndex = 1;
+    stopMenuMusic();
+    stopBossMusic();
+    activeMapIndex = 1; // 1
     switchMap(activeMapIndex);
     initMonsters();
     initWeapons();
     resetKeys();
 
-    playerX = 2.5f;
-    playerY = 57.5f;
+    playerX = 2.5f; //2.5
+    playerY = 57.5f; //57.5
     playerDir = 0.0f;
     playerHealth = 100;
     playerArmor = 0;
     gameOver = false;
-
+    /*
     ammoPistol = 0;
     ammoShotgun = 0;
     ammoRifle = 0;
@@ -109,6 +113,21 @@ void resetGame() {
     hasRifle = false;
     hasGreenKey = false;
     hasRedKey = false;
+    */
+
+
+    /* ZMIANA DLA TESTÓW(Rifle + 999 ammo) :
+    ammoPistol = 50;      // Opcjonalnie
+    ammoShotgun = 50;     // Opcjonalnie
+    ammoRifle = 999;      // <--- 999 NABOI
+
+    hasPistol = true;
+    hasShotgun = true;
+    hasRifle = true;      // <--- MASZ KARABIN
+
+    currentWeapon = 3;    // <--- OD RAZU TRZYMASZ KARABIN W RÊCE (0=Pieœci, 1=Pistol, 2=Shotgun, 3=Rifle)
+    */
+
 
     weaponSwitchTimer = 0.0f;
 
@@ -224,6 +243,8 @@ uniform sampler2D barrelTex;         // 64
 uniform sampler2D explosionTex;      // 65
 uniform sampler2D fireTex;           // 66
 uniform sampler2D portalTex;         // 67
+uniform sampler2D bossTex;           // 68
+uniform sampler2D bossBarTex;        // 69
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity; uniform float horizon; uniform float flashIntensity; uniform float brightness; 
@@ -234,7 +255,9 @@ void main() {
         bool isBlood = false;
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        if (ourColor.b > 153.9)      texColor = texture(fireTex, TexCoord);
+        if (ourColor.b > 199.9)      texColor = texture(bossBarTex, TexCoord);
+        else if (ourColor.b > 154.9)      texColor = texture(bossTex, TexCoord);
+        else if (ourColor.b > 153.9) texColor = texture(fireTex, TexCoord);
         else if (ourColor.b > 152.9) texColor = texture(explosionTex, TexCoord);
         else if (ourColor.b > 151.9) texColor = texture(barrelTex, TexCoord);
         else if (ourColor.b > 150.9) texColor = texture(crosshairShotgunTex, TexCoord);
@@ -265,6 +288,7 @@ void main() {
              texColor = vec4(0.0, 0.0, 0.0, alpha);
         }
         else if (ourColor.b > 94.9) { texColor = vec4(0.0, 0.0, 0.0, 0.95); }
+
         else if (ourColor.b > 89.9) texColor = texture(wallTexture, TexCoord);
         else if (ourColor.b > 79.9) texColor = texture(bloodPartTex, TexCoord);
         else if (ourColor.b > 62.9) texColor = texture(settingsBgTex, TexCoord);
@@ -440,7 +464,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[68];
+    GLuint t[70];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -493,6 +517,8 @@ int main() {
     t[65] = loadTexture("explosion.png");
     t[66] = loadTexture("fire_particle.png");
     t[67] = loadTexture("portal.png");
+    t[68] = loadTexture("boss.png");
+    t[69] = loadTexture("boss_bar.png");
 
     initAudio();
 
@@ -513,10 +539,10 @@ int main() {
         "shellTex", "shellShotgunTex",
         "menuBgTex", "logoTex", "bloodyXTex", "settingsBgTex",
         "noteWorldTex", "noteUiTex", "crosshairTex", "crosshairShotgunTex",
-        "barrelTex", "explosionTex", "fireTex", "portalTex" };
+        "barrelTex", "explosionTex", "fireTex", "portalTex", "bossTex", "bossBarTex" };
 
-    for (int i = 0; i < 68; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
-    for (int i = 0; i < 68; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 70; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 70; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -531,7 +557,18 @@ int main() {
 
     static bool escPressedLastFrame = false;
 
-    activeMapIndex = 1; switchMap(activeMapIndex); initMonsters(); initWeapons();
+    //activeMapIndex = 1; switchMap(activeMapIndex); initMonsters(); initWeapons();
+
+    // --- TYMCZASOWY TEST BOSSA (MAPA 5) ---
+    activeMapIndex = 5;
+    switchMap(activeMapIndex);
+
+    playerX = 27.0f;
+    playerY = 34.0f;
+
+    initMonsters();
+    initWeapons();
+    // --------------------------------------
 
     playMenuMusic();
 
@@ -582,6 +619,7 @@ int main() {
                 }
                 else if (gameState == PLAYING) {
                     gameState = MENU;
+                    stopBossMusic();
                     playMenuBeep();
                     playMenuMusic();
                 }
@@ -593,6 +631,17 @@ int main() {
                     else if (isGameStarted) {
                         gameState = PLAYING;
                         stopMenuMusic();
+                        bool resumeBossMusic = false;
+                        for (const auto& s : sprites) {
+                            if (s.type == 666 && s.isAlive && s.hasSeenPlayer) {
+                                resumeBossMusic = true;
+                                break;
+                            }
+                        }
+
+                        if (resumeBossMusic) {
+                            playBossMusic();
+                        }
                     }
                 }
 
@@ -825,7 +874,7 @@ int main() {
                         }
                         else if (activeMapIndex == 3) {
                             activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 2.5f; playerY = 4.0f;
+                            playerX = 2.5f; playerY = 2.5f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 4 rozpoczety!" << std::endl;
                         }
@@ -872,7 +921,7 @@ int main() {
                         }
                         else if (activeMapIndex == 3) {
                             activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 2.5f; playerY = 4.0f;
+                            playerX = 2.5f; playerY = 2.5f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 4 rozpoczety!" << std::endl;
                         }
@@ -1031,6 +1080,8 @@ int main() {
                         if (s.type == 999) scale = 0.5f; if (s.type == OBJECT_BLOOD) scale = 0.1f; if (s.type == OBJECT_HOLE_PISTOL) scale = 0.15f; if (s.type == OBJECT_HOLE_SHOTGUN) scale = 0.30f;
                         if (s.type == WEAPON_TYPE_NOTE) scale = 0.2f;
 
+                        if (s.type == MONSTER_TYPE_CYBERBOSS) scale = 2.5f;
+
                         float vOffset = 0.0f; float shadowWidthFactor = 0.0f; float wallH = screenHeight / tY;
                         if (s.type == 999) { float time = (float)glfwGetTime(); vOffset = sin(time * 15.0f + s.x) * 5.0f; shadowWidthFactor = 0.8f; }
                         else if (s.isWeapon) {
@@ -1105,6 +1156,7 @@ int main() {
                                 else if (s.type == 50) id = 152.0f;
                                 else if (s.type == 90) id = 153.0f;
                                 else if (s.type == 91) id = 154.0f;
+                                else if (s.type == MONSTER_TYPE_CYBERBOSS) id = 155.0f;
 
                                 vertices.insert(vertices.end(), { xL,ndcS,sLight,sLight,id,texX,1, xR,ndcS,sLight,sLight,id,texX,1, xR,ndcE,sLight,sLight,id,texX,0, xL,ndcS,sLight,sLight,id,texX,1, xR,ndcE,sLight,sLight,id,texX,0, xL,ndcE,sLight,sLight,id,texX,0 });
                             }
@@ -1167,6 +1219,58 @@ int main() {
                     glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
                     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
                     vertices.clear();
+                }
+
+                for (const auto& s : sprites) {
+                    if (s.type == 666 && s.isAlive && s.hasSeenPlayer) {
+                        float maxBossHealth = 2500.0f;
+                        float hpPercent = (float)s.health / maxBossHealth;
+                        if (hpPercent < 0.0f) hpPercent = 0.0f;
+
+                        float barY = 0.85f;
+                        float barHalfWidth = 0.30f;
+                        float barHeight = 0.02f;
+
+                        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+                        vertices.clear();
+
+                        glUseProgram(p);
+
+                        drawQuad2D(vertices, 0.0f, barY, barHalfWidth + 0.01f, barHeight + 0.005f, 95.0f);
+
+                        if (hpPercent > 0.01f) {
+                            float startX = -barHalfWidth;
+                            float totalWidth = barHalfWidth * 2.0f;
+
+                            float endX = startX + (totalWidth * hpPercent);
+
+                            float yTop = barY + barHeight;
+                            float yBot = barY - barHeight;
+
+                            float cB = 200.0f;
+                            float u1 = 0.0f;
+                            float u2 = hpPercent;
+
+                            vertices.insert(vertices.end(), {
+                                startX, yTop, 1,1, cB, u1, 1,
+                                endX,   yTop, 1,1, cB, u2, 1,
+                                endX,   yBot, 1,1, cB, u2, 0,
+
+                                startX, yTop, 1,1, cB, u1, 1,
+                                endX,   yBot, 1,1, cB, u2, 0,
+                                startX, yBot, 1,1, cB, u1, 0
+                                });
+                        }
+
+                        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+                        vertices.clear();
+
+                        glActiveTexture(GL_TEXTURE3);
+                        std::string bossName = "BOSS GUARD";
+                        drawText(vertices, -0.10f, barY + barHeight + 0.03f, 0.03f, bossName);
+                    }
                 }
 
                 glActiveTexture(GL_TEXTURE3);

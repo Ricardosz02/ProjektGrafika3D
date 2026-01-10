@@ -47,4 +47,12 @@ void setGlobalVolume(float volume);
 
 void playExplosionSound();
 
+void playBossIdle();
+void playBossConeAttack();
+void playBossLineAttack();
+void playBossDeath();
+
+void playBossMusic();
+void stopBossMusic();
+
 #endif

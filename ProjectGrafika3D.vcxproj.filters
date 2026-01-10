@@ -268,6 +268,9 @@
     <Image Include="barrel.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="boss.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="shoot_shotgun.wav">
@@ -362,6 +365,18 @@
     </Media>
     <Media Include="menu_theme.mp3" />
     <Media Include="barrel_explode.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="boss_cone.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="boss_death.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="boss_idle.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="boss_line.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
   </ItemGroup>

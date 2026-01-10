@@ -27,625 +27,115 @@ void initMonsters() {
     bloodParticles.clear();
     fireParticles.clear();
 
-    //Sprite goblin; goblin.x = 13.5f; goblin.y = 13.5f; goblin.type = MONSTER_TYPE_GOBLIN; goblin.health = 100; sprites.push_back(goblin);
-    //Sprite flying; flying.x = 12.5f; flying.y = 12.5f; flying.type = MONSTER_TYPE_FLYING; flying.health = 200; sprites.push_back(flying);
-    //Sprite walker; walker.x = 10.5f; walker.y = 10.5f; walker.type = MONSTER_TYPE_WALKING; walker.health = 140; sprites.push_back(walker);
-    /*
-    Sprite barrel;
-    barrel.x = 12.0f;
-    barrel.y = 12.0f;
-    barrel.type = TYPE_BARREL;
-    barrel.health = 1;
-    barrel.isAlive = true;
-    sprites.push_back(barrel);
-    */
-
     if (activeMapIndex == 1) {
-        Sprite w1;
-        w1.x = 3.0f;
-        w1.y = 42.0f;
-        w1.type = MONSTER_TYPE_WALKING;
-        w1.health = 140;
-        w1.isAlive = true;
-        sprites.push_back(w1);
-
-        Sprite w2;
-        w2.x = 11.0f;
-        w2.y = 42.0f;
-        w2.type = MONSTER_TYPE_WALKING;
-        w2.health = 140;
-        w2.isAlive = true;
-        sprites.push_back(w2);
-
-        Sprite w3;
-        w3.x = 29.0f;
-        w3.y = 54.0f;
-        w3.type = MONSTER_TYPE_WALKING;
-        w3.health = 140;
-        w3.isAlive = true;
-        sprites.push_back(w3);
- 
-        Sprite w4;
-        w4.x = 37.0f;
-        w4.y = 53.0f;
-        w4.type = MONSTER_TYPE_WALKING;
-        w4.health = 140;
-        w4.isAlive = true;
-        sprites.push_back(w4);
-
-        Sprite w5;
-        w5.x = 44.0f;
-        w5.y = 40.0f;
-        w5.type = MONSTER_TYPE_WALKING;
-        w5.health = 140;
-        w5.isAlive = true;
-        sprites.push_back(w5);
-
-        Sprite w6;
-        w6.x = 23.0f;
-        w6.y = 34.0f;
-        w6.type = MONSTER_TYPE_WALKING;
-        w6.health = 140;
-        w6.isAlive = true;
-        sprites.push_back(w6);
-
-        std::cout << "Potwory zainicjowane.\n";
+        Sprite w1; w1.x = 3.0f; w1.y = 42.0f; w1.type = MONSTER_TYPE_WALKING; w1.health = 140; w1.isAlive = true; sprites.push_back(w1);
+        Sprite w2; w2.x = 11.0f; w2.y = 42.0f; w2.type = MONSTER_TYPE_WALKING; w2.health = 140; w2.isAlive = true; sprites.push_back(w2);
+        Sprite w3; w3.x = 29.0f; w3.y = 54.0f; w3.type = MONSTER_TYPE_WALKING; w3.health = 140; w3.isAlive = true; sprites.push_back(w3);
+        Sprite w4; w4.x = 37.0f; w4.y = 53.0f; w4.type = MONSTER_TYPE_WALKING; w4.health = 140; w4.isAlive = true; sprites.push_back(w4);
+        Sprite w5; w5.x = 44.0f; w5.y = 40.0f; w5.type = MONSTER_TYPE_WALKING; w5.health = 140; w5.isAlive = true; sprites.push_back(w5);
+        Sprite w6; w6.x = 23.0f; w6.y = 34.0f; w6.type = MONSTER_TYPE_WALKING; w6.health = 140; w6.isAlive = true; sprites.push_back(w6);
     }
 
     if (activeMapIndex == 2) {
-        Sprite w1;
-        w1.x = 9.0f;
-        w1.y = 9.0f;
-        w1.type = MONSTER_TYPE_WALKING;
-        w1.health = 140;
-        w1.isAlive = true;
-        sprites.push_back(w1);
+        Sprite w1; w1.x = 9.0f; w1.y = 9.0f; w1.type = MONSTER_TYPE_WALKING; w1.health = 140; w1.isAlive = true; sprites.push_back(w1);
+        Sprite w2; w2.x = 6.0f; w2.y = 9.0f; w2.type = MONSTER_TYPE_WALKING; w2.health = 140; w2.isAlive = true; sprites.push_back(w2);
+        Sprite w3; w3.x = 41.0f; w3.y = 24.0f; w3.type = MONSTER_TYPE_WALKING; w3.health = 140; w3.isAlive = true; sprites.push_back(w3);
+        Sprite w4; w4.x = 41.0f; w4.y = 35.0f; w4.type = MONSTER_TYPE_WALKING; w4.health = 140; w4.isAlive = true; sprites.push_back(w4);
+        Sprite w5; w5.x = 41.0f; w5.y = 41.0f; w5.type = MONSTER_TYPE_WALKING; w5.health = 140; w5.isAlive = true; sprites.push_back(w5);
 
-        Sprite w2;
-        w2.x = 6.0f;
-        w2.y = 9.0f;
-        w2.type = MONSTER_TYPE_WALKING;
-        w2.health = 140;
-        w2.isAlive = true;
-        sprites.push_back(w2);
+        Sprite w6; w6.x = 26.0f; w6.y = 7.0f; w6.type = MONSTER_TYPE_FLYING; w6.health = 200; w6.isAlive = true; sprites.push_back(w6);
+        Sprite w7; w7.x = 25.0f; w7.y = 25.0f; w7.type = MONSTER_TYPE_FLYING; w7.health = 200; w7.isAlive = true; sprites.push_back(w7);
 
-        Sprite w3;
-        w3.x = 41.0f;
-        w3.y = 24.0f;
-        w3.type = MONSTER_TYPE_WALKING;
-        w3.health = 140;
-        w3.isAlive = true;
-        sprites.push_back(w3);
-
-        Sprite w4;
-        w4.x = 41.0f;
-        w4.y = 35.0f;
-        w4.type = MONSTER_TYPE_WALKING;
-        w4.health = 140;
-        w4.isAlive = true;
-        sprites.push_back(w4);
-
-        Sprite w5;
-        w5.x = 41.0f;
-        w5.y = 41.0f;
-        w5.type = MONSTER_TYPE_WALKING;
-        w5.health = 140;
-        w5.isAlive = true;
-        sprites.push_back(w5);
-
-        Sprite w6;
-        w6.x = 26.0f;
-        w6.y = 7.0f;
-        w6.type = MONSTER_TYPE_FLYING;
-        w6.health = 200;
-        w6.isAlive = true;
-        sprites.push_back(w6);
-
-
-        Sprite w7;
-        w7.x = 25.0f;
-        w7.y = 25.0f;
-        w7.type = MONSTER_TYPE_FLYING;
-        w7.health = 200;
-        w7.isAlive = true;
-        sprites.push_back(w7);
-
-        Sprite w8;
-        w8.x = 26.0f;
-        w8.y = 25.0f;
-        w8.type = TYPE_BARREL;
-        w8.health = 1;
-        w8.isAlive = true;
-        sprites.push_back(w8);
-
-        Sprite w9;
-        w9.x = 26.0f;
-        w9.y = 8.0f;
-        w9.type = TYPE_BARREL;
-        w9.health = 1;
-        w9.isAlive = true;
-        sprites.push_back(w9);
-
-        Sprite w10;
-        w10.x = 41.0f;
-        w10.y = 38.0f;
-        w10.type = TYPE_BARREL;
-        w10.health = 1;
-        w10.isAlive = true;
-        sprites.push_back(w10);
-
+        Sprite w8; w8.x = 26.0f; w8.y = 25.0f; w8.type = TYPE_BARREL; w8.health = 1; w8.isAlive = true; sprites.push_back(w8);
+        Sprite w9; w9.x = 26.0f; w9.y = 8.0f; w9.type = TYPE_BARREL; w9.health = 1; w9.isAlive = true; sprites.push_back(w9);
+        Sprite w10; w10.x = 41.0f; w10.y = 38.0f; w10.type = TYPE_BARREL; w10.health = 1; w10.isAlive = true; sprites.push_back(w10);
     }
 
     if (activeMapIndex == 3) {
+        Sprite w1; w1.x = 47.0f; w1.y = 30.0f; w1.type = MONSTER_TYPE_GOBLIN; w1.health = 100; w1.isAlive = true; sprites.push_back(w1);
 
-        Sprite w1;
-        w1.x = 47.0f;
-        w1.y = 30.0f;
-        w1.type = MONSTER_TYPE_GOBLIN;
-        w1.health = 100;
-        w1.isAlive = true;
-        sprites.push_back(w1);
+        Sprite w2; w2.x = 6.0f; w2.y = 7.0f; w2.type = MONSTER_TYPE_WALKING; w2.health = 140; w2.isAlive = true; sprites.push_back(w2);
+        Sprite w3; w3.x = 8.0f; w3.y = 25.0f; w3.type = MONSTER_TYPE_WALKING; w3.health = 140; w3.isAlive = true; sprites.push_back(w3);
+        Sprite w4; w4.x = 24.0f; w4.y = 25.0f; w4.type = MONSTER_TYPE_WALKING; w4.health = 140; w4.isAlive = true; sprites.push_back(w4);
+        Sprite w5; w5.x = 8.0f; w5.y = 35.0f; w5.type = MONSTER_TYPE_WALKING; w5.health = 140; w5.isAlive = true; sprites.push_back(w5);
+        Sprite w6; w6.x = 24.0f; w6.y = 35.0f; w6.type = MONSTER_TYPE_WALKING; w6.health = 140; w6.isAlive = true; sprites.push_back(w6);
+        Sprite w7; w7.x = 40.0f; w7.y = 28.0f; w7.type = MONSTER_TYPE_WALKING; w7.health = 140; w7.isAlive = true; sprites.push_back(w7);
+        Sprite w8; w8.x = 40.0f; w8.y = 32.0f; w8.type = MONSTER_TYPE_WALKING; w8.health = 140; w8.isAlive = true; sprites.push_back(w8);
+        Sprite w9; w9.x = 3.0f; w9.y = 52.0f; w9.type = MONSTER_TYPE_WALKING; w9.health = 140; w9.isAlive = true; sprites.push_back(w9);
 
-        Sprite w2;
-        w2.x = 6.0f;
-        w2.y = 7.0f;
-        w2.type = MONSTER_TYPE_WALKING;
-        w2.health = 140;
-        w2.isAlive = true;
-        sprites.push_back(w2);
+        Sprite w10; w10.x = 24.0f; w10.y = 14.0f; w10.type = MONSTER_TYPE_FLYING; w10.health = 200; w10.isAlive = true; sprites.push_back(w10);
+        Sprite w11; w11.x = 16.0f; w11.y = 30.0f; w11.type = MONSTER_TYPE_FLYING; w11.health = 200; w11.isAlive = true; sprites.push_back(w11);
+        Sprite w12; w12.x = 16.0f; w12.y = 52.0f; w12.type = MONSTER_TYPE_FLYING; w12.health = 200; w12.isAlive = true; sprites.push_back(w12);
+        Sprite w13; w13.x = 8.0f; w13.y = 52.0f; w13.type = MONSTER_TYPE_FLYING; w13.health = 200; w13.isAlive = true; sprites.push_back(w13);
+        Sprite w14; w14.x = 24.0f; w14.y = 52.0f; w14.type = MONSTER_TYPE_FLYING; w14.health = 200; w14.isAlive = true; sprites.push_back(w14);
+        Sprite w15; w15.x = 40.0f; w15.y = 21.0f; w15.type = MONSTER_TYPE_FLYING; w15.health = 200; w15.isAlive = true; sprites.push_back(w15);
+        Sprite w16; w16.x = 40.0f; w16.y = 39.0f; w16.type = MONSTER_TYPE_FLYING; w16.health = 200; w16.isAlive = true; sprites.push_back(w16);
 
-        Sprite w3;
-        w3.x = 8.0f;
-        w3.y = 25.0f;
-        w3.type = MONSTER_TYPE_WALKING;
-        w3.health = 140;
-        w3.isAlive = true;
-        sprites.push_back(w3);
-
-        Sprite w4;
-        w4.x = 24.0f;
-        w4.y = 25.0f;
-        w4.type = MONSTER_TYPE_WALKING;
-        w4.health = 140;
-        w4.isAlive = true;
-        sprites.push_back(w4);
-
-        Sprite w5;
-        w5.x = 8.0f;
-        w5.y = 35.0f;
-        w5.type = MONSTER_TYPE_WALKING;
-        w5.health = 140;
-        w5.isAlive = true;
-        sprites.push_back(w5);
-
-        Sprite w6;
-        w6.x = 24.0f;
-        w6.y = 35.0f;
-        w6.type = MONSTER_TYPE_WALKING;
-        w6.health = 140;
-        w6.isAlive = true;
-        sprites.push_back(w6);
-
-        Sprite w7;
-        w7.x = 40.0f;
-        w7.y = 28.0f;
-        w7.type = MONSTER_TYPE_WALKING;
-        w7.health = 140;
-        w7.isAlive = true;
-        sprites.push_back(w7);
-
-        Sprite w8;
-        w8.x = 40.0f;
-        w8.y = 32.0f;
-        w8.type = MONSTER_TYPE_WALKING;
-        w8.health = 140;
-        w8.isAlive = true;
-        sprites.push_back(w8);
-
-        Sprite w9;
-        w9.x = 3.0f;
-        w9.y = 52.0f;
-        w9.type = MONSTER_TYPE_WALKING;
-        w9.health = 140;
-        w9.isAlive = true;
-        sprites.push_back(w9);
-
-        Sprite w10;
-        w10.x = 24.0f;
-        w10.y = 14.0f;
-        w10.type = MONSTER_TYPE_FLYING;
-        w10.health = 200;
-        w10.isAlive = true;
-        sprites.push_back(w10);
-
-        Sprite w11;
-        w11.x = 16.0f;
-        w11.y = 30.0f;
-        w11.type = MONSTER_TYPE_FLYING;
-        w11.health = 200;
-        w11.isAlive = true;
-        sprites.push_back(w11);
-
-        Sprite w12;
-        w12.x = 16.0f;
-        w12.y = 52.0f;
-        w12.type = MONSTER_TYPE_FLYING;
-        w12.health = 200;
-        w12.isAlive = true;
-        sprites.push_back(w12);
-
-        Sprite w13;
-        w13.x = 8.0f;
-        w13.y = 52.0f;
-        w13.type = MONSTER_TYPE_FLYING;
-        w13.health = 200;
-        w13.isAlive = true;
-        sprites.push_back(w13);
-
-        Sprite w14;
-        w14.x = 24.0f;
-        w14.y = 52.0f;
-        w14.type = MONSTER_TYPE_FLYING;
-        w14.health = 200;
-        w14.isAlive = true;
-        sprites.push_back(w14);
-
-        Sprite w15;
-        w15.x = 40.0f;
-        w15.y = 21.0f;
-        w15.type = MONSTER_TYPE_FLYING;
-        w15.health = 200;
-        w15.isAlive = true;
-        sprites.push_back(w15);
-
-        Sprite w16;
-        w16.x = 40.0f;
-        w16.y = 39.0f;
-        w16.type = MONSTER_TYPE_FLYING;
-        w16.health = 200;
-        w16.isAlive = true;
-        sprites.push_back(w16);
-
-        Sprite w17;
-        w17.x = 40.0f;
-        w17.y = 33.0f;
-        w17.type = TYPE_BARREL;
-        w17.health = 1;
-        w17.isAlive = true;
-        sprites.push_back(w17);
-
-        Sprite w18;
-        w18.x = 40.0f;
-        w18.y = 27.0f;
-        w18.type = TYPE_BARREL;
-        w18.health = 1;
-        w18.isAlive = true;
-        sprites.push_back(w18);
-
+        Sprite w17; w17.x = 40.0f; w17.y = 33.0f; w17.type = TYPE_BARREL; w17.health = 1; w17.isAlive = true; sprites.push_back(w17);
+        Sprite w18; w18.x = 40.0f; w18.y = 27.0f; w18.type = TYPE_BARREL; w18.health = 1; w18.isAlive = true; sprites.push_back(w18);
     }
 
     if (activeMapIndex == 4) {
+        Sprite w1; w1.x = 20.0f; w1.y = 16.0f; w1.type = MONSTER_TYPE_GOBLIN; w1.health = 100; w1.isAlive = true; sprites.push_back(w1);
+        Sprite w2; w2.x = 28.0f; w2.y = 48.0f; w2.type = MONSTER_TYPE_GOBLIN; w2.health = 100; w2.isAlive = true; sprites.push_back(w2);
+        Sprite w3; w3.x = 20.0f; w3.y = 44.0f; w3.type = MONSTER_TYPE_GOBLIN; w3.health = 100; w3.isAlive = true; sprites.push_back(w3);
+        Sprite w4; w4.x = 32.0f; w4.y = 28.0f; w4.type = MONSTER_TYPE_GOBLIN; w4.health = 100; w4.isAlive = true; sprites.push_back(w4);
+        Sprite w5; w5.x = 48.0f; w5.y = 20.0f; w5.type = MONSTER_TYPE_GOBLIN; w5.health = 100; w5.isAlive = true; sprites.push_back(w5);
+        Sprite w6; w6.x = 44.0f; w6.y = 16.0f; w6.type = MONSTER_TYPE_GOBLIN; w6.health = 100; w6.isAlive = true; sprites.push_back(w6);
 
-        Sprite w1; 
-        w1.x = 20.0f;
-        w1.y = 16.0f;
-        w1.type = MONSTER_TYPE_GOBLIN;
-        w1.health = 100;
-        w1.isAlive = true;
-        sprites.push_back(w1);
+        Sprite w7; w7.x = 4.0f; w7.y = 8.0f; w7.type = MONSTER_TYPE_FLYING; w7.health = 200; w7.isAlive = true; sprites.push_back(w7);
+        Sprite w8; w8.x = 32.0f; w8.y = 16.0f; w8.type = MONSTER_TYPE_FLYING; w8.health = 200; w8.isAlive = true; sprites.push_back(w8);
+        Sprite w9; w9.x = 56.0f; w9.y = 40.0f; w9.type = MONSTER_TYPE_FLYING; w9.health = 200; w9.isAlive = true; sprites.push_back(w9);
+        Sprite w10; w10.x = 32.0f; w10.y = 44.0f; w10.type = MONSTER_TYPE_FLYING; w10.health = 200; w10.isAlive = true; sprites.push_back(w10);
+        Sprite w11; w11.x = 4.0f; w11.y = 55.0f; w11.type = MONSTER_TYPE_FLYING; w11.health = 200; w11.isAlive = true; sprites.push_back(w11);
+        Sprite w12; w12.x = 36.0f; w12.y = 56.0f; w12.type = MONSTER_TYPE_FLYING; w12.health = 200; w12.isAlive = true; sprites.push_back(w12);
 
-        Sprite w2;
-        w2.x = 28.0f;
-        w2.y = 48.0f;
-        w2.type = MONSTER_TYPE_GOBLIN;
-        w2.health = 100;
-        w2.isAlive = true;
-        sprites.push_back(w2);
-
-        Sprite w3;
-        w3.x = 20.0f;
-        w3.y = 44.0f;
-        w3.type = MONSTER_TYPE_GOBLIN;
-        w3.health = 100;
-        w3.isAlive = true;
-        sprites.push_back(w3);
-
-        Sprite w4;
-        w4.x = 32.0f;
-        w4.y = 28.0f;
-        w4.type = MONSTER_TYPE_GOBLIN;
-        w4.health = 100;
-        w4.isAlive = true;
-        sprites.push_back(w4);
-
-        Sprite w5;
-        w5.x = 48.0f;
-        w5.y = 20.0f;
-        w5.type = MONSTER_TYPE_GOBLIN;
-        w5.health = 100;
-        w5.isAlive = true;
-        sprites.push_back(w5);
-
-        Sprite w6;
-        w6.x = 44.0f;
-        w6.y = 16.0f;
-        w6.type = MONSTER_TYPE_GOBLIN;
-        w6.health = 100;
-        w6.isAlive = true;
-        sprites.push_back(w6);
-
-        Sprite w7;
-        w7.x = 4.0f;
-        w7.y = 8.0f;
-        w7.type = MONSTER_TYPE_FLYING;
-        w7.health = 200;
-        w7.isAlive = true;
-        sprites.push_back(w7);
-
-        Sprite w8;
-        w8.x = 32.0f;
-        w8.y = 16.0f;
-        w8.type = MONSTER_TYPE_FLYING;
-        w8.health = 200;
-        w8.isAlive = true;
-        sprites.push_back(w8);
-
-        Sprite w9;
-        w9.x = 56.0f;
-        w9.y = 40.0f;
-        w9.type = MONSTER_TYPE_FLYING;
-        w9.health = 200;
-        w9.isAlive = true;
-        sprites.push_back(w9);
-
-        Sprite w10;
-        w10.x = 32.0f;
-        w10.y = 44.0f;
-        w10.type = MONSTER_TYPE_FLYING;
-        w10.health = 200;
-        w10.isAlive = true;
-        sprites.push_back(w10);
-
-        Sprite w11;
-        w11.x = 4.0f;
-        w11.y = 55.0f;
-        w11.type = MONSTER_TYPE_FLYING;
-        w11.health = 200;
-        w11.isAlive = true;
-        sprites.push_back(w11);
-
-        Sprite w12;
-        w12.x = 36.0f;
-        w12.y = 56.0f;
-        w12.type = MONSTER_TYPE_FLYING;
-        w12.health = 200;
-        w12.isAlive = true;
-        sprites.push_back(w12);
-
-        Sprite w13;
-        w13.x = 56.0f;
-        w13.y = 4.0f;
-        w13.type = MONSTER_TYPE_WALKING;
-        w13.health = 140;
-        w13.isAlive = true;
-        sprites.push_back(w13);
-
-        Sprite w14;
-        w14.x = 12.0f;
-        w14.y = 12.0f;
-        w14.type = MONSTER_TYPE_WALKING;
-        w14.health = 140;
-        w14.isAlive = true;
-        sprites.push_back(w14);
-
-        Sprite w15;
-        w15.x = 28.0f;
-        w15.y = 12.0f;
-        w15.type = MONSTER_TYPE_WALKING;
-        w15.health = 140;
-        w15.isAlive = true;
-        sprites.push_back(w15);
-
-        Sprite w16;
-        w16.x = 12.0f;
-        w16.y = 32.0f;
-        w16.type = MONSTER_TYPE_WALKING;
-        w16.health = 140;
-        w16.isAlive = true;
-        sprites.push_back(w16);
-
-        Sprite w17;
-        w17.x = 16.0f;
-        w17.y = 36.0f;
-        w17.type = MONSTER_TYPE_WALKING;
-        w17.health = 140;
-        w17.isAlive = true;
-        sprites.push_back(w17);
-
-        Sprite w18;
-        w18.x = 48.0f;
-        w18.y = 44.0f;
-        w18.type = MONSTER_TYPE_WALKING;
-        w18.health = 140;
-        w18.isAlive = true;
-        sprites.push_back(w18);
-
+        Sprite w13; w13.x = 56.0f; w13.y = 4.0f; w13.type = MONSTER_TYPE_WALKING; w13.health = 140; w13.isAlive = true; sprites.push_back(w13);
+        Sprite w14; w14.x = 12.0f; w14.y = 12.0f; w14.type = MONSTER_TYPE_WALKING; w14.health = 140; w14.isAlive = true; sprites.push_back(w14);
+        Sprite w15; w15.x = 28.0f; w15.y = 12.0f; w15.type = MONSTER_TYPE_WALKING; w14.health = 140; w15.isAlive = true; sprites.push_back(w15);
+        Sprite w16; w16.x = 12.0f; w16.y = 32.0f; w16.type = MONSTER_TYPE_WALKING; w16.health = 140; w16.isAlive = true; sprites.push_back(w16);
+        Sprite w17; w17.x = 16.0f; w17.y = 36.0f; w17.type = MONSTER_TYPE_WALKING; w17.health = 140; w17.isAlive = true; sprites.push_back(w17);
+        Sprite w18; w18.x = 48.0f; w18.y = 44.0f; w18.type = MONSTER_TYPE_WALKING; w18.health = 140; w18.isAlive = true; sprites.push_back(w18);
     }
 
     if (activeMapIndex == 5) {
+        Sprite w1; w1.x = 51.0f; w1.y = 40.0f; w1.type = MONSTER_TYPE_GOBLIN; w1.health = 100; w1.isAlive = true; sprites.push_back(w1);
+        Sprite w2; w2.x = 51.0f; w2.y = 41.0f; w2.type = MONSTER_TYPE_GOBLIN; w2.health = 100; w2.isAlive = true; sprites.push_back(w2);
+        Sprite w3; w3.x = 51.0f; w3.y = 42.0f; w3.type = MONSTER_TYPE_GOBLIN; w3.health = 100; w3.isAlive = true; sprites.push_back(w3);
 
-        Sprite w1;
-        w1.x = 51.0f;
-        w1.y = 40.0f;
-        w1.type = MONSTER_TYPE_GOBLIN;
-        w1.health = 100;
-        w1.isAlive = true;
-        sprites.push_back(w1);
+        Sprite w4; w4.x = 9.0f; w4.y = 36.0f; w4.type = MONSTER_TYPE_FLYING; w4.health = 200; w4.isAlive = true; sprites.push_back(w4);
+        Sprite w5; w5.x = 4.0f; w5.y = 41.0f; w5.type = MONSTER_TYPE_FLYING; w5.health = 200; w5.isAlive = true; sprites.push_back(w5);
+        Sprite w6; w6.x = 14.0f; w6.y = 41.0f; w6.type = MONSTER_TYPE_FLYING; w6.health = 200; w6.isAlive = true; sprites.push_back(w6);
+        Sprite w7; w7.x = 9.0f; w7.y = 46.0f; w7.type = MONSTER_TYPE_FLYING; w7.health = 200; w7.isAlive = true; sprites.push_back(w7);
+        Sprite w8; w8.x = 3.0f; w8.y = 53.0f; w8.type = MONSTER_TYPE_FLYING; w8.health = 200; w8.isAlive = true; sprites.push_back(w8);
+        Sprite w9; w9.x = 15.0f; w9.y = 53.0f; w9.type = MONSTER_TYPE_FLYING; w9.health = 200; w9.isAlive = true; sprites.push_back(w9);
+        Sprite w10; w10.x = 45.0f; w10.y = 37.0f; w10.type = MONSTER_TYPE_FLYING; w10.health = 200; w10.isAlive = true; sprites.push_back(w10);
+        Sprite w11; w11.x = 45.0f; w11.y = 45.0f; w11.type = MONSTER_TYPE_FLYING; w11.health = 200; w11.isAlive = true; sprites.push_back(w11);
 
-        Sprite w2;
-        w2.x = 51.0f;
-        w2.y = 41.0f;
-        w2.type = MONSTER_TYPE_GOBLIN;
-        w2.health = 100;
-        w2.isAlive = true;
-        sprites.push_back(w2);
+        Sprite w12; w12.x = 27.0f; w12.y = 38.0f; w12.type = MONSTER_TYPE_WALKING; w12.health = 140; w12.isAlive = true; sprites.push_back(w12);
+        Sprite w13; w13.x = 27.0f; w13.y = 40.0f; w13.type = MONSTER_TYPE_WALKING; w13.health = 140; w13.isAlive = true; sprites.push_back(w13);
+        Sprite w14; w14.x = 27.0f; w14.y = 42.0f; w14.type = MONSTER_TYPE_WALKING; w14.health = 140; w14.isAlive = true; sprites.push_back(w14);
+        Sprite w15; w15.x = 24.0f; w15.y = 41.0f; w15.type = MONSTER_TYPE_WALKING; w15.health = 140; w15.isAlive = true; sprites.push_back(w15);
+        Sprite w16; w16.x = 30.0f; w16.y = 41.0f; w16.type = MONSTER_TYPE_WALKING; w16.health = 140; w16.isAlive = true; sprites.push_back(w16);
+        Sprite w17; w17.x = 45.0f; w17.y = 58.0f; w17.type = MONSTER_TYPE_WALKING; w17.health = 140; w17.isAlive = true; sprites.push_back(w17);
 
-        Sprite w3;
-        w3.x = 51.0f;
-        w3.y = 42.0f;
-        w3.type = MONSTER_TYPE_GOBLIN;
-        w3.health = 100;
-        w3.isAlive = true;
-        sprites.push_back(w3);
+        Sprite w18; w18.x = 29.0f; w18.y = 39.0f; w18.type = TYPE_BARREL; w18.health = 1; w18.isAlive = true; sprites.push_back(w18);
+        Sprite w19; w19.x = 25.0f; w19.y = 43.0f; w19.type = TYPE_BARREL; w19.health = 1; w19.isAlive = true; sprites.push_back(w19);
+        Sprite w20; w20.x = 45.0f; w20.y = 41.0f; w20.type = TYPE_BARREL; w20.health = 1; w20.isAlive = true; sprites.push_back(w20);
+        Sprite w21; w21.x = 9.0f; w21.y = 54.0f; w21.type = TYPE_BARREL; w21.health = 1; w21.isAlive = true; sprites.push_back(w21);
 
-        Sprite w4;
-        w4.x = 9.0f;
-        w4.y = 36.0f;
-        w4.type = MONSTER_TYPE_FLYING;
-        w4.health = 200;
-        w4.isAlive = true;
-        sprites.push_back(w4);
-
-        Sprite w5;
-        w5.x = 4.0f;
-        w5.y = 41.0f;
-        w5.type = MONSTER_TYPE_FLYING;
-        w5.health = 200;
-        w5.isAlive = true;
-        sprites.push_back(w5);
-
-        Sprite w6;
-        w6.x = 14.0f;
-        w6.y = 41.0f;
-        w6.type = MONSTER_TYPE_FLYING;
-        w6.health = 200;
-        w6.isAlive = true;
-        sprites.push_back(w6);
-
-        Sprite w7;
-        w7.x = 9.0f;
-        w7.y = 46.0f;
-        w7.type = MONSTER_TYPE_FLYING;
-        w7.health = 200;
-        w7.isAlive = true;
-        sprites.push_back(w7);
-
-        Sprite w8;
-        w8.x = 3.0f;
-        w8.y = 53.0f;
-        w8.type = MONSTER_TYPE_FLYING;
-        w8.health = 200;
-        w8.isAlive = true;
-        sprites.push_back(w8);
-
-        Sprite w9;
-        w9.x = 15.0f;
-        w9.y = 53.0f;
-        w9.type = MONSTER_TYPE_FLYING;
-        w9.health = 200;
-        w9.isAlive = true;
-        sprites.push_back(w9);
-
-        Sprite w10;
-        w10.x = 45.0f;
-        w10.y = 37.0f;
-        w10.type = MONSTER_TYPE_FLYING;
-        w10.health = 200;
-        w10.isAlive = true;
-        sprites.push_back(w10);
-
-        Sprite w11;
-        w11.x = 45.0f;
-        w11.y = 45.0f;
-        w11.type = MONSTER_TYPE_FLYING;
-        w11.health = 200;
-        w11.isAlive = true;
-        sprites.push_back(w11);
-
-        Sprite w12;
-        w12.x = 27.0f;
-        w12.y = 38.0f;
-        w12.type = MONSTER_TYPE_WALKING;
-        w12.health = 140;
-        w12.isAlive = true;
-        sprites.push_back(w12);
-
-        Sprite w13;
-        w13.x = 27.0f;
-        w13.y = 40.0f;
-        w13.type = MONSTER_TYPE_WALKING;
-        w13.health = 140;
-        w13.isAlive = true;
-        sprites.push_back(w13);
-
-        Sprite w14;
-        w14.x = 27.0f;
-        w14.y = 42.0f;
-        w14.type = MONSTER_TYPE_WALKING;
-        w14.health = 140;
-        w14.isAlive = true;
-        sprites.push_back(w14);
-
-        Sprite w15;
-        w15.x = 24.0f;
-        w15.y = 41.0f;
-        w15.type = MONSTER_TYPE_WALKING;
-        w15.health = 140;
-        w15.isAlive = true;
-        sprites.push_back(w15);
-
-        Sprite w16;
-        w16.x = 30.0f;
-        w16.y = 41.0f;
-        w16.type = MONSTER_TYPE_WALKING;
-        w16.health = 140;
-        w16.isAlive = true;
-        sprites.push_back(w16);
-
-        Sprite w17;
-        w17.x = 45.0f;
-        w17.y = 58.0f;
-        w17.type = MONSTER_TYPE_WALKING;
-        w17.health = 140;
-        w17.isAlive = true;
-        sprites.push_back(w17);
-
-        Sprite w18;
-        w18.x = 29.0f;
-        w18.y = 39.0f;
-        w18.type = TYPE_BARREL;
-        w18.health = 1;
-        w18.isAlive = true;
-        sprites.push_back(w18);
-
-        Sprite w19;
-        w19.x = 25.0f;
-        w19.y = 43.0f;
-        w19.type = TYPE_BARREL;
-        w19.health = 1;
-        w19.isAlive = true;
-        sprites.push_back(w19);
-
-        Sprite w20;
-        w20.x = 45.0f;
-        w20.y = 41.0f;
-        w20.type = TYPE_BARREL;
-        w20.health = 1;
-        w20.isAlive = true;
-        sprites.push_back(w20);
-
-        Sprite w21;
-        w21.x = 9.0f;
-        w21.y = 54.0f;
-        w21.type = TYPE_BARREL;
-        w21.health = 1;
-        w21.isAlive = true;
-        sprites.push_back(w21);
-
+        // --- MINI-BOSS ---
+        Sprite boss;
+        boss.x = 27.0f;
+        boss.y = 11.0f;
+        boss.type = MONSTER_TYPE_CYBERBOSS;
+        boss.health = 2500;
+        boss.isAlive = true;
+        boss.alternateAttack = false;
+        sprites.push_back(boss);
     }
 
     if (activeMapIndex == 6) {
-
 
     }
 }
@@ -722,15 +212,10 @@ bool hitMonster(int index, float hitDamage) {
         return true;
     }
 
-    if (m.type == MONSTER_TYPE_GOBLIN) {
-        playGoblinPain();
-    }
-    else if (m.type == MONSTER_TYPE_FLYING) {
-        playFlyingPain();
-    }
-    else if (m.type == MONSTER_TYPE_WALKING) {
-        playWalkerPain();
-    }
+    if (m.type == MONSTER_TYPE_GOBLIN) playGoblinPain();
+    else if (m.type == MONSTER_TYPE_FLYING) playFlyingPain();
+    else if (m.type == MONSTER_TYPE_WALKING) playWalkerPain();
+    else if (m.type == MONSTER_TYPE_CYBERBOSS) {}
 
     int drops = 5;
     if (bloodParticles.size() > 200) {
@@ -751,8 +236,28 @@ bool hitMonster(int index, float hitDamage) {
     }
 
     m.health -= (int)hitDamage;
-    m.state = STATE_PAIN; m.stateTimer = 0.4f;
-    if (m.health <= 0) { m.isAlive = false; m.state = STATE_PAIN; return true; }
+
+    if (m.type == MONSTER_TYPE_CYBERBOSS && !m.hasSeenPlayer) {
+        m.hasSeenPlayer = true;
+        playBossMusic();
+    }
+
+    if (m.type != MONSTER_TYPE_CYBERBOSS) {
+        m.state = STATE_PAIN;
+        m.stateTimer = 0.4f;
+    }
+
+    if (m.health <= 0) {
+        m.isAlive = false;
+        m.state = STATE_PAIN;
+
+        if (m.type == MONSTER_TYPE_CYBERBOSS) {
+            playBossDeath();
+            stopBossMusic();
+        }
+
+        return true;
+    }
     return true;
 }
 
@@ -796,12 +301,7 @@ bool checkLineOfSight(float mx, float my, float px, float py) {
         if (tile == 1) return false;
 
         if ((tile >= 2 && tile <= 5) || tile == 8) {
-            for (const auto& d : doors) {
-                if (d.x == mapX && d.y == mapY) {
-                    if (d.openAmount < 0.7f) return false;
-                    break;
-                }
-            }
+            return false;
         }
     }
 
@@ -837,6 +337,7 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
             float dist = std::sqrt(dx * dx + dy * dy);
 
             float minSpacing = 0.6f;
+            if (m.type == MONSTER_TYPE_CYBERBOSS) minSpacing = 1.2f;
 
             if (dist < minSpacing && dist > 0.001f) {
                 float pushX = dx / dist;
@@ -864,12 +365,18 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
             continue;
         }
 
-        if (!canSee && dist > 1.5f) {
+        if (!canSee && dist > 1.5f && m.type != MONSTER_TYPE_CYBERBOSS) {
+            m.state = STATE_IDLE;
+            continue;
+        }
+
+        if (!canSee && m.type == MONSTER_TYPE_CYBERBOSS && dist > 3.0f) {
             m.state = STATE_IDLE;
             continue;
         }
 
         float monsterRadius = 0.3f;
+        if (m.type == MONSTER_TYPE_CYBERBOSS) monsterRadius = 0.6f;
 
         if (m.type == MONSTER_TYPE_WALKING) {
 
@@ -887,12 +394,9 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
                 if (m.animTimer > 0.3f) { m.fightFrame = (m.fightFrame + 1) % 2; m.animTimer = 0.0f; }
                 m.attackCooldown -= deltaTime;
                 if (m.attackCooldown <= 0.0f) {
-
                     playWalkerAttack();
-
-                    applyDamage(playerHealth, playerArmor, 15, damageAlpha); // Obrażenia Walker
+                    applyDamage(playerHealth, playerArmor, 15, damageAlpha);
                     m.attackCooldown = 1.0f;
-                    std::cout << "Walker uderza!\n";
                 }
             }
             else {
@@ -963,6 +467,81 @@ void moveMonsters(float playerX, float playerY, float deltaTime, int& playerHeal
             if (worldMap[(int)m.y][(int)(m.x + moveX + (moveX > 0 ? monsterRadius : -monsterRadius))] == 0) m.x += moveX;
             if (worldMap[(int)(m.y + moveY + (moveY > 0 ? monsterRadius : -monsterRadius))][(int)m.x] == 0) m.y += moveY;
         }
+        else if (m.type == MONSTER_TYPE_CYBERBOSS) {
+
+            if (canSee) {
+                if (!m.hasSeenPlayer) {
+                    m.hasSeenPlayer = true;
+                    playBossMusic();
+                }
+            }
+
+            m.soundTimer -= deltaTime;
+            if (m.soundTimer <= 0.0f) {
+                playBossIdle();
+                m.soundTimer = 6.0f + ((float)rand() / RAND_MAX) * 4.0f;
+            }
+
+            float moveX = 0.0f, moveY = 0.0f;
+            if (dist > 3.0f && canSee) {
+                float bossSpeed = 0.015f;
+                moveX = (dx / dist) * bossSpeed;
+                moveY = (dy / dist) * bossSpeed;
+            }
+
+            if (worldMap[(int)m.y][(int)(m.x + moveX + (moveX > 0 ? monsterRadius : -monsterRadius))] == 0) m.x += moveX;
+            if (worldMap[(int)(m.y + moveY + (moveY > 0 ? monsterRadius : -monsterRadius))][(int)m.x] == 0) m.y += moveY;
+
+            m.attackCooldown -= deltaTime;
+
+            if (m.attackCooldown <= 0.0f && canSee && dist < 18.0f) {
+
+                float dirX = dx / dist;
+                float dirY = dy / dist;
+
+                if (m.alternateAttack) {
+                    float angle = atan2(dirY, dirX);
+                    float spread = 0.25f;
+                    float speed = 0.08f;
+
+                    Fireball f1; f1.x = m.x; f1.y = m.y; f1.dirX = cos(angle) * speed; f1.dirY = sin(angle) * speed; f1.active = true;
+                    fireballs.push_back(f1);
+
+                    Fireball f2; f2.x = m.x; f2.y = m.y; f2.dirX = cos(angle - spread) * speed; f2.dirY = sin(angle - spread) * speed; f2.active = true;
+                    fireballs.push_back(f2);
+
+                    Fireball f3; f3.x = m.x; f3.y = m.y; f3.dirX = cos(angle + spread) * speed; f3.dirY = sin(angle + spread) * speed; f3.active = true;
+                    fireballs.push_back(f3);
+
+                    playBossConeAttack();
+                    std::cout << "BOSS ATTACK: Cone\n";
+                }
+                else {
+                    float perpX = -dirY;
+                    float perpY = dirX;
+                    float spacing = 0.6f;
+                    float speed = 0.11f;
+
+                    Fireball f1; f1.x = m.x; f1.y = m.y;
+                    f1.dirX = dirX * speed; f1.dirY = dirY * speed; f1.active = true;
+                    fireballs.push_back(f1);
+
+                    Fireball f2; f2.x = m.x + perpX * spacing; f2.y = m.y + perpY * spacing;
+                    f2.dirX = dirX * speed; f2.dirY = dirY * speed; f2.active = true;
+                    fireballs.push_back(f2);
+
+                    Fireball f3; f3.x = m.x - perpX * spacing; f3.y = m.y - perpY * spacing;
+                    f3.dirX = dirX * speed; f3.dirY = dirY * speed; f3.active = true;
+                    fireballs.push_back(f3);
+
+                    playBossLineAttack();
+                    std::cout << "BOSS ATTACK: Line\n";
+                }
+
+                m.alternateAttack = !m.alternateAttack;
+                m.attackCooldown = 3.0f;
+            }
+        }
     }
 }
 
@@ -993,12 +572,13 @@ void updateFireballs(float playerX, float playerY, float deltaTime, int& playerH
         if (!fb.active) continue;
         fb.x += fb.dirX; fb.y += fb.dirY;
         int tile = worldMap[(int)fb.y][(int)fb.x];
-        if (tile == 1 || tile == 2) { fb.active = false; continue; }
+
+        if (tile == 1) { fb.active = false; continue; }
+
         float dx = fb.x - playerX; float dy = fb.y - playerY;
         if (dx * dx + dy * dy < 0.2f) {
-            applyDamage(playerHealth, playerArmor, 20, damageAlpha); // Obrażenia Flying
+            applyDamage(playerHealth, playerArmor, 20, damageAlpha);
             fb.active = false;
-            std::cout << "Kula ognia trafia!\n";
         }
     }
     fireballs.erase(std::remove_if(fireballs.begin(), fireballs.end(), [](const Fireball& f) { return !f.active; }), fireballs.end());
@@ -1010,7 +590,7 @@ bool checkCollision(float playerX, float playerY) {
 
         if (m.type == TYPE_BARREL || m.type == TYPE_EXPLOSION) continue;
 
-        if (m.type == MONSTER_TYPE_GOBLIN) {
+        if (m.type == MONSTER_TYPE_GOBLIN || m.type == MONSTER_TYPE_CYBERBOSS) {
             float dx = playerX - m.x; float dy = playerY - m.y;
             if (dx * dx + dy * dy < COLLISION_RADIUS * COLLISION_RADIUS) return true;
         }

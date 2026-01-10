@@ -1,11 +1,16 @@
 #include "Audio.h"
 #include <iostream>
+#include <cstdlib>
 
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
 
 ma_engine engine;
 ma_sound menuMusic;
+ma_sound bossMusic;
+
+bool isMenuMusicPlaying = false;
+bool isBossMusicPlaying = false;
 
 void initAudio() {
     ma_result result = ma_engine_init(NULL, &engine);
@@ -20,10 +25,19 @@ void initAudio() {
     else {
         ma_sound_set_looping(&menuMusic, MA_TRUE);
     }
+
+    result = ma_sound_init_from_file(&engine, "boss_theme.mp3", MA_SOUND_FLAG_STREAM, NULL, NULL, &bossMusic);
+    if (result != MA_SUCCESS) {
+        std::cout << "AUDIO WARNING: Brak pliku boss_theme.mp3!" << std::endl;
+    }
+    else {
+        ma_sound_set_looping(&bossMusic, MA_TRUE);
+    }
 }
 
 void cleanupAudio() {
     ma_sound_uninit(&menuMusic);
+    ma_sound_uninit(&bossMusic);
     ma_engine_uninit(&engine);
 }
 
@@ -122,6 +136,7 @@ void playDryFireSound() {
 }
 
 void playPlayerDeath() {
+    stopBossMusic();
     ma_engine_play_sound(&engine, "player_die.wav", NULL);
     ma_engine_play_sound(&engine, "game_over.wav", NULL);
 }
@@ -149,4 +164,36 @@ void setGlobalVolume(float volume) {
 
 void playExplosionSound() {
     ma_engine_play_sound(&engine, "barrel_explode.wav", NULL);
+}
+
+void playBossIdle() {
+    ma_engine_play_sound(&engine, "boss_idle.wav", NULL);
+}
+
+void playBossConeAttack() {
+    ma_engine_play_sound(&engine, "boss_cone.wav", NULL);
+}
+
+void playBossLineAttack() {
+    ma_engine_play_sound(&engine, "boss_line.wav", NULL);
+}
+
+void playBossDeath() {
+    ma_engine_play_sound(&engine, "boss_death.wav", NULL);
+}
+
+void playBossMusic() {
+    if (!isBossMusicPlaying) {
+        stopMenuMusic();
+        ma_sound_start(&bossMusic);
+        isBossMusicPlaying = true;
+    }
+}
+
+void stopBossMusic() {
+    if (isBossMusicPlaying) {
+        ma_sound_stop(&bossMusic);
+        ma_sound_seek_to_pcm_frame(&bossMusic, 0);
+        isBossMusicPlaying = false;
+    }
 }

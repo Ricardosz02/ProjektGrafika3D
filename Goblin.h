@@ -12,6 +12,8 @@ const int MONSTER_TYPE_GOBLIN = 1;
 const int MONSTER_TYPE_FLYING = 2;
 const int MONSTER_TYPE_WALKING = 3;
 
+const int MONSTER_TYPE_CYBERBOSS = 666;
+
 const int OBJECT_HOLE_PISTOL = 98;
 const int OBJECT_HOLE_SHOTGUN = 99;
 const int OBJECT_BLOOD = 80;
@@ -29,6 +31,8 @@ struct Sprite {
     int health = 100;
     bool isAlive = true;
 
+    bool hasSeenPlayer = false;
+
     int state = STATE_IDLE;
     float stateTimer = 0.0f;
     float attackCooldown = 0.0f;
@@ -40,6 +44,8 @@ struct Sprite {
     int fightFrame = 0;
 
     float zOffset = 0.0f;
+
+    bool alternateAttack = false;
 };
 
 struct BloodParticle {
