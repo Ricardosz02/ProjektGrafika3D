@@ -245,6 +245,12 @@
     <Media Include="keypad_click.wav" />
     <Media Include="menu_blip.wav" />
     <Media Include="menu_theme.mp3" />
+    <Media Include="music_map_1.mp3" />
+    <Media Include="music_map_2.mp3" />
+    <Media Include="music_map_3.mp3" />
+    <Media Include="music_map_4.mp3" />
+    <Media Include="music_map_5.mp3" />
+    <Media Include="music_map_6.mp3" />
     <Media Include="pickup_ammo.wav" />
     <Media Include="pickup_armor.wav" />
     <Media Include="pickup_health.wav" />

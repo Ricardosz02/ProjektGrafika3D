@@ -86,49 +86,36 @@ int activeMapIndex = 1;
 std::string keypadInput = "";
 bool keysPressed[10] = { 0 };
 
+float introTimer = 0.0f;
+const float INTRO_DURATION = 3.5f;
+std::string introMainText = "";
+std::string introSubText = "";
+
 extern bool checkCollision(float px, float py);
+
+void startIntro(int mapIndex);
 
 void resetGame() {
     stopMenuMusic();
     stopBossMusic();
-    activeMapIndex = 1; // 1
-    playLevelMusic(activeMapIndex);
+    activeMapIndex = 1;
+
     switchMap(activeMapIndex);
     initMonsters();
     initWeapons();
     resetKeys();
 
-    playerX = 2.5f; //2.5
-    playerY = 57.5f; //57.5
+    playerX = 2.5f;
+    playerY = 57.5f;
     playerDir = 0.0f;
     playerHealth = 100;
     playerArmor = 0;
     gameOver = false;
-    /*
-    ammoPistol = 0;
-    ammoShotgun = 0;
-    ammoRifle = 0;
-    currentWeapon = 0;
-    hasPistol = false;
-    hasShotgun = false;
-    hasRifle = false;
-    hasGreenKey = false;
-    hasRedKey = false;
-    */
 
-
-    /* ZMIANA DLA TESTÓW(Rifle + 999 ammo) :
-    ammoPistol = 50;      // Opcjonalnie
-    ammoShotgun = 50;     // Opcjonalnie
-    ammoRifle = 999;      // <--- 999 NABOI
-
-    hasPistol = true;
-    hasShotgun = true;
-    hasRifle = true;      // <--- MASZ KARABIN
-
-    currentWeapon = 3;    // <--- OD RAZU TRZYMASZ KARABIN W RÊCE (0=Pieœci, 1=Pistol, 2=Shotgun, 3=Rifle)
-    */
-
+    // Opcjonalnie: reset eq
+    // ammoPistol = 0; ammoShotgun = 0; ammoRifle = 0;
+    // hasPistol = false; hasShotgun = false; hasRifle = false;
+    // currentWeapon = 0;
 
     weaponSwitchTimer = 0.0f;
 
@@ -141,6 +128,22 @@ void resetGame() {
     damageAlpha = 0.0f;
 
     std::cout << "--- NOWA GRA ---" << std::endl;
+
+    startIntro(activeMapIndex);
+}
+
+void startIntro(int mapIndex) {
+    introTimer = INTRO_DURATION;
+
+    introMainText = "POZIOM " + std::to_string(mapIndex);
+
+    if (mapIndex == 1)      introSubText = "";
+    else if (mapIndex == 2) introSubText = "";
+    else if (mapIndex == 3) introSubText = "";
+    else if (mapIndex == 4) introSubText = "";
+    else if (mapIndex == 5) introSubText = "";
+    else if (mapIndex == 6) introSubText = "";
+    else introSubText = "NIEZNANY OBSZAR";
 }
 
 void updateSprites(float playerX, float playerY, int& health, int& armor) {
@@ -246,6 +249,7 @@ uniform sampler2D fireTex;           // 66
 uniform sampler2D portalTex;         // 67
 uniform sampler2D bossTex;           // 68
 uniform sampler2D bossBarTex;        // 69
+uniform sampler2D introTex;          // 70
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity; uniform float horizon; uniform float flashIntensity; uniform float brightness; 
@@ -256,8 +260,9 @@ void main() {
         bool isBlood = false;
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        if (ourColor.b > 199.9)      texColor = texture(bossBarTex, TexCoord);
-        else if (ourColor.b > 154.9)      texColor = texture(bossTex, TexCoord);
+        if (ourColor.b > 209.9) texColor = texture(introTex, TexCoord);
+        else if (ourColor.b > 199.9) texColor = texture(bossBarTex, TexCoord);
+        else if (ourColor.b > 154.9) texColor = texture(bossTex, TexCoord);
         else if (ourColor.b > 153.9) texColor = texture(fireTex, TexCoord);
         else if (ourColor.b > 152.9) texColor = texture(explosionTex, TexCoord);
         else if (ourColor.b > 151.9) texColor = texture(barrelTex, TexCoord);
@@ -288,7 +293,9 @@ void main() {
              float alpha = 0.6 * (1.0 - dist * 2.0);
              texColor = vec4(0.0, 0.0, 0.0, alpha);
         }
-        else if (ourColor.b > 94.9) { texColor = vec4(0.0, 0.0, 0.0, 0.95); }
+        else if (ourColor.b > 94.9) { 
+             texColor = vec4(0.0, 0.0, 0.0, 0.95); 
+        }
 
         else if (ourColor.b > 89.9) texColor = texture(wallTexture, TexCoord);
         else if (ourColor.b > 79.9) texColor = texture(bloodPartTex, TexCoord);
@@ -465,7 +472,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[70];
+    GLuint t[71];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -520,6 +527,7 @@ int main() {
     t[67] = loadTexture("portal.png");
     t[68] = loadTexture("boss.png");
     t[69] = loadTexture("boss_bar.png");
+    t[70] = loadTexture("intro.png");
 
     initAudio();
 
@@ -540,10 +548,10 @@ int main() {
         "shellTex", "shellShotgunTex",
         "menuBgTex", "logoTex", "bloodyXTex", "settingsBgTex",
         "noteWorldTex", "noteUiTex", "crosshairTex", "crosshairShotgunTex",
-        "barrelTex", "explosionTex", "fireTex", "portalTex", "bossTex", "bossBarTex" };
+        "barrelTex", "explosionTex", "fireTex", "portalTex", "bossTex", "bossBarTex", "introTex" };
 
-    for (int i = 0; i < 70; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
-    for (int i = 0; i < 70; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 71; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 71; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -558,18 +566,12 @@ int main() {
 
     static bool escPressedLastFrame = false;
 
-    //activeMapIndex = 1; switchMap(activeMapIndex); initMonsters(); initWeapons();
-
-    // --- TYMCZASOWY TEST BOSSA (MAPA 5) ---
-    activeMapIndex = 5;
-    switchMap(activeMapIndex);
-
-    playerX = 27.0f;
-    playerY = 34.0f;
-
-    initMonsters();
-    initWeapons();
-    // --------------------------------------
+    // activeMapIndex = 5;
+    // switchMap(activeMapIndex);
+    // playerX = 27.0f;
+    // playerY = 34.0f;
+    // initMonsters();
+    // initWeapons();
 
     playMenuMusic();
 
@@ -581,6 +583,8 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     while (!glfwWindowShouldClose(window)) {
+        float currentFrameTime = (float)glfwGetTime();
+
         glfwPollEvents();
 
         if (gameState == PLAYING && !gameOver && !isKeypadActive && !isViewingNote && menuCtx.useMouseLook) {
@@ -659,13 +663,25 @@ int main() {
 
         if (gameState == MENU) {
             GameState oldState = gameState;
+
             updateMenu(window, gameState, menuCtx, shouldClose, resetGame, screenWidth, screenHeight);
 
             if (oldState == MENU && gameState == PLAYING) {
+                if (introTimer > 0.0f) {
+                    gameState = INTRO;
+                }
                 stopMenuMusic();
+                if (gameState != INTRO) playLevelMusic(activeMapIndex);
             }
 
             if (shouldClose) glfwSetWindowShouldClose(window, true);
+        }
+        else if (gameState == INTRO) {
+            introTimer -= 0.016f;
+            if (introTimer <= 0.0f) {
+                gameState = PLAYING;
+                playLevelMusic(activeMapIndex);
+            }
         }
         else if (gameState == PLAYING) {
             updateShells(0.016f);
@@ -865,39 +881,42 @@ int main() {
                         playerX = nextX; moving = true;
                     }
                     else if (typeX == 9) {
+                        bool changed = false;
                         if (activeMapIndex == 1) {
-                            activeMapIndex = 2; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 25.0f;
-                            initMonsters(); initWeapons();
-                            std::cout << "Poziom 2 rozpoczety!" << std::endl;
+                            changed = true;
                         }
                         else if (activeMapIndex == 2) {
-                            activeMapIndex = 3; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 30.0f;
-                            initMonsters(); initWeapons();
-                            std::cout << "Poziom 3 rozpoczety!" << std::endl;
+                            changed = true;
                         }
                         else if (activeMapIndex == 3) {
-                            activeMapIndex = 4; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 2.5f; playerY = 2.5f;
-                            initMonsters(); initWeapons();
-                            std::cout << "Poziom 4 rozpoczety!" << std::endl;
+                            changed = true;
                         }
                         else if (activeMapIndex == 4) {
-                            activeMapIndex = 5; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 30.0f;
-                            initMonsters(); initWeapons();
-                            std::cout << "Poziom 5 rozpoczety!" << std::endl;
+                            changed = true;
                         }
                         else if (activeMapIndex == 5) {
-                            activeMapIndex = 6; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 30.0f;
-                            initMonsters(); initWeapons();
-                            std::cout << "FINALNY POZIOM 6!" << std::endl;
+                            changed = true;
                         }
                         else if (activeMapIndex == 6) {
                             std::cout << "GRATULACJE! UKONCZYLES WSZYSTKIE POZIOMY!" << std::endl;
                             gameOver = true;
+                        }
+
+                        if (changed) {
+                            initMonsters();
+                            initWeapons();
+                            startIntro(activeMapIndex);
+                            gameState = INTRO;
                         }
                         return;
                     }
@@ -912,39 +931,19 @@ int main() {
                         playerY = nextY; moving = true;
                     }
                     else if (typeY == 9) {
-                        if (activeMapIndex == 1) {
-                            activeMapIndex = 2; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 3.0f; playerY = 25.0f;
-                            initMonsters(); initWeapons();
-                            std::cout << "Poziom 2 rozpoczety!" << std::endl;
-                        }
-                        else if (activeMapIndex == 2) {
-                            activeMapIndex = 3; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 3.0f; playerY = 30.0f;
-                            initMonsters(); initWeapons();
-                            std::cout << "Poziom 3 rozpoczety!" << std::endl;
-                        }
-                        else if (activeMapIndex == 3) {
-                            activeMapIndex = 4; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 2.5f; playerY = 2.5f;
-                            initMonsters(); initWeapons();
-                            std::cout << "Poziom 4 rozpoczety!" << std::endl;
-                        }
-                        else if (activeMapIndex == 4) {
-                            activeMapIndex = 5; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 3.0f; playerY = 30.0f;
-                            initMonsters(); initWeapons();
-                            std::cout << "Poziom 5 rozpoczety!" << std::endl;
-                        }
-                        else if (activeMapIndex == 5) {
-                            activeMapIndex = 6; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 3.0f; playerY = 30.0f;
-                            initMonsters(); initWeapons();
-                            std::cout << "FINALNY POZIOM 6!" << std::endl;
-                        }
-                        else if (activeMapIndex == 6) {
-                            std::cout << "GRATULACJE! UKONCZYLES WSZYSTKIE POZIOMY!" << std::endl;
-                            gameOver = true;
+                        bool changed = false;
+                        if (activeMapIndex == 1) { activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 25.0f; changed = true; }
+                        else if (activeMapIndex == 2) { activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                        else if (activeMapIndex == 3) { activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 2.5f; playerY = 2.5f; changed = true; }
+                        else if (activeMapIndex == 4) { activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                        else if (activeMapIndex == 5) { activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                        else if (activeMapIndex == 6) { gameOver = true; }
+
+                        if (changed) {
+                            initMonsters();
+                            initWeapons();
+                            startIntro(activeMapIndex);
+                            gameState = INTRO;
                         }
                     }
                     };
@@ -1377,6 +1376,30 @@ int main() {
             glUniform1i(useTextureLoc, 1);
             glUniform1f(dmgIntLoc, 0.0f);
             renderMenu(vertices, menuCtx);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+        }
+        else if (gameState == INTRO) {
+            glUniform1i(useTextureLoc, 1);
+            glUniform1f(dmgIntLoc, 0.0f);
+
+            vertices.clear();
+            drawQuad2D(vertices, 0.0f, 0.0f, 1.0f, 1.0f, 210.0f);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+            glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+            vertices.clear();
+
+            glActiveTexture(GL_TEXTURE3);
+
+            float textScaleBig = 0.2f;
+            float textScaleSmall = 0.05f;
+
+            float widthMain = introMainText.length() * (0.65f * textScaleBig);
+            float widthSub = introSubText.length() * (0.65f * textScaleSmall);
+
+            drawText(vertices, -widthMain / 2.0f, 0.1f, textScaleBig, introMainText);
+            drawText(vertices, -widthSub / 2.0f, -0.1f, textScaleSmall, introSubText);
+
             glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
             glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
         }

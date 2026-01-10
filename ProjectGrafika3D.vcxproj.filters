@@ -389,5 +389,11 @@
       <Filter>Pliki zasobów</Filter>
     </Media>
     <Media Include="boss_theme.mp3" />
+    <Media Include="music_map_1.mp3" />
+    <Media Include="music_map_2.mp3" />
+    <Media Include="music_map_3.mp3" />
+    <Media Include="music_map_4.mp3" />
+    <Media Include="music_map_5.mp3" />
+    <Media Include="music_map_6.mp3" />
   </ItemGroup>
 </Project>

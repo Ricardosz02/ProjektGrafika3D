@@ -5,7 +5,8 @@
 
 enum GameState {
     MENU,
-    PLAYING
+    PLAYING,
+    INTRO
 };
 
 struct MenuContext {
@@ -30,3 +31,7 @@ void drawQuad2D(std::vector<float>& v, float x, float y, float w, float h, float
 
 void updateMenu(GLFWwindow* window, GameState& currentState, MenuContext& menuCtx, bool& shouldClose, void(*resetGameFn)(), int& scrW, int& scrH);
 void renderMenu(std::vector<float>& vertices, const MenuContext& menuCtx);
+
+void startIntro(int mapIndex);
+void updateIntro(float dt, GameState& currentState);
+void renderIntro(std::vector<float>& vertices, int screenWidth, int screenHeight);
