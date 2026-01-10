@@ -197,7 +197,7 @@ void renderMenu(std::vector<float>& vertices, const MenuContext& menuCtx) {
 
     float mainScale = 0.08f;
     float exitScale = 0.06f;
-    float optionsScale = 0.07f;
+    float optionsScale = 0.05f;
 
     auto drawCenteredOption = [&](int index, int selectedIndex, float y, std::string text, float itemScale) {
         float textWidth = text.length() * itemScale * 0.65f;
@@ -224,7 +224,7 @@ void renderMenu(std::vector<float>& vertices, const MenuContext& menuCtx) {
     }
     else {
 
-        drawCenteredOption(-1, -1, startY + 0.15f, "--- OPTIONS ---", mainScale);
+        drawCenteredOption(-1, -2, startY + 0.15f, "SETTINGS ", mainScale);
 
         for (int i = 0; i < SETTINGS_COUNT; i++) {
             if (i >= menuCtx.settingsScrollOffset && i < menuCtx.settingsScrollOffset + VISIBLE_ROWS) {

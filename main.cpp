@@ -98,15 +98,15 @@ void startIntro(int mapIndex);
 void resetGame() {
     stopMenuMusic();
     stopBossMusic();
-    activeMapIndex = 1;
+    activeMapIndex = 6; //1
 
     switchMap(activeMapIndex);
     initMonsters();
     initWeapons();
     resetKeys();
 
-    playerX = 2.5f;
-    playerY = 57.5f;
+    playerX = 30.5f; //2.5
+    playerY = 30.5f; //57.5
     playerDir = 0.0f;
     playerHealth = 100;
     playerArmor = 0;
@@ -133,17 +133,23 @@ void resetGame() {
 }
 
 void startIntro(int mapIndex) {
+    stopLevelMusic();
+    stopBossMusic();
+
     introTimer = INTRO_DURATION;
 
-    introMainText = "POZIOM " + std::to_string(mapIndex);
+    introMainText = "LEVEL " + std::to_string(mapIndex);
 
-    if (mapIndex == 1)      introSubText = "";
-    else if (mapIndex == 2) introSubText = "";
-    else if (mapIndex == 3) introSubText = "";
-    else if (mapIndex == 4) introSubText = "";
-    else if (mapIndex == 5) introSubText = "";
-    else if (mapIndex == 6) introSubText = "";
+    if (mapIndex == 1)      introSubText = "TIME TO START";
+    else if (mapIndex == 2) introSubText = "NO ESCAPE";
+    else if (mapIndex == 3) introSubText = "DEEP DOWN";
+    else if (mapIndex == 4) introSubText = "MAZE";
+    else if (mapIndex == 5) introSubText = "BOSS GUARD";
+    else if (mapIndex == 6) introSubText = "TIME TO END";
     else introSubText = "NIEZNANY OBSZAR";
+    if (mapIndex != 6) {
+        playIntroSound();
+    }
 }
 
 void updateSprites(float playerX, float playerY, int& health, int& armor) {
@@ -560,7 +566,7 @@ int main() {
     GameState gameState = MENU;
     MenuContext menuCtx;
     menuCtx.brightness = 1.0f;
-    menuCtx.useMouseLook = false;
+    menuCtx.useMouseLook = true; //false
 
     bool isGameStarted = false;
 
@@ -985,11 +991,11 @@ int main() {
             if (!gameOver) {
                 glUniform1f(glGetUniformLocation(p, "playerDir"), playerDir); glUniform2f(glGetUniformLocation(p, "playerPos"), playerX, playerY);
                 glUniform1f(glGetUniformLocation(p, "screenWidth"), (float)screenWidth); glUniform1f(glGetUniformLocation(p, "screenHeight"), (float)screenHeight);
-
+               
                 float cB = 6.0f, fB = 5.0f;
                 vertices.insert(vertices.end(), { -1,1,1,1,cB,0,0, 1,1,1,1,cB,0,0, 1,0,1,1,cB,0,0, -1,1,1,1,cB,0,0, 1,0,1,1,cB,0,0, -1,0,1,1,cB,0,0 });
                 vertices.insert(vertices.end(), { -1,-1,1,1,fB,0,0, 1,-1,1,1,fB,0,0, 1,0,1,1,fB,0,0, -1,-1,1,1,fB,0,0, 1,0,1,1,fB,0,0, -1,0,1,1,fB,0,0 });
-
+                
                 glActiveTexture(GL_TEXTURE0);
                 for (int x = 0; x < screenWidth; x++) {
                     float cX = 2.0f * x / screenWidth - 1.0f, rDX = cos(playerDir) + cX * cos(playerDir + M_PI / 2), rDY = sin(playerDir) + cX * sin(playerDir + M_PI / 2);
@@ -1025,7 +1031,7 @@ int main() {
                     float wX = (side == 0) ? playerY + perp * rDY : playerX + perp * rDX; wX -= floor(wX);
                     float tX = wX; if ((side == 0 && rDX > 0) || (side == 1 && rDY < 0)) tX = 1 - tX;
                     if ((type >= 2 && type <= 5) || type == 8) { tX -= texOffset; if (tX < 0) tX += 1.0f; }
-
+                    
                     float lH = screenHeight / perp, dS = -lH / 2 + screenHeight / 2, dE = lH / 2 + screenHeight / 2;
                     float nS = 1 - 2 * dS / screenHeight, nE = 1 - 2 * dE / screenHeight, xL = 2.0f * x / screenWidth - 1, xR = 2.0f * (x + 1) / screenWidth - 1;
                     float blueChannelID = 0.0f;
@@ -1038,7 +1044,7 @@ int main() {
                     else blueChannelID = 31.0f;
 
                     vertices.insert(vertices.end(), { xL,nS,r,g,blueChannelID,tX,1, xR,nS,r,g,blueChannelID,tX,1, xR,nE,r,g,blueChannelID,tX,0, xL,nS,r,g,blueChannelID,tX,1, xR,nE,r,g,blueChannelID,tX,0, xL,nE,r,g,blueChannelID,tX,0 });
-
+                    
                     for (const auto& decal : wallDecals) {
                         if (decal.x == mX && decal.y == mY && decal.side == side) {
                             float decalWidth = 0.25f; float halfWidth = decalWidth / 2.0f;

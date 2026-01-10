@@ -26,6 +26,7 @@ void initAudio() {
     }
     else {
         ma_sound_set_looping(&menuMusic, MA_TRUE);
+        ma_sound_set_volume(&menuMusic, 0.1f);
     }
 
     result = ma_sound_init_from_file(&engine, "boss_theme.mp3", MA_SOUND_FLAG_STREAM, NULL, NULL, &bossMusic);
@@ -231,9 +232,18 @@ void playLevelMusic(int mapIndex) {
         ma_sound_set_looping(&levelMusic, MA_TRUE);
         ma_sound_start(&levelMusic);
         isLevelMusicPlaying = true;
-        ma_sound_set_volume(&levelMusic, 0.3f);
+        if (mapIndex == 1) {
+            ma_sound_set_volume(&levelMusic, 0.1f);
+        }
+        else {
+            ma_sound_set_volume(&levelMusic, 0.3f);
+        }
     }
     else {
         std::cout << "AUDIO ERROR: Nie mozna zaladowac " << filename << std::endl;
     }
+}
+
+void playIntroSound() {
+    ma_engine_play_sound(&engine, "intro_sound.wav", NULL);
 }

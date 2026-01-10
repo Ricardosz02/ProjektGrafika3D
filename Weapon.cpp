@@ -57,15 +57,15 @@ void initWeapons() {
 
         weapons.push_back({ 9.0f, 36.0f, false, 0.0f, AMMO_PISTOL_BOX });
         weapons.push_back({ 2.0f, 8.0f, false, 0.0f, AMMO_PISTOL_BOX });
-        weapons.push_back({ 2.0f, 4.0f, false, 0.0f, AMMO_PISTOL_BOX });
-        weapons.push_back({ 2.0f, 6.0f, false, 0.0f, AMMO_PISTOL_BOX });
+        weapons.push_back({ 2.0f, 3.0f, false, 0.0f, AMMO_PISTOL_BOX });
+        weapons.push_back({ 21.0f, 12.0f, false, 0.0f, AMMO_PISTOL_BOX });
 
         weapons.push_back({ 32.0f, 3.0f, false, 0.0f, ITEM_KEY_GREEN });
 
         weapons.push_back({ 21.0f, 25.0f, false, 0.0f, ITEM_MEDKIT });
         weapons.push_back({ 46.0f, 23.5f, false, 0.0f, ITEM_MEDKIT });
 
-        weapons.push_back({ 2.0f, 25.0f, false, 0.0f, ITEM_ARMOR });
+        weapons.push_back({ 8.0f, 25.0f, false, 0.0f, ITEM_ARMOR });
         weapons.push_back({ 13.0f, 36.0f, false, 0.0f, ITEM_ARMOR });
 
         std::cout << "Dodano przedmioty dla Mapy 1.\n";
@@ -74,9 +74,9 @@ void initWeapons() {
 
     else if (activeMapIndex == 3) {
 
-        weapons.push_back({ 6.0f, 13.0f, false, 0.0f, WEAPON_SHOTGUN });
+        weapons.push_back({ 7.0f, 12.0f, false, 0.0f, WEAPON_SHOTGUN });
 
-        weapons.push_back({ 22.0f, 15.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
+        weapons.push_back({ 23.0f, 14.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
         weapons.push_back({ 3.0f, 26.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
 
         weapons.push_back({ 3.0f, 34.0f, false, 0.0f, AMMO_PISTOL_BOX });
@@ -84,7 +84,11 @@ void initWeapons() {
 
         weapons.push_back({ 27.0f, 45.0f, false, 0.0f, ITEM_KEY_GREEN });
 
-        weapons.push_back({ 25.0f, 15.0f, false, 0.0f, ITEM_KEY_RED });
+        weapons.push_back({ 24.0f, 14.0f, false, 0.0f, ITEM_KEY_RED });
+
+        weapons.push_back({ 16.0f, 13.0f, false, 0.0f, ITEM_MEDKIT });
+
+        weapons.push_back({ 3.0f, 49.0f, false, 0.0f, ITEM_ARMOR });
 
         std::cout << "Dodano przedmioty dla Mapy 3.\n";
 
@@ -100,11 +104,20 @@ void initWeapons() {
 
         weapons.push_back({ 24.0f, 4.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
         weapons.push_back({ 20.0f, 28.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
+        weapons.push_back({ 56.0f, 24.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
 
         weapons.push_back({ 28.0f, 13.0f, false, 0.0f, AMMO_PISTOL_BOX });
         weapons.push_back({ 36.0f, 36.0f, false, 0.0f, AMMO_PISTOL_BOX });
+        weapons.push_back({ 36.0f, 4.0f, false, 0.0f, AMMO_PISTOL_BOX });
 
         weapons.push_back({ 48.0f, 27.0f, false, 0.0f, AMMO_RIFLE_BOX });
+        weapons.push_back({ 36.0f, 16.0f, false, 0.0f, AMMO_RIFLE_BOX });
+
+        weapons.push_back({ 16.0f, 36.0f, false, 0.0f, ITEM_MEDKIT });
+        weapons.push_back({ 52.0f, 36.0f, false, 0.0f, ITEM_MEDKIT });
+
+        weapons.push_back({ 20.0f, 52.0f, false, 0.0f, ITEM_ARMOR });
+        weapons.push_back({ 37.0f, 56.0f, false, 0.0f, ITEM_ARMOR });
 
         std::cout << "Dodano przedmioty dla Mapy 4.\n";
 
@@ -116,15 +129,19 @@ void initWeapons() {
 
         weapons.push_back({ 52.0f, 52.0f, false, 0.0f, WEAPON_TYPE_NOTE });
 
+        weapons.push_back({ 27.0f, 36.0f, false, 0.0f, AMMO_PISTOL_BOX });
+
         weapons.push_back({ 9.0f, 53.0f, false, 0.0f, AMMO_RIFLE_BOX });
         weapons.push_back({ 45.0f, 59.0f, false, 0.0f, AMMO_RIFLE_BOX });
 
         weapons.push_back({ 39.0f, 53.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
+        weapons.push_back({ 27.0f, 46.0f, false, 0.0f, AMMO_SHOTGUN_BOX });
 
         weapons.push_back({ 45.0f, 52.0f, false, 0.0f, ITEM_ARMOR });
         weapons.push_back({ 52.0f, 41.0f, false, 0.0f, ITEM_ARMOR });
 
         weapons.push_back({ 9.0f, 55.0f, false, 0.0f, ITEM_MEDKIT });
+        weapons.push_back({ 27.0f, 40.0f, false, 0.0f, ITEM_MEDKIT });
 
         std::cout << "Dodano przedmioty dla Mapy 5.\n";
 
@@ -132,10 +149,9 @@ void initWeapons() {
 
     else if (activeMapIndex == 6) {
 
-        weapons.push_back({ 8.0f, 30.0f, false, 0.0f, ITEM_MEDKIT });
+        weapons.push_back({ 8.0f, 24.0f, false, 0.0f, ITEM_MEDKIT });
 
-        weapons.push_back({ 8.0f, 29.0f, false, 0.0f, ITEM_ARMOR });
-        weapons.push_back({ 8.0f, 31.0f, false, 0.0f, ITEM_ARMOR });
+        weapons.push_back({ 8.0f, 36.0f, false, 0.0f, ITEM_ARMOR });
 
         weapons.push_back({ 8.0f, 39.0f, false, 0.0f, AMMO_PISTOL_BOX });
         weapons.push_back({ 8.0f, 41.0f, false, 0.0f, AMMO_PISTOL_BOX });
@@ -154,6 +170,8 @@ void initWeapons() {
         weapons.push_back({ 19.0f, 30.0f, false, 0.0f, AMMO_RIFLE_BOX });
         weapons.push_back({ 15.0f, 30.0f, false, 0.0f, AMMO_RIFLE_BOX });
         weapons.push_back({ 23.0f, 30.0f, false, 0.0f, AMMO_RIFLE_BOX });
+        weapons.push_back({ 17.0f, 30.0f, false, 0.0f, AMMO_RIFLE_BOX });
+        weapons.push_back({ 21.0f, 30.0f, false, 0.0f, AMMO_RIFLE_BOX });
 
         weapons.push_back({ 31.0f, 21.0f, false, 0.0f, ITEM_ARMOR });
         weapons.push_back({ 31.0f, 39.0f, false, 0.0f, ITEM_ARMOR });
@@ -198,9 +216,9 @@ void checkWeaponCollection(float playerX, float playerY, int& health, int& armor
                 else if (w.type == WEAPON_RIFLE) {
                     hasRifle = true;
                     currentWeapon = 3;
-                    ammoRifle += 50;
+                    ammoRifle += 60;
                     playPickupSound(PICKUP_WEAPON);
-                    std::cout << "ZEBRANO KARABIN! (+50 Ammo)" << std::endl;
+                    std::cout << "ZEBRANO KARABIN! (+60 Ammo)" << std::endl;
                 }
                 else if (w.type == AMMO_PISTOL_BOX) {
                     ammoPistol += 20;
@@ -227,7 +245,7 @@ void checkWeaponCollection(float playerX, float playerY, int& health, int& armor
                     armor += 100;
                     if (armor > 100) armor = 100;
                     playPickupSound(PICKUP_ARMOR);
-                    std::cout << "KAMIZELKA (+50 ARMOR)" << std::endl;
+                    std::cout << "KAMIZELKA (+100 ARMOR)" << std::endl;
                 }
                 else if (w.type == ITEM_KEY_GREEN) {
                     hasGreenKey = true;

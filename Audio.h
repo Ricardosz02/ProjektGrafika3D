@@ -58,4 +58,6 @@ void stopBossMusic();
 void playLevelMusic(int mapIndex);
 void stopLevelMusic();
 
+void playIntroSound();
+
 #endif
