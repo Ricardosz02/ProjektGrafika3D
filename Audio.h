@@ -55,4 +55,7 @@ void playBossDeath();
 void playBossMusic();
 void stopBossMusic();
 
+void playLevelMusic(int mapIndex);
+void stopLevelMusic();
+
 #endif

@@ -271,6 +271,15 @@
     <Image Include="boss.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="boss_bar.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="boss_bar1.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
+    <Image Include="portal.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="shoot_shotgun.wav">
@@ -379,5 +388,6 @@
     <Media Include="boss_line.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
+    <Media Include="boss_theme.mp3" />
   </ItemGroup>
 </Project>

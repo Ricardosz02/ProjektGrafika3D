@@ -92,6 +92,7 @@ void resetGame() {
     stopMenuMusic();
     stopBossMusic();
     activeMapIndex = 1; // 1
+    playLevelMusic(activeMapIndex);
     switchMap(activeMapIndex);
     initMonsters();
     initWeapons();
@@ -620,6 +621,7 @@ int main() {
                 else if (gameState == PLAYING) {
                     gameState = MENU;
                     stopBossMusic();
+                    stopLevelMusic();
                     playMenuBeep();
                     playMenuMusic();
                 }
@@ -641,6 +643,9 @@ int main() {
 
                         if (resumeBossMusic) {
                             playBossMusic();
+                        }
+                        else {
+                            playLevelMusic(activeMapIndex);
                         }
                     }
                 }
@@ -861,31 +866,31 @@ int main() {
                     }
                     else if (typeX == 9) {
                         if (activeMapIndex == 1) {
-                            activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 2; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 25.0f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 2 rozpoczety!" << std::endl;
                         }
                         else if (activeMapIndex == 2) {
-                            activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 3; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 30.0f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 3 rozpoczety!" << std::endl;
                         }
                         else if (activeMapIndex == 3) {
-                            activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 4; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 2.5f; playerY = 2.5f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 4 rozpoczety!" << std::endl;
                         }
                         else if (activeMapIndex == 4) {
-                            activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 5; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 30.0f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 5 rozpoczety!" << std::endl;
                         }
                         else if (activeMapIndex == 5) {
-                            activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 6; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 30.0f;
                             initMonsters(); initWeapons();
                             std::cout << "FINALNY POZIOM 6!" << std::endl;
@@ -908,31 +913,31 @@ int main() {
                     }
                     else if (typeY == 9) {
                         if (activeMapIndex == 1) {
-                            activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 2; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 25.0f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 2 rozpoczety!" << std::endl;
                         }
                         else if (activeMapIndex == 2) {
-                            activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 3; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 30.0f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 3 rozpoczety!" << std::endl;
                         }
                         else if (activeMapIndex == 3) {
-                            activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 4; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 2.5f; playerY = 2.5f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 4 rozpoczety!" << std::endl;
                         }
                         else if (activeMapIndex == 4) {
-                            activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 5; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 30.0f;
                             initMonsters(); initWeapons();
                             std::cout << "Poziom 5 rozpoczety!" << std::endl;
                         }
                         else if (activeMapIndex == 5) {
-                            activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
+                            activeMapIndex = 6; playLevelMusic(activeMapIndex); switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
                             playerX = 3.0f; playerY = 30.0f;
                             initMonsters(); initWeapons();
                             std::cout << "FINALNY POZIOM 6!" << std::endl;

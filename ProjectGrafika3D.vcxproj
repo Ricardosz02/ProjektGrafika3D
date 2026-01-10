@@ -161,6 +161,8 @@
     <Image Include="blood_particle.png" />
     <Image Include="blood_screen_damage.png" />
     <Image Include="boss.png" />
+    <Image Include="boss_bar.png" />
+    <Image Include="boss_bar1.png" />
     <Image Include="bullethole_pistol.png" />
     <Image Include="bullethole_shotgun.png" />
     <Image Include="bulletproof_armor.png" />
@@ -210,6 +212,7 @@
     <Image Include="pistol.png" />
     <Image Include="pistol_view_128.png" />
     <Image Include="pistol_view_128_shoot.png" />
+    <Image Include="portal.png" />
     <Image Include="red_card.png" />
     <Image Include="rifle.png" />
     <Image Include="rifle_view.png" />
@@ -229,6 +232,7 @@
     <Media Include="boss_death.wav" />
     <Media Include="boss_idle.wav" />
     <Media Include="boss_line.wav" />
+    <Media Include="boss_theme.mp3" />
     <Media Include="door_open.wav" />
     <Media Include="dry_fire.wav" />
     <Media Include="flying_attack.wav" />

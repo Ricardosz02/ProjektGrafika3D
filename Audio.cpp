@@ -8,9 +8,11 @@
 ma_engine engine;
 ma_sound menuMusic;
 ma_sound bossMusic;
+ma_sound levelMusic;
 
 bool isMenuMusicPlaying = false;
 bool isBossMusicPlaying = false;
+bool isLevelMusicPlaying = false;
 
 void initAudio() {
     ma_result result = ma_engine_init(NULL, &engine);
@@ -137,6 +139,7 @@ void playDryFireSound() {
 
 void playPlayerDeath() {
     stopBossMusic();
+    stopLevelMusic();
     ma_engine_play_sound(&engine, "player_die.wav", NULL);
     ma_engine_play_sound(&engine, "game_over.wav", NULL);
 }
@@ -185,6 +188,7 @@ void playBossDeath() {
 void playBossMusic() {
     if (!isBossMusicPlaying) {
         stopMenuMusic();
+        stopLevelMusic();
         ma_sound_start(&bossMusic);
         isBossMusicPlaying = true;
     }
@@ -195,5 +199,46 @@ void stopBossMusic() {
         ma_sound_stop(&bossMusic);
         ma_sound_seek_to_pcm_frame(&bossMusic, 0);
         isBossMusicPlaying = false;
+    }
+}
+
+void stopLevelMusic() {
+    if (isLevelMusicPlaying) {
+        ma_sound_stop(&levelMusic);
+        ma_sound_uninit(&levelMusic); // Zwalniamy pamiêæ, bo bêdziemy ³adowaæ inny plik
+        isLevelMusicPlaying = false;
+    }
+}
+
+void playLevelMusic(int mapIndex) {
+    // 1. Najpierw wy³¹cz wszystko inne
+    stopLevelMusic();
+    stopMenuMusic();
+    stopBossMusic();
+
+    const char* filename = "";
+
+    // 2. Wybierz plik w zale¿noœci od mapy
+    if (mapIndex == 1) filename = "music_map_1.mp3";
+    else if (mapIndex == 2) filename = "music_map_2.mp3";
+    else if (mapIndex == 3) filename = "music_map_3.mp3";
+    else if (mapIndex == 4) filename = "music_map_4.mp3";
+    else if (mapIndex == 5) filename = "music_map_5.mp3";
+    else if (mapIndex == 6) filename = "music_map_6.mp3";
+
+    // Mapa 6 (i inne nieprzewidziane) nie ma muzyki startowej
+    if (filename == "") return;
+
+    // 3. Za³aduj i w³¹cz
+    ma_result result = ma_sound_init_from_file(&engine, filename, MA_SOUND_FLAG_STREAM, NULL, NULL, &levelMusic);
+    if (result == MA_SUCCESS) {
+        ma_sound_set_looping(&levelMusic, MA_TRUE);
+        ma_sound_start(&levelMusic);
+        isLevelMusicPlaying = true;
+        // Opcjonalnie: ustaw g³oœnoœæ (0.5f = 50%)
+        ma_sound_set_volume(&levelMusic, 0.3f);
+    }
+    else {
+        std::cout << "AUDIO ERROR: Nie mozna zaladowac " << filename << std::endl;
     }
 }
