@@ -13,14 +13,18 @@ const int MONSTER_TYPE_FLYING = 2;
 const int MONSTER_TYPE_WALKING = 3;
 
 const int MONSTER_TYPE_CYBERBOSS = 666;
+const int MONSTER_TYPE_FINAL_BOSS = 777;
 
 const int OBJECT_HOLE_PISTOL = 98;
 const int OBJECT_HOLE_SHOTGUN = 99;
 const int OBJECT_BLOOD = 80;
 
+const int OBJECT_SHIELD_ITEM = 100;
+
 const int STATE_IDLE = 0;
 const int STATE_ATTACK = 1;
 const int STATE_PAIN = 2;
+const int STATE_DYING = 3;
 
 struct Sprite {
     float x, y;
@@ -29,6 +33,7 @@ struct Sprite {
     bool isWeapon = false;
 
     int health = 100;
+    int maxHealth = 100;
     bool isAlive = true;
 
     bool hasSeenPlayer = false;
@@ -46,6 +51,10 @@ struct Sprite {
     float zOffset = 0.0f;
 
     bool alternateAttack = false;
+
+    bool isShielded = false;
+    int bossPhase = 0;
+    int deathSoundCount = 0;
 };
 
 struct BloodParticle {
@@ -71,5 +80,7 @@ bool hitMonster(int index, float hitDamage);
 void removeDeadMonsters();
 void updateFireballs(float playerX, float playerY, float deltaTime, int& playerHealth, int& playerArmor, float& damageAlpha);
 void updateBloodParticles(float dt);
+
+void updateBossLogic(float dt, float playerX, float playerY);
 
 #endif

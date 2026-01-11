@@ -247,3 +247,11 @@ void playLevelMusic(int mapIndex) {
 void playIntroSound() {
     ma_engine_play_sound(&engine, "intro_sound.wav", NULL);
 }
+
+void playBossPain() {
+    ma_engine_play_sound(&engine, "main_boss_pain.wav", NULL);
+}
+
+void playShieldDown() {
+    ma_engine_play_sound(&engine, "shield_down.wav", NULL);
+}

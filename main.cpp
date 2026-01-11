@@ -20,6 +20,7 @@
 #endif
 
 #define MONSTER_TYPE_CYBERBOSS 666
+#define MONSTER_TYPE_FINAL_BOSS 777
 
 int screenWidth = 1920;
 int screenHeight = 1080;
@@ -98,24 +99,35 @@ void startIntro(int mapIndex);
 void resetGame() {
     stopMenuMusic();
     stopBossMusic();
-    activeMapIndex = 6; //1
+    activeMapIndex = 5; // Start na mapie 6
 
     switchMap(activeMapIndex);
     initMonsters();
     initWeapons();
     resetKeys();
 
-    playerX = 30.5f; //2.5
-    playerY = 30.5f; //57.5
-    playerDir = 0.0f;
+    // Pozycja startowa gracza
+    playerX = 27.0f;
+    playerY = 30.0f;
+    /*
+    if (activeMapIndex == 6) {
+        // Bezpieczna pozycja na arenie bossa
+        playerX = 3.0f;
+        playerY = 30.0f;
+        playerDir = 1.57f; // Patrzy w górê
+    }
+    */
     playerHealth = 100;
     playerArmor = 0;
     gameOver = false;
 
-    // Opcjonalnie: reset eq
-    // ammoPistol = 0; ammoShotgun = 0; ammoRifle = 0;
-    // hasPistol = false; hasShotgun = false; hasRifle = false;
-    // currentWeapon = 0;
+    /*
+    // --- STARTOWY EKWIPUNEK (DLA TESTÓW BOSSA) ---
+    hasRifle = true;
+    ammoRifle = 999;
+    currentWeapon = 3;
+    // ---------------------------------------------
+    */
 
     weaponSwitchTimer = 0.0f;
 
@@ -256,6 +268,8 @@ uniform sampler2D portalTex;         // 67
 uniform sampler2D bossTex;           // 68
 uniform sampler2D bossBarTex;        // 69
 uniform sampler2D introTex;          // 70
+uniform sampler2D shieldItemTex;     // 71
+uniform sampler2D mainBossTex;       // 72
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity; uniform float horizon; uniform float flashIntensity; uniform float brightness; 
@@ -268,12 +282,19 @@ void main() {
 
         if (ourColor.b > 209.9) texColor = texture(introTex, TexCoord);
         else if (ourColor.b > 199.9) texColor = texture(bossBarTex, TexCoord);
+        else if (ourColor.b > 156.9) {
+             texColor = texture(mainBossTex, TexCoord);
+             texColor.gb *= 0.2;
+             texColor.r = 1.0;
+        }
+        else if (ourColor.b > 155.9) texColor = texture(mainBossTex, TexCoord);
         else if (ourColor.b > 154.9) texColor = texture(bossTex, TexCoord);
         else if (ourColor.b > 153.9) texColor = texture(fireTex, TexCoord);
         else if (ourColor.b > 152.9) texColor = texture(explosionTex, TexCoord);
         else if (ourColor.b > 151.9) texColor = texture(barrelTex, TexCoord);
         else if (ourColor.b > 150.9) texColor = texture(crosshairShotgunTex, TexCoord);
         else if (ourColor.b > 149.9) texColor = texture(crosshairTex, TexCoord);
+        else if (ourColor.b > 144.9) texColor = texture(shieldItemTex, TexCoord);
         else if (ourColor.b > 140.9) texColor = texture(noteUiTex, TexCoord);
         else if (ourColor.b > 139.9) texColor = texture(noteWorldTex, TexCoord);
         else if (ourColor.b > 130.9) texColor = texture(shellShotgunTex, TexCoord);
@@ -380,7 +401,11 @@ void main() {
             float cameraX = (gl_FragCoord.x / screenWidth) * 2.0 - 1.0;
             float rayDirX = cos(playerDir) + cos(playerDir+1.5708)*cameraX;
             float rayDirY = sin(playerDir) + sin(playerDir+1.5708)*cameraX;
-            vec2 ceilPos = playerPos + rowDistance * vec2(rayDirX, rayDirY);
+            
+            float scale = 1.0;
+            if (ourColor.b > 6.4) scale = 0.5;
+            vec2 ceilPos = (playerPos + rowDistance * vec2(rayDirX, rayDirY)) * scale;
+
             float light = min(1.0, 3.5 / rowDistance);
             texColor = texture(ceilingTexture, ceilPos) * vec4(light, light, light, 1.0);
         } else if (ourColor.b > 4.9) {
@@ -478,7 +503,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[71];
+    GLuint t[73];
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -534,6 +559,8 @@ int main() {
     t[68] = loadTexture("boss.png");
     t[69] = loadTexture("boss_bar.png");
     t[70] = loadTexture("intro.png");
+    t[71] = loadTexture("shield_item.png");
+    t[72] = loadTexture("main_boss.png");
 
     initAudio();
 
@@ -554,10 +581,10 @@ int main() {
         "shellTex", "shellShotgunTex",
         "menuBgTex", "logoTex", "bloodyXTex", "settingsBgTex",
         "noteWorldTex", "noteUiTex", "crosshairTex", "crosshairShotgunTex",
-        "barrelTex", "explosionTex", "fireTex", "portalTex", "bossTex", "bossBarTex", "introTex" };
+        "barrelTex", "explosionTex", "fireTex", "portalTex", "bossTex", "bossBarTex", "introTex", "shieldItemTex", "mainBossTex"};
 
-    for (int i = 0; i < 71; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
-    for (int i = 0; i < 71; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 73; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
+    for (int i = 0; i < 73; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -566,18 +593,11 @@ int main() {
     GameState gameState = MENU;
     MenuContext menuCtx;
     menuCtx.brightness = 1.0f;
-    menuCtx.useMouseLook = true; //false
+    menuCtx.useMouseLook = true;
 
     bool isGameStarted = false;
 
     static bool escPressedLastFrame = false;
-
-    // activeMapIndex = 5;
-    // switchMap(activeMapIndex);
-    // playerX = 27.0f;
-    // playerY = 34.0f;
-    // initMonsters();
-    // initWeapons();
 
     playMenuMusic();
 
@@ -585,7 +605,6 @@ int main() {
     static bool ePressedLastFrame = false;
 
     double lastX = 0;
-    // bool firstMouse = true;
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     while (!glfwWindowShouldClose(window)) {
@@ -643,15 +662,24 @@ int main() {
                     else if (isGameStarted) {
                         gameState = PLAYING;
                         stopMenuMusic();
-                        bool resumeBossMusic = false;
+                        bool resumeMiniBoss = false;
+                        bool resumeMainBoss = false;
+
                         for (const auto& s : sprites) {
                             if (s.type == 666 && s.isAlive && s.hasSeenPlayer) {
-                                resumeBossMusic = true;
+                                resumeMiniBoss = true;
+                                break;
+                            }
+                            if (s.type == 777 && s.isAlive && s.hasSeenPlayer) {
+                                resumeMainBoss = true;
                                 break;
                             }
                         }
 
-                        if (resumeBossMusic) {
+                        if (resumeMainBoss) {
+                            playBossMusic();
+                        }
+                        else if (resumeMiniBoss) {
                             playBossMusic();
                         }
                         else {
@@ -888,35 +916,12 @@ int main() {
                     }
                     else if (typeX == 9) {
                         bool changed = false;
-                        if (activeMapIndex == 1) {
-                            activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 3.0f; playerY = 25.0f;
-                            changed = true;
-                        }
-                        else if (activeMapIndex == 2) {
-                            activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 3.0f; playerY = 30.0f;
-                            changed = true;
-                        }
-                        else if (activeMapIndex == 3) {
-                            activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 2.5f; playerY = 2.5f;
-                            changed = true;
-                        }
-                        else if (activeMapIndex == 4) {
-                            activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 3.0f; playerY = 30.0f;
-                            changed = true;
-                        }
-                        else if (activeMapIndex == 5) {
-                            activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false;
-                            playerX = 3.0f; playerY = 30.0f;
-                            changed = true;
-                        }
-                        else if (activeMapIndex == 6) {
-                            std::cout << "GRATULACJE! UKONCZYLES WSZYSTKIE POZIOMY!" << std::endl;
-                            gameOver = true;
-                        }
+                        if (activeMapIndex == 1) { activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 25.0f; changed = true; }
+                        else if (activeMapIndex == 2) { activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                        else if (activeMapIndex == 3) { activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 2.5f; playerY = 2.5f; changed = true; }
+                        else if (activeMapIndex == 4) { activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                        else if (activeMapIndex == 5) { activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                        else if (activeMapIndex == 6) { gameOver = true; }
 
                         if (changed) {
                             initMonsters();
@@ -979,6 +984,24 @@ int main() {
                 updateSprites(playerX, playerY, playerHealth, playerArmor);
                 updateFireballs(playerX, playerY, 0.016f, playerHealth, playerArmor, damageAlpha);
 
+                for (auto& s : sprites) {
+                    if (s.type == OBJECT_SHIELD_ITEM && s.isAlive) {
+                        float dx = playerX - s.x;
+                        float dy = playerY - s.y;
+                        if (dx * dx + dy * dy < 0.25f) {
+                            s.isAlive = false;
+                            playShieldDown();
+                            playKeypadClick();
+
+                            for (auto& b : sprites) {
+                                if (b.type == MONSTER_TYPE_FINAL_BOSS) {
+                                    b.isShielded = false;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if (checkCollision(playerX, playerY) && !gameOver) {
                 }
                 if (playerHealth <= 0) { gameOver = true; playPlayerDeath(); }
@@ -991,11 +1014,15 @@ int main() {
             if (!gameOver) {
                 glUniform1f(glGetUniformLocation(p, "playerDir"), playerDir); glUniform2f(glGetUniformLocation(p, "playerPos"), playerX, playerY);
                 glUniform1f(glGetUniformLocation(p, "screenWidth"), (float)screenWidth); glUniform1f(glGetUniformLocation(p, "screenHeight"), (float)screenHeight);
-               
+
                 float cB = 6.0f, fB = 5.0f;
+                if (activeMapIndex == 6) {
+                    cB = 6.5f;
+                }
+
                 vertices.insert(vertices.end(), { -1,1,1,1,cB,0,0, 1,1,1,1,cB,0,0, 1,0,1,1,cB,0,0, -1,1,1,1,cB,0,0, 1,0,1,1,cB,0,0, -1,0,1,1,cB,0,0 });
                 vertices.insert(vertices.end(), { -1,-1,1,1,fB,0,0, 1,-1,1,1,fB,0,0, 1,0,1,1,fB,0,0, -1,-1,1,1,fB,0,0, 1,0,1,1,fB,0,0, -1,0,1,1,fB,0,0 });
-                
+
                 glActiveTexture(GL_TEXTURE0);
                 for (int x = 0; x < screenWidth; x++) {
                     float cX = 2.0f * x / screenWidth - 1.0f, rDX = cos(playerDir) + cX * cos(playerDir + M_PI / 2), rDY = sin(playerDir) + cX * sin(playerDir + M_PI / 2);
@@ -1031,7 +1058,7 @@ int main() {
                     float wX = (side == 0) ? playerY + perp * rDY : playerX + perp * rDX; wX -= floor(wX);
                     float tX = wX; if ((side == 0 && rDX > 0) || (side == 1 && rDY < 0)) tX = 1 - tX;
                     if ((type >= 2 && type <= 5) || type == 8) { tX -= texOffset; if (tX < 0) tX += 1.0f; }
-                    
+
                     float lH = screenHeight / perp, dS = -lH / 2 + screenHeight / 2, dE = lH / 2 + screenHeight / 2;
                     float nS = 1 - 2 * dS / screenHeight, nE = 1 - 2 * dE / screenHeight, xL = 2.0f * x / screenWidth - 1, xR = 2.0f * (x + 1) / screenWidth - 1;
                     float blueChannelID = 0.0f;
@@ -1044,7 +1071,7 @@ int main() {
                     else blueChannelID = 31.0f;
 
                     vertices.insert(vertices.end(), { xL,nS,r,g,blueChannelID,tX,1, xR,nS,r,g,blueChannelID,tX,1, xR,nE,r,g,blueChannelID,tX,0, xL,nS,r,g,blueChannelID,tX,1, xR,nE,r,g,blueChannelID,tX,0, xL,nE,r,g,blueChannelID,tX,0 });
-                    
+
                     for (const auto& decal : wallDecals) {
                         if (decal.x == mX && decal.y == mY && decal.side == side) {
                             float decalWidth = 0.25f; float halfWidth = decalWidth / 2.0f;
@@ -1091,6 +1118,7 @@ int main() {
                         if (s.type == WEAPON_TYPE_NOTE) scale = 0.2f;
 
                         if (s.type == MONSTER_TYPE_CYBERBOSS) scale = 2.5f;
+                        if (s.type == MONSTER_TYPE_FINAL_BOSS) scale = 2.5f;
 
                         float vOffset = 0.0f; float shadowWidthFactor = 0.0f; float wallH = screenHeight / tY;
                         if (s.type == 999) { float time = (float)glfwGetTime(); vOffset = sin(time * 15.0f + s.x) * 5.0f; shadowWidthFactor = 0.8f; }
@@ -1166,7 +1194,16 @@ int main() {
                                 else if (s.type == 50) id = 152.0f;
                                 else if (s.type == 90) id = 153.0f;
                                 else if (s.type == 91) id = 154.0f;
-                                else if (s.type == MONSTER_TYPE_CYBERBOSS) id = 155.0f;
+                                else if (s.type == MONSTER_TYPE_CYBERBOSS) {
+                                    id = 155.0f;
+                                }
+                                else if (s.type == MONSTER_TYPE_FINAL_BOSS) {
+                                    if (s.isShielded) id = 157.0f;
+                                    else id = 156.0f;
+                                }
+                                else if (s.type == OBJECT_SHIELD_ITEM) {
+                                    id = 145.0f;
+                                }
 
                                 vertices.insert(vertices.end(), { xL,ndcS,sLight,sLight,id,texX,1, xR,ndcS,sLight,sLight,id,texX,1, xR,ndcE,sLight,sLight,id,texX,0, xL,ndcS,sLight,sLight,id,texX,1, xR,ndcE,sLight,sLight,id,texX,0, xL,ndcE,sLight,sLight,id,texX,0 });
                             }
@@ -1232,8 +1269,10 @@ int main() {
                 }
 
                 for (const auto& s : sprites) {
-                    if (s.type == 666 && s.isAlive && s.hasSeenPlayer) {
+                    if ((s.type == 666 || s.type == 777) && s.isAlive && s.hasSeenPlayer) {
                         float maxBossHealth = 2500.0f;
+                        if (activeMapIndex == 6) maxBossHealth = 3000.0f;
+
                         float hpPercent = (float)s.health / maxBossHealth;
                         if (hpPercent < 0.0f) hpPercent = 0.0f;
 
@@ -1278,8 +1317,25 @@ int main() {
                         vertices.clear();
 
                         glActiveTexture(GL_TEXTURE3);
-                        std::string bossName = "BOSS GUARD";
-                        drawText(vertices, -0.10f, barY + barHeight + 0.03f, 0.03f, bossName);
+                        std::string bossName = "";
+                        float textX = 0.0f;
+                        float textY = 0.0f;
+                        float textScale = 0.0f;
+
+                        if (activeMapIndex == 6) {
+                            bossName = "BOSS";
+                            textScale = 0.07f;
+                            textX = -0.097f;
+                            textY = barY + barHeight + 0.04f;
+                        }
+                        else {
+                            bossName = "BOSS GUARD";
+                            textScale = 0.03f;
+                            textX = -0.10f;
+                            textY = barY + barHeight + 0.03f;
+                        }
+
+                        drawText(vertices, textX, textY, textScale, bossName);
                     }
                 }
 

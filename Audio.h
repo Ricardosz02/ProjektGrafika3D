@@ -52,6 +52,9 @@ void playBossConeAttack();
 void playBossLineAttack();
 void playBossDeath();
 
+void playBossPain();
+void playShieldDown();
+
 void playBossMusic();
 void stopBossMusic();
 
