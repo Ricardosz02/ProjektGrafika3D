@@ -36,6 +36,11 @@ float moveSpeed = 0.035f;
 float rotSpeed = 0.03f;
 bool gameOver = false;
 
+// --- ZMIENNE DO OBS£UGI ZAKOÑCZENIA ---
+bool isGameWon = false;
+bool showEndingScreen = false;
+// ---------------------------------------
+
 bool useMouseControls = false;
 double lastMouseX = 0.0;
 bool firstMouse = true;
@@ -99,35 +104,35 @@ void startIntro(int mapIndex);
 void resetGame() {
     stopMenuMusic();
     stopBossMusic();
-    activeMapIndex = 5; // Start na mapie 6
+    activeMapIndex = 5;
 
     switchMap(activeMapIndex);
     initMonsters();
     initWeapons();
     resetKeys();
 
-    // Pozycja startowa gracza
-    playerX = 27.0f;
-    playerY = 30.0f;
-    /*
+    playerX = 27.5f;
+    playerY = 30.5f;
     if (activeMapIndex == 6) {
-        // Bezpieczna pozycja na arenie bossa
-        playerX = 3.0f;
+        playerX = 27.0f; // Pozycja startowa na mapie 6
         playerY = 30.0f;
-        playerDir = 1.57f; // Patrzy w górê
+        playerDir = 1.57f;
     }
-    */
+
     playerHealth = 100;
     playerArmor = 0;
     gameOver = false;
 
-    /*
-    // --- STARTOWY EKWIPUNEK (DLA TESTÓW BOSSA) ---
+    // --- RESET FLAG ZWYCIÊSTWA ---
+    isGameWon = false;
+    showEndingScreen = false;
+    // -----------------------------
+
+    // --- EKWIPUNEK TESTOWY ---
     hasRifle = true;
     ammoRifle = 999;
     currentWeapon = 3;
-    // ---------------------------------------------
-    */
+    // -------------------------
 
     weaponSwitchTimer = 0.0f;
 
@@ -147,9 +152,7 @@ void resetGame() {
 void startIntro(int mapIndex) {
     stopLevelMusic();
     stopBossMusic();
-
     introTimer = INTRO_DURATION;
-
     introMainText = "LEVEL " + std::to_string(mapIndex);
 
     if (mapIndex == 1)      introSubText = "TIME TO START";
@@ -159,6 +162,7 @@ void startIntro(int mapIndex) {
     else if (mapIndex == 5) introSubText = "BOSS GUARD";
     else if (mapIndex == 6) introSubText = "TIME TO END";
     else introSubText = "NIEZNANY OBSZAR";
+
     if (mapIndex != 6) {
         playIntroSound();
     }
@@ -270,6 +274,7 @@ uniform sampler2D bossBarTex;        // 69
 uniform sampler2D introTex;          // 70
 uniform sampler2D shieldItemTex;     // 71
 uniform sampler2D mainBossTex;       // 72
+uniform sampler2D endingTex;         // 73 - NOWA TEKSTURA
 
 uniform bool useTexture; uniform float playerDir; uniform vec2 playerPos; uniform float screenWidth; uniform float screenHeight;
 uniform float damageIntensity; uniform float horizon; uniform float flashIntensity; uniform float brightness; 
@@ -280,21 +285,31 @@ void main() {
         bool isBlood = false;
         vec3 bloodRed = vec3(0.569, 0.075, 0.110);
 
-        if (ourColor.b > 209.9) texColor = texture(introTex, TexCoord);
+        // --- OBS£UGA EKRANU KOÑCOWEGO (ID 211) ---
+        if (ourColor.b > 210.9) texColor = texture(endingTex, TexCoord); 
+        // ----------------------------------------
+
+        else if (ourColor.b > 209.9) texColor = texture(introTex, TexCoord);
         else if (ourColor.b > 199.9) texColor = texture(bossBarTex, TexCoord);
-        else if (ourColor.b > 156.9) {
+        
+        // --- OBSLUGA BOSSÓW ---
+        else if (ourColor.b > 156.9) { // ID 157.0 = MAIN Boss z tarcza (CZERWONY)
              texColor = texture(mainBossTex, TexCoord);
-             texColor.gb *= 0.2;
+             texColor.gb *= 0.2; 
              texColor.r = 1.0;
         }
-        else if (ourColor.b > 155.9) texColor = texture(mainBossTex, TexCoord);
-        else if (ourColor.b > 154.9) texColor = texture(bossTex, TexCoord);
+        else if (ourColor.b > 155.9) texColor = texture(mainBossTex, TexCoord); // ID 156.0 = MAIN Boss
+        else if (ourColor.b > 154.9) texColor = texture(bossTex, TexCoord);     // ID 155.0 = MINI Boss
+        // ----------------------
+
         else if (ourColor.b > 153.9) texColor = texture(fireTex, TexCoord);
         else if (ourColor.b > 152.9) texColor = texture(explosionTex, TexCoord);
         else if (ourColor.b > 151.9) texColor = texture(barrelTex, TexCoord);
         else if (ourColor.b > 150.9) texColor = texture(crosshairShotgunTex, TexCoord);
         else if (ourColor.b > 149.9) texColor = texture(crosshairTex, TexCoord);
-        else if (ourColor.b > 144.9) texColor = texture(shieldItemTex, TexCoord);
+        
+        else if (ourColor.b > 144.9) texColor = texture(shieldItemTex, TexCoord); 
+
         else if (ourColor.b > 140.9) texColor = texture(noteUiTex, TexCoord);
         else if (ourColor.b > 139.9) texColor = texture(noteWorldTex, TexCoord);
         else if (ourColor.b > 130.9) texColor = texture(shellShotgunTex, TexCoord);
@@ -503,7 +518,7 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float))); glEnableVertexAttribArray(2);
 
-    GLuint t[73];
+    GLuint t[74]; // ZWIEKSZONE DLA 73 SLOTOW (0-73)
     t[0] = loadTexture("wall.png"); t[1] = loadTexture("monster.png"); t[2] = loadTexture("pistol.png");
     t[3] = loadTexture("font.png"); t[4] = loadTexture("hit.png"); t[5] = loadTexture("floor.png");
     t[6] = loadTexture("ceiling.png"); t[7] = loadTexture("pistol_view_128.png"); t[8] = loadTexture("shotgun.png");
@@ -556,11 +571,12 @@ int main() {
     t[65] = loadTexture("explosion.png");
     t[66] = loadTexture("fire_particle.png");
     t[67] = loadTexture("portal.png");
-    t[68] = loadTexture("boss.png");
+    t[68] = loadTexture("boss.png");       // Mini Boss (Mapa 5)
     t[69] = loadTexture("boss_bar.png");
     t[70] = loadTexture("intro.png");
     t[71] = loadTexture("shield_item.png");
-    t[72] = loadTexture("main_boss.png");
+    t[72] = loadTexture("main_boss.png");  // Nowy Main Boss (Mapa 6)
+    t[73] = loadTexture("ending_intro.png"); // EKRAN KONCOWY
 
     initAudio();
 
@@ -581,10 +597,10 @@ int main() {
         "shellTex", "shellShotgunTex",
         "menuBgTex", "logoTex", "bloodyXTex", "settingsBgTex",
         "noteWorldTex", "noteUiTex", "crosshairTex", "crosshairShotgunTex",
-        "barrelTex", "explosionTex", "fireTex", "portalTex", "bossTex", "bossBarTex", "introTex", "shieldItemTex", "mainBossTex"};
+        "barrelTex", "explosionTex", "fireTex", "portalTex", "bossTex", "bossBarTex", "introTex", "shieldItemTex", "mainBossTex", "endingTex" }; // DODANE
 
-    for (int i = 0; i < 73; i++) glUniform1i(glGetUniformLocation(p, names[i]), i);
-    for (int i = 0; i < 73; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); }
+    for (int i = 0; i < 74; i++) glUniform1i(glGetUniformLocation(p, names[i]), i); // ZWIEKSZONE DO 74
+    for (int i = 0; i < 74; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, t[i]); } // ZWIEKSZONE DO 74
     glActiveTexture(GL_TEXTURE0);
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -596,7 +612,6 @@ int main() {
     menuCtx.useMouseLook = true;
 
     bool isGameStarted = false;
-
     static bool escPressedLastFrame = false;
 
     playMenuMusic();
@@ -612,20 +627,12 @@ int main() {
 
         glfwPollEvents();
 
-        if (gameState == PLAYING && !gameOver && !isKeypadActive && !isViewingNote && menuCtx.useMouseLook) {
+        if (gameState == PLAYING && !gameOver && !isKeypadActive && !isViewingNote && !showEndingScreen && menuCtx.useMouseLook) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
-
-            if (firstMouse) {
-                lastX = xpos;
-                firstMouse = false;
-            }
-
-            double xoffset = xpos - lastX;
-            lastX = xpos;
-
+            if (firstMouse) { lastX = xpos; firstMouse = false; }
+            double xoffset = xpos - lastX; lastX = xpos;
             playerDir += (float)xoffset * 0.002f;
         }
         else {
@@ -662,6 +669,7 @@ int main() {
                     else if (isGameStarted) {
                         gameState = PLAYING;
                         stopMenuMusic();
+
                         bool resumeMiniBoss = false;
                         bool resumeMainBoss = false;
 
@@ -687,7 +695,6 @@ int main() {
                         }
                     }
                 }
-
                 escPressedLastFrame = true;
             }
         }
@@ -697,17 +704,13 @@ int main() {
 
         if (gameState == MENU) {
             GameState oldState = gameState;
-
             updateMenu(window, gameState, menuCtx, shouldClose, resetGame, screenWidth, screenHeight);
 
             if (oldState == MENU && gameState == PLAYING) {
-                if (introTimer > 0.0f) {
-                    gameState = INTRO;
-                }
+                if (introTimer > 0.0f) gameState = INTRO;
                 stopMenuMusic();
                 if (gameState != INTRO) playLevelMusic(activeMapIndex);
             }
-
             if (shouldClose) glfwSetWindowShouldClose(window, true);
         }
         else if (gameState == INTRO) {
@@ -718,300 +721,292 @@ int main() {
             }
         }
         else if (gameState == PLAYING) {
-            updateShells(0.016f);
 
-            if (weaponSwitchTimer > 0.0f) {
-                weaponSwitchTimer -= 0.016f;
-                if (weaponSwitchTimer < 0.0f) weaponSwitchTimer = 0.0f;
+            // --- SPRAWDZANIE ZWYCIÊSTWA I OBS£UGA EKRANU KOÑCOWEGO ---
+            if (isGameWon && !showEndingScreen) {
+                showEndingScreen = true;
+                isGameWon = false;
+                stopBossMusic();
+                playMenuMusic();
             }
 
-            static bool nPressedLastFrame = false;
-            if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
-                if (!nPressedLastFrame && hasSecretNote) {
-                    isViewingNote = !isViewingNote;
-                    if (isViewingNote) isKeypadActive = false;
-                    playMenuBeep();
-                }
-                nPressedLastFrame = true;
-            }
-            else nPressedLastFrame = false;
-
-            if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !ePressedLastFrame) {
-                if (!isViewingNote) {
-                    float checkX = playerX + cos(playerDir) * 1.0f;
-                    float checkY = playerY + sin(playerDir) * 1.0f;
-                    openDoorAt((int)checkX, (int)checkY);
-                }
-                ePressedLastFrame = true;
-            }
-            else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) ePressedLastFrame = false;
-
-            updateDoors(0.016f);
-
-            float healthAlpha = 0.0f;
-            if (playerHealth <= 50) {
-                float factor = (50.0f - (float)playerHealth) / 50.0f;
-                healthAlpha = 0.2f + factor * 0.7f;
-                if (playerHealth <= 25) healthAlpha = std::max(healthAlpha, 0.6f + factor * 0.4f);
-            }
-            if (damageAlpha > 0.0f) {
-                damageAlpha -= 0.016f;
-                if (damageAlpha < 0.0f) damageAlpha = 0.0f;
-            }
-
-            finalIntensity = std::max(damageAlpha, healthAlpha);
-            glUniform1f(dmgIntLoc, finalIntensity);
-
-            if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-                if (currentWeapon != 0 && weaponSwitchTimer <= 0.0f) {
-                    currentWeapon = 0;
-                    weaponSwitchTimer = 1.0f;
-                }
-            }
-
-            if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-                if (hasPistol && currentWeapon != 1 && weaponSwitchTimer <= 0.0f) {
-                    currentWeapon = 1;
-                    playPickupSound(3);
-                    weaponSwitchTimer = 1.0f;
-                }
-            }
-
-            if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
-                if (hasShotgun && currentWeapon != 2 && weaponSwitchTimer <= 0.0f) {
-                    currentWeapon = 2;
-                    playPickupSound(3);
-                    weaponSwitchTimer = 1.0f;
-                }
-            }
-
-            if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
-                if (hasRifle && currentWeapon != 3 && weaponSwitchTimer <= 0.0f) {
-                    currentWeapon = 3;
-                    playPickupSound(3);
-                    weaponSwitchTimer = 1.0f;
-                }
-            }
-
-            if (shootTimer > 0.0f) {
-                shootTimer -= 0.016f;
-                if (shootTimer <= 0.0f) isShooting = false;
-            }
-
-            bool isRifle = (currentWeapon == 3);
-            bool triggerPressed = false;
-
-            bool mouseClick = false;
-            if (menuCtx.useMouseLook && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-                mouseClick = true;
-            }
-
-            if ((glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || mouseClick) && !isKeypadActive && !isViewingNote) {
-                if (isRifle) triggerPressed = true;
-                else if (!spacePressedLastFrame) triggerPressed = true;
-            }
-
-            if (triggerPressed) {
-                bool canShoot = (currentWeapon == 0) || (currentWeapon == 1 && ammoPistol > 0) || (currentWeapon == 2 && ammoShotgun > 0) || (currentWeapon == 3 && ammoRifle > 0);
-                if (isRifle && shootTimer > 0.0f) canShoot = false;
-                bool hasAmmo = true;
-                if (currentWeapon == 1 && ammoPistol <= 0) hasAmmo = false;
-                if (currentWeapon == 2 && ammoShotgun <= 0) hasAmmo = false;
-                if (currentWeapon == 3 && ammoRifle <= 0) hasAmmo = false;
-                if (currentWeapon == 0) hasAmmo = true;
-
-                if (canShoot && hasAmmo) {
-                    if (currentWeapon == 1) ammoPistol--; else if (currentWeapon == 2) ammoShotgun--; else if (currentWeapon == 3) ammoRifle--;
-                    playShootSound(currentWeapon);
-                    if (currentWeapon > 0) bulletFlashes.push_back({ playerX + cos(playerDir) * 0.2f, playerY + sin(playerDir) * 0.2f, cos(playerDir), sin(playerDir), 2.0f });
-
-                    if (currentWeapon > 0) {
-                        Shell s; s.x = 0.35f; s.y = -0.5f; s.life = 2.0f; s.rotation = 0.0f;
-                        float rnd = (float)rand() / RAND_MAX;
-                        s.vx = 0.2f + rnd * 0.2f; s.vy = 1.0f + rnd * 0.4f; s.vrot = 5.0f + rnd * 5.0f;
-                        if (currentWeapon == 2) { s.type = 1; s.scale = 0.08f; s.vx = 0.15f + rnd * 0.1f; }
-                        else { s.type = 0; s.scale = 0.05f; }
-                        shells.push_back(s);
+            if (showEndingScreen) {
+                static bool enterLastFrame = false;
+                if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+                    if (!enterLastFrame) {
+                        showEndingScreen = false;
+                        gameState = MENU;
+                        playMenuBeep();
                     }
+                    enterLastFrame = true;
+                }
+                else enterLastFrame = false;
+            }
+            else {
+                // ---------------------------------------------------------------------
 
-                    if (currentWeapon == 1) { isShooting = true; shootTimer = 0.15f; }
-                    else if (currentWeapon == 2) { isShooting = true; shootTimer = 0.40f; }
-                    else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.35f; }
-                    else if (currentWeapon == 0) { isShooting = true; shootTimer = 0.6f; maxShootTime = shootTimer; punchSide = 1 - punchSide; }
+                    // NORMALNA GRA (jeœli nie ending screen)
+                updateShells(0.016f);
+                if (weaponSwitchTimer > 0.0f) { weaponSwitchTimer -= 0.016f; if (weaponSwitchTimer < 0.0f) weaponSwitchTimer = 0.0f; }
 
-                    int pellets = 1; float spread = 0.0f; float spreadY = 0.0f;
-                    if (currentWeapon == 1) { pellets = 1; spread = 0.04f; spreadY = 0.05f; }
-                    if (currentWeapon == 2) { pellets = 8; spread = 0.15f; spreadY = 0.30f; }
-                    if (currentWeapon == 3) { pellets = 1; spread = 0.06f; spreadY = 0.06f; }
-                    if (currentWeapon == 0) { pellets = 1; spread = 0.0f;  spreadY = 0.0f; }
+                static bool nPressedLastFrame = false;
+                if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+                    if (!nPressedLastFrame && hasSecretNote) {
+                        isViewingNote = !isViewingNote;
+                        if (isViewingNote) isKeypadActive = false;
+                        playMenuBeep();
+                    }
+                    nPressedLastFrame = true;
+                }
+                else nPressedLastFrame = false;
 
-                    for (int p = 0; p < pellets; p++) {
-                        float angleOffset = ((float)rand() / RAND_MAX - 0.5f) * spread;
-                        float bulletDir = playerDir + angleOffset;
-                        float randHeight = ((float)rand() / RAND_MAX - 0.5f) * spreadY;
-                        float rayDX = cos(bulletDir); float rayDY = sin(bulletDir);
-                        float dist = 1e30f; int hSide = 0, hMX = -1, hMY = -1; float hTX = 0;
-                        int mX = (int)playerX, mY = (int)playerY; float dDX = abs(1 / rayDX), dDY = abs(1 / rayDY);
-                        int sX = (rayDX < 0) ? -1 : 1, sY = (rayDY < 0) ? -1 : 1; float sDX = (rayDX < 0) ? (playerX - mX) * dDX : (mX + 1 - playerX) * dDX, sDY = (rayDY < 0) ? (playerY - mY) * dDY : (mY + 1 - playerY) * dDY;
-                        int hit = 0, side;
-                        while (!hit) { if (sDX < sDY) { sDX += dDX; mX += sX; side = 0; } else { sDY += dDY; mY += sY; side = 1; } if (worldMap[mY][mX] == 1) hit = 1; }
-                        dist = (side == 0) ? (mX - playerX + (1 - sX) / 2.0f) / rayDX : (mY - playerY + (1 - sY) / 2.0f) / rayDY;
-                        if (side == 0)hTX = playerY + dist * rayDY; else hTX = playerX + dist * rayDX; hTX -= floor(hTX);
-                        if ((side == 0 && rayDX > 0) || (side == 1 && rayDY < 0)) hTX = 1 - hTX;
-                        hSide = side; hMX = mX; hMY = mY;
+                if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !ePressedLastFrame) {
+                    if (!isViewingNote) {
+                        float checkX = playerX + cos(playerDir) * 1.0f;
+                        float checkY = playerY + sin(playerDir) * 1.0f;
+                        openDoorAt((int)checkX, (int)checkY);
+                    }
+                    ePressedLastFrame = true;
+                }
+                else if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE) ePressedLastFrame = false;
 
-                        float bestDist = 1e30f; int bestIdx = -1;
-                        for (int i = 0; i < sprites.size(); ++i) {
-                            if (!sprites[i].isAlive || sprites[i].isWeapon) continue;
-                            float sX = sprites[i].x - playerX, sY = sprites[i].y - playerY;
-                            float iD = 1.0f / (cos(bulletDir + M_PI / 2) * sin(bulletDir) - cos(bulletDir) * sin(bulletDir + M_PI / 2));
-                            float tY = iD * (-sin(bulletDir + M_PI / 2) * sX + cos(bulletDir + M_PI / 2) * sY);
-                            float tX = iD * (sin(bulletDir) * sX - cos(bulletDir) * sY);
-                            if (tY > 0 && abs(tX / tY) < 0.1f && tY < bestDist) { bestDist = tY; bestIdx = i; }
+                updateDoors(0.016f);
+
+                float healthAlpha = 0.0f;
+                if (playerHealth <= 50) {
+                    float factor = (50.0f - (float)playerHealth) / 50.0f;
+                    healthAlpha = 0.2f + factor * 0.7f;
+                    if (playerHealth <= 25) healthAlpha = std::max(healthAlpha, 0.6f + factor * 0.4f);
+                }
+                if (damageAlpha > 0.0f) {
+                    damageAlpha -= 0.016f;
+                    if (damageAlpha < 0.0f) damageAlpha = 0.0f;
+                }
+                finalIntensity = std::max(damageAlpha, healthAlpha);
+                glUniform1f(dmgIntLoc, finalIntensity);
+
+                if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) { if (currentWeapon != 0 && weaponSwitchTimer <= 0.0f) { currentWeapon = 0; weaponSwitchTimer = 1.0f; } }
+                if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) { if (hasPistol && currentWeapon != 1 && weaponSwitchTimer <= 0.0f) { currentWeapon = 1; playPickupSound(3); weaponSwitchTimer = 1.0f; } }
+                if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) { if (hasShotgun && currentWeapon != 2 && weaponSwitchTimer <= 0.0f) { currentWeapon = 2; playPickupSound(3); weaponSwitchTimer = 1.0f; } }
+                if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) { if (hasRifle && currentWeapon != 3 && weaponSwitchTimer <= 0.0f) { currentWeapon = 3; playPickupSound(3); weaponSwitchTimer = 1.0f; } }
+
+                if (shootTimer > 0.0f) { shootTimer -= 0.016f; if (shootTimer <= 0.0f) isShooting = false; }
+                bool isRifle = (currentWeapon == 3);
+                bool triggerPressed = false;
+                bool mouseClick = false;
+                if (menuCtx.useMouseLook && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) mouseClick = true;
+
+                if ((glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || mouseClick) && !isKeypadActive && !isViewingNote) {
+                    if (isRifle) triggerPressed = true;
+                    else if (!spacePressedLastFrame) triggerPressed = true;
+                }
+
+                if (triggerPressed) {
+                    bool canShoot = (currentWeapon == 0) || (currentWeapon == 1 && ammoPistol > 0) || (currentWeapon == 2 && ammoShotgun > 0) || (currentWeapon == 3 && ammoRifle > 0);
+                    if (isRifle && shootTimer > 0.0f) canShoot = false;
+                    bool hasAmmo = true;
+                    if (currentWeapon == 1 && ammoPistol <= 0) hasAmmo = false;
+                    if (currentWeapon == 2 && ammoShotgun <= 0) hasAmmo = false;
+                    if (currentWeapon == 3 && ammoRifle <= 0) hasAmmo = false;
+                    if (currentWeapon == 0) hasAmmo = true;
+
+                    if (canShoot && hasAmmo) {
+                        if (currentWeapon == 1) ammoPistol--; else if (currentWeapon == 2) ammoShotgun--; else if (currentWeapon == 3) ammoRifle--;
+                        playShootSound(currentWeapon);
+                        if (currentWeapon > 0) bulletFlashes.push_back({ playerX + cos(playerDir) * 0.2f, playerY + sin(playerDir) * 0.2f, cos(playerDir), sin(playerDir), 2.0f });
+
+                        if (currentWeapon > 0) {
+                            Shell s; s.x = 0.35f; s.y = -0.5f; s.life = 2.0f; s.rotation = 0.0f;
+                            float rnd = (float)rand() / RAND_MAX;
+                            s.vx = 0.2f + rnd * 0.2f; s.vy = 1.0f + rnd * 0.4f; s.vrot = 5.0f + rnd * 5.0f;
+                            if (currentWeapon == 2) { s.type = 1; s.scale = 0.08f; s.vx = 0.15f + rnd * 0.1f; }
+                            else { s.type = 0; s.scale = 0.05f; }
+                            shells.push_back(s);
                         }
-                        float dmg = (currentWeapon == 0) ? FISTS_DAMAGE : (currentWeapon == 1 ? PISTOL_DAMAGE : (currentWeapon == 3 ? 20.0f : SHOTGUN_DAMAGE));
-                        if (currentWeapon == 2) dmg /= 8.0f;
-                        float rng = (currentWeapon == 0) ? 1.0f : 100.0f;
-                        if (bestIdx != -1 && bestDist < rng && bestDist < dist) hitMonster(bestIdx, dmg);
-                        else if (currentWeapon > 0 && hit) hitMarkers.push_back({ (float)hMX + 0.5f, (float)hMY + 0.5f, 100.0f, hSide, hTX });
 
-                        bool hitWall = hit && (bestIdx == -1 || bestDist > dist);
-                        if (hitWall && currentWeapon > 0) {
-                            WallDecal newDecal; newDecal.x = hMX; newDecal.y = hMY; newDecal.side = hSide; newDecal.hitX = hTX; newDecal.hitY = randHeight;
-                            newDecal.type = (currentWeapon == 2) ? 99 : 98;
-                            wallDecals.push_back(newDecal); if (wallDecals.size() > 50) wallDecals.erase(wallDecals.begin());
+                        if (currentWeapon == 1) { isShooting = true; shootTimer = 0.15f; }
+                        else if (currentWeapon == 2) { isShooting = true; shootTimer = 0.40f; }
+                        else if (currentWeapon == 3) { isShooting = true; shootTimer = 0.35f; }
+                        else if (currentWeapon == 0) { isShooting = true; shootTimer = 0.6f; maxShootTime = shootTimer; punchSide = 1 - punchSide; }
+
+                        int pellets = 1; float spread = 0.0f; float spreadY = 0.0f;
+                        if (currentWeapon == 1) { pellets = 1; spread = 0.04f; spreadY = 0.05f; }
+                        if (currentWeapon == 2) { pellets = 8; spread = 0.15f; spreadY = 0.30f; }
+                        if (currentWeapon == 3) { pellets = 1; spread = 0.06f; spreadY = 0.06f; }
+                        if (currentWeapon == 0) { pellets = 1; spread = 0.0f;  spreadY = 0.0f; }
+
+                        for (int p = 0; p < pellets; p++) {
+                            float angleOffset = ((float)rand() / RAND_MAX - 0.5f) * spread;
+                            float bulletDir = playerDir + angleOffset;
+                            float randHeight = ((float)rand() / RAND_MAX - 0.5f) * spreadY;
+                            float rayDX = cos(bulletDir); float rayDY = sin(bulletDir);
+                            float dist = 1e30f; int hSide = 0, hMX = -1, hMY = -1; float hTX = 0;
+                            int mX = (int)playerX, mY = (int)playerY; float dDX = abs(1 / rayDX), dDY = abs(1 / rayDY);
+                            int sX = (rayDX < 0) ? -1 : 1, sY = (rayDY < 0) ? -1 : 1; float sDX = (rayDX < 0) ? (playerX - mX) * dDX : (mX + 1 - playerX) * dDX, sDY = (rayDY < 0) ? (playerY - mY) * dDY : (mY + 1 - playerY) * dDY;
+                            int hit = 0, side;
+                            while (!hit) { if (sDX < sDY) { sDX += dDX; mX += sX; side = 0; } else { sDY += dDY; mY += sY; side = 1; } if (worldMap[mY][mX] == 1) hit = 1; }
+                            dist = (side == 0) ? (mX - playerX + (1 - sX) / 2.0f) / rayDX : (mY - playerY + (1 - sY) / 2.0f) / rayDY;
+                            if (side == 0)hTX = playerY + dist * rayDY; else hTX = playerX + dist * rayDX; hTX -= floor(hTX);
+                            if ((side == 0 && rayDX > 0) || (side == 1 && rayDY < 0)) hTX = 1 - hTX;
+                            hSide = side; hMX = mX; hMY = mY;
+
+                            float bestDist = 1e30f; int bestIdx = -1;
+                            for (int i = 0; i < sprites.size(); ++i) {
+                                if (!sprites[i].isAlive || sprites[i].isWeapon) continue;
+                                float sX = sprites[i].x - playerX, sY = sprites[i].y - playerY;
+                                float iD = 1.0f / (cos(bulletDir + M_PI / 2) * sin(bulletDir) - cos(bulletDir) * sin(bulletDir + M_PI / 2));
+                                float tY = iD * (-sin(bulletDir + M_PI / 2) * sX + cos(bulletDir + M_PI / 2) * sY);
+                                float tX = iD * (sin(bulletDir) * sX - cos(bulletDir) * sY);
+                                if (tY > 0 && abs(tX / tY) < 0.1f && tY < bestDist) { bestDist = tY; bestIdx = i; }
+                            }
+                            float dmg = (currentWeapon == 0) ? FISTS_DAMAGE : (currentWeapon == 1 ? PISTOL_DAMAGE : (currentWeapon == 3 ? 20.0f : SHOTGUN_DAMAGE));
+                            if (currentWeapon == 2) dmg /= 8.0f;
+                            float rng = (currentWeapon == 0) ? 1.0f : 100.0f;
+                            if (bestIdx != -1 && bestDist < rng && bestDist < dist) hitMonster(bestIdx, dmg);
+                            else if (currentWeapon > 0 && hit) hitMarkers.push_back({ (float)hMX + 0.5f, (float)hMY + 0.5f, 100.0f, hSide, hTX });
+
+                            bool hitWall = hit && (bestIdx == -1 || bestDist > dist);
+                            if (hitWall && currentWeapon > 0) {
+                                WallDecal newDecal; newDecal.x = hMX; newDecal.y = hMY; newDecal.side = hSide; newDecal.hitX = hTX; newDecal.hitY = randHeight;
+                                newDecal.type = (currentWeapon == 2) ? 99 : 98;
+                                wallDecals.push_back(newDecal); if (wallDecals.size() > 50) wallDecals.erase(wallDecals.begin());
+                            }
                         }
                     }
-                }
-                else if (!hasAmmo) {
-                    if (isRifle) { if (!spacePressedLastFrame) { playDryFireSound(); spacePressedLastFrame = true; } }
-                    else playDryFireSound();
-                    if (currentWeapon == 3) shootTimer = 0.1f; else shootTimer = 0.2f;
-                    isShooting = false;
-                }
-                if (!isRifle) spacePressedLastFrame = true;
-            }
-            else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && !mouseClick) spacePressedLastFrame = false;
-
-            if (!gameOver && !isKeypadActive && !isViewingNote) {
-                float currentSpeed = moveSpeed;
-                if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) currentSpeed *= 2.0f;
-                float mS = currentSpeed; bool moving = false;
-
-                auto tryMove = [&](float moveStep, float angleOffset) {
-                    float moveDir = playerDir + angleOffset;
-
-                    float dx = cos(moveDir) * moveStep;
-                    float dy = sin(moveDir) * moveStep;
-
-                    float collisionRadius = 0.25f;
-                    float nextX = playerX + dx;
-                    float checkX = nextX + (dx > 0 ? collisionRadius : -collisionRadius);
-                    int typeX = worldMap[(int)playerY][(int)checkX];
-                    bool doorBlockX = false;
-                    if (typeX == 2 || (typeX >= 3 && typeX <= 5) || typeX == 8) { Door* d = getDoor((int)checkX, (int)playerY); if (d && d->openAmount < 0.7f) doorBlockX = true; }
-
-                    if ((typeX == 0 || ((typeX >= 2 && typeX <= 5 || typeX == 8) && !doorBlockX)) && !checkCollision(nextX, playerY)) {
-                        playerX = nextX; moving = true;
+                    else if (!hasAmmo) {
+                        if (isRifle) { if (!spacePressedLastFrame) { playDryFireSound(); spacePressedLastFrame = true; } }
+                        else playDryFireSound();
+                        if (currentWeapon == 3) shootTimer = 0.1f; else shootTimer = 0.2f;
+                        isShooting = false;
                     }
-                    else if (typeX == 9) {
-                        bool changed = false;
-                        if (activeMapIndex == 1) { activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 25.0f; changed = true; }
-                        else if (activeMapIndex == 2) { activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
-                        else if (activeMapIndex == 3) { activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 2.5f; playerY = 2.5f; changed = true; }
-                        else if (activeMapIndex == 4) { activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
-                        else if (activeMapIndex == 5) { activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
-                        else if (activeMapIndex == 6) { gameOver = true; }
+                    if (!isRifle) spacePressedLastFrame = true;
+                }
+                else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE && !mouseClick) spacePressedLastFrame = false;
 
-                        if (changed) {
-                            initMonsters();
-                            initWeapons();
-                            startIntro(activeMapIndex);
-                            gameState = INTRO;
+                if (!gameOver && !isKeypadActive && !isViewingNote) {
+                    float currentSpeed = moveSpeed;
+                    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) currentSpeed *= 2.0f;
+                    float mS = currentSpeed; bool moving = false;
+
+                    auto tryMove = [&](float moveStep, float angleOffset) {
+                        float moveDir = playerDir + angleOffset;
+                        float dx = cos(moveDir) * moveStep;
+                        float dy = sin(moveDir) * moveStep;
+                        float collisionRadius = 0.25f;
+                        float nextX = playerX + dx;
+                        float checkX = nextX + (dx > 0 ? collisionRadius : -collisionRadius);
+                        int typeX = worldMap[(int)playerY][(int)checkX];
+                        bool doorBlockX = false;
+                        if (typeX == 2 || (typeX >= 3 && typeX <= 5) || typeX == 8) { Door* d = getDoor((int)checkX, (int)playerY); if (d && d->openAmount < 0.7f) doorBlockX = true; }
+                        if ((typeX == 0 || ((typeX >= 2 && typeX <= 5 || typeX == 8) && !doorBlockX)) && !checkCollision(nextX, playerY)) {
+                            playerX = nextX; moving = true;
                         }
-                        return;
-                    }
-
-                    float nextY = playerY + dy;
-                    float checkY = nextY + (dy > 0 ? collisionRadius : -collisionRadius);
-                    int typeY = worldMap[(int)checkY][(int)playerX];
-                    bool doorBlockY = false;
-                    if (typeY == 2 || (typeY >= 3 && typeY <= 5) || typeY == 8) { Door* d = getDoor((int)playerX, (int)checkY); if (d && d->openAmount < 0.7f) doorBlockY = true; }
-
-                    if ((typeY == 0 || ((typeY >= 2 && typeY <= 5 || typeY == 8) && !doorBlockY)) && !checkCollision(playerX, nextY)) {
-                        playerY = nextY; moving = true;
-                    }
-                    else if (typeY == 9) {
-                        bool changed = false;
-                        if (activeMapIndex == 1) { activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 25.0f; changed = true; }
-                        else if (activeMapIndex == 2) { activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
-                        else if (activeMapIndex == 3) { activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 2.5f; playerY = 2.5f; changed = true; }
-                        else if (activeMapIndex == 4) { activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
-                        else if (activeMapIndex == 5) { activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
-                        else if (activeMapIndex == 6) { gameOver = true; }
-
-                        if (changed) {
-                            initMonsters();
-                            initWeapons();
-                            startIntro(activeMapIndex);
-                            gameState = INTRO;
+                        else if (typeX == 9) {
+                            bool changed = false;
+                            if (activeMapIndex == 1) { activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 25.0f; changed = true; }
+                            else if (activeMapIndex == 2) { activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                            else if (activeMapIndex == 3) { activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 2.5f; playerY = 2.5f; changed = true; }
+                            else if (activeMapIndex == 4) { activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                            else if (activeMapIndex == 5) { activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                            else if (activeMapIndex == 6) { gameOver = true; }
+                            if (changed) {
+                                initMonsters();
+                                initWeapons();
+                                startIntro(activeMapIndex);
+                                gameState = INTRO;
+                            }
+                            return;
                         }
+
+                        float nextY = playerY + dy;
+                        float checkY = nextY + (dy > 0 ? collisionRadius : -collisionRadius);
+                        int typeY = worldMap[(int)checkY][(int)playerX];
+                        bool doorBlockY = false;
+                        if (typeY == 2 || (typeY >= 3 && typeY <= 5) || typeY == 8) { Door* d = getDoor((int)playerX, (int)checkY); if (d && d->openAmount < 0.7f) doorBlockY = true; }
+                        if ((typeY == 0 || ((typeY >= 2 && typeY <= 5 || typeY == 8) && !doorBlockY)) && !checkCollision(playerX, nextY)) {
+                            playerY = nextY; moving = true;
+                        }
+                        else if (typeY == 9) {
+                            bool changed = false;
+                            if (activeMapIndex == 1) { activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 25.0f; changed = true; }
+                            else if (activeMapIndex == 2) { activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                            else if (activeMapIndex == 3) { activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 2.5f; playerY = 2.5f; changed = true; }
+                            else if (activeMapIndex == 4) { activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                            else if (activeMapIndex == 5) { activeMapIndex = 6; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
+                            else if (activeMapIndex == 6) { gameOver = true; }
+                            if (changed) {
+                                initMonsters();
+                                initWeapons();
+                                startIntro(activeMapIndex);
+                                gameState = INTRO;
+                            }
+                        }
+                        };
+
+                    if (menuCtx.useMouseLook) {
+                        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) tryMove(mS, 0.0f);
+                        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) tryMove(-mS, 0.0f);
+                        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) tryMove(mS, -M_PI / 2.0f);
+                        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) tryMove(mS, M_PI / 2.0f);
                     }
-                    };
+                    else {
+                        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) tryMove(mS, 0.0f);
+                        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) tryMove(-mS, 0.0f);
+                        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) playerDir -= rotSpeed;
+                        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) playerDir += rotSpeed;
+                    }
 
-                if (menuCtx.useMouseLook) {
-                    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) tryMove(mS, 0.0f);
-                    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) tryMove(-mS, 0.0f);
-                    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) tryMove(mS, -M_PI / 2.0f);
-                    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) tryMove(mS, M_PI / 2.0f);
-                }
-                else {
-                    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) tryMove(mS, 0.0f);
-                    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) tryMove(-mS, 0.0f);
-                    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) playerDir -= rotSpeed;
-                    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) playerDir += rotSpeed;
-                }
+                    if (moving) {
+                        float rhythm = (currentSpeed > moveSpeed) ? 1.5f : 1.0f;
+                        walkTimer += 8.0f * 0.016f * rhythm;
+                        stepTimer -= 0.016f * rhythm;
+                        if (stepTimer <= 0.0f) { playStepSound(); stepTimer = STEP_INTERVAL; }
+                    }
+                    else { walkTimer = 0.0f; stepTimer = 0.05f; }
 
-                if (moving) {
-                    float rhythm = (currentSpeed > moveSpeed) ? 1.5f : 1.0f;
-                    walkTimer += 8.0f * 0.016f * rhythm;
-                    stepTimer -= 0.016f * rhythm;
-                    if (stepTimer <= 0.0f) { playStepSound(); stepTimer = STEP_INTERVAL; }
-                }
-                else { walkTimer = 0.0f; stepTimer = 0.05f; }
+                    checkWeaponCollection(playerX, playerY, playerHealth, playerArmor);
+                    updateSprites(playerX, playerY, playerHealth, playerArmor);
+                    updateFireballs(playerX, playerY, 0.016f, playerHealth, playerArmor, damageAlpha);
 
-                checkWeaponCollection(playerX, playerY, playerHealth, playerArmor);
-                updateSprites(playerX, playerY, playerHealth, playerArmor);
-                updateFireballs(playerX, playerY, 0.016f, playerHealth, playerArmor, damageAlpha);
-
-                for (auto& s : sprites) {
-                    if (s.type == OBJECT_SHIELD_ITEM && s.isAlive) {
-                        float dx = playerX - s.x;
-                        float dy = playerY - s.y;
-                        if (dx * dx + dy * dy < 0.25f) {
-                            s.isAlive = false;
-                            playShieldDown();
-                            playKeypadClick();
-
-                            for (auto& b : sprites) {
-                                if (b.type == MONSTER_TYPE_FINAL_BOSS) {
-                                    b.isShielded = false;
+                    for (auto& s : sprites) {
+                        if (s.type == OBJECT_SHIELD_ITEM && s.isAlive) {
+                            float dx = playerX - s.x;
+                            float dy = playerY - s.y;
+                            if (dx * dx + dy * dy < 0.25f) {
+                                s.isAlive = false;
+                                playShieldDown();
+                                playKeypadClick();
+                                for (auto& b : sprites) {
+                                    if (b.type == MONSTER_TYPE_FINAL_BOSS) {
+                                        b.isShielded = false;
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                if (checkCollision(playerX, playerY) && !gameOver) {
+                    if (checkCollision(playerX, playerY) && !gameOver) {
+                    }
+                    if (playerHealth <= 0) { gameOver = true; playPlayerDeath(); }
                 }
-                if (playerHealth <= 0) { gameOver = true; playPlayerDeath(); }
-            }
-        }
+            } // else (normal game)
+        } // state PLAYING
 
         vertices.clear(); glUseProgram(p);
 
         if (gameState == PLAYING) {
-            if (!gameOver) {
+
+            // --- RYSOWANIE EKRANU KONCOWEGO ---
+            if (showEndingScreen) {
+                glUniform1f(dmgIntLoc, 0.0f);
+                vertices.clear();
+                // Rysujemy fullscreen quad z tekstur¹ ending_intro.png (ID 211)
+                drawQuad2D(vertices, 0.0f, 0.0f, 1.0f, 1.0f, 211.0f);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+            }
+            // --- NORMALNE RYSOWANIE GRY ---
+            else if (!gameOver) {
                 glUniform1f(glGetUniformLocation(p, "playerDir"), playerDir); glUniform2f(glGetUniformLocation(p, "playerPos"), playerX, playerY);
                 glUniform1f(glGetUniformLocation(p, "screenWidth"), (float)screenWidth); glUniform1f(glGetUniformLocation(p, "screenHeight"), (float)screenHeight);
 
@@ -1194,13 +1189,17 @@ int main() {
                                 else if (s.type == 50) id = 152.0f;
                                 else if (s.type == 90) id = 153.0f;
                                 else if (s.type == 91) id = 154.0f;
+
+                                // --- OBSLUGA ID BOSSOW ---
                                 else if (s.type == MONSTER_TYPE_CYBERBOSS) {
-                                    id = 155.0f;
+                                    id = 155.0f; // Mini Boss (Mapa 5) -> boss.png
                                 }
                                 else if (s.type == MONSTER_TYPE_FINAL_BOSS) {
-                                    if (s.isShielded) id = 157.0f;
-                                    else id = 156.0f;
+                                    if (s.isShielded) id = 157.0f; // Main Boss tarcza -> main_boss.png (czerwony)
+                                    else id = 156.0f;              // Main Boss -> main_boss.png
                                 }
+                                // -------------------------
+
                                 else if (s.type == OBJECT_SHIELD_ITEM) {
                                     id = 145.0f;
                                 }

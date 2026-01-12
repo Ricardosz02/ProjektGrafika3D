@@ -21,6 +21,8 @@ const int BARREL_DAMAGE = 150;
 extern int (*worldMap)[MAP_WIDTH];
 extern int activeMapIndex;
 
+extern bool isGameWon;
+
 void spawnWave(int waveNumber) {
     std::cout << "--- BOSS FIGHT: FALA " << waveNumber << " ---" << std::endl;
 
@@ -268,6 +270,8 @@ void updateBossLogic(float dt, float playerX, float playerY) {
             }
             else {
                 boss->isAlive = false;
+
+                if (activeMapIndex == 6) isGameWon = true;
             }
         }
         return;
