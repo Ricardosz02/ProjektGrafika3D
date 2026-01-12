@@ -36,10 +36,8 @@ float moveSpeed = 0.035f;
 float rotSpeed = 0.03f;
 bool gameOver = false;
 
-// --- ZMIENNE DO OBS£UGI ZAKOÑCZENIA ---
 bool isGameWon = false;
 bool showEndingScreen = false;
-// ---------------------------------------
 
 bool useMouseControls = false;
 double lastMouseX = 0.0;
@@ -101,38 +99,98 @@ extern bool checkCollision(float px, float py);
 
 void startIntro(int mapIndex);
 
+struct Checkpoint {
+    int mapIndex;
+    float x, y, dir;
+    int hp, armor;
+    bool hPistol, hShotgun, hRifle;
+    int aPistol, aShotgun, aRifle;
+    int cWeapon;
+    bool hGreen, hRed;
+} levelStartPoint;
+
+void saveLevelState() {
+    levelStartPoint.mapIndex = activeMapIndex;
+    levelStartPoint.x = playerX;
+    levelStartPoint.y = playerY;
+    levelStartPoint.dir = playerDir;
+    levelStartPoint.hp = playerHealth;
+    levelStartPoint.armor = playerArmor;
+
+    levelStartPoint.hPistol = hasPistol;
+    levelStartPoint.hShotgun = hasShotgun;
+    levelStartPoint.hRifle = hasRifle;
+
+    levelStartPoint.aPistol = ammoPistol;
+    levelStartPoint.aShotgun = ammoShotgun;
+    levelStartPoint.aRifle = ammoRifle;
+
+    levelStartPoint.cWeapon = currentWeapon;
+    levelStartPoint.hGreen = hasGreenKey;
+    levelStartPoint.hRed = hasRedKey;
+
+    std::cout << "CHECKPOINT SAVED: MAP " << activeMapIndex << std::endl;
+}
+
+void loadLevelState() {
+    activeMapIndex = levelStartPoint.mapIndex;
+    switchMap(activeMapIndex);
+
+    playerX = levelStartPoint.x;
+    playerY = levelStartPoint.y;
+    playerDir = levelStartPoint.dir;
+    playerHealth = levelStartPoint.hp;
+    playerArmor = levelStartPoint.armor;
+
+    hasPistol = levelStartPoint.hPistol;
+    hasShotgun = levelStartPoint.hShotgun;
+    hasRifle = levelStartPoint.hRifle;
+
+    ammoPistol = levelStartPoint.aPistol;
+    ammoShotgun = levelStartPoint.aShotgun;
+    ammoRifle = levelStartPoint.aRifle;
+
+    currentWeapon = levelStartPoint.cWeapon;
+    hasGreenKey = levelStartPoint.hGreen;
+    hasRedKey = levelStartPoint.hRed;
+
+    initMonsters();
+
+    hitMarkers.clear();
+    bulletFlashes.clear();
+    shells.clear();
+    damageAlpha = 0.0f;
+
+    startIntro(activeMapIndex);
+    std::cout << "GAME LOADED FROM CHECKPOINT" << std::endl;
+}
+
 void resetGame() {
     stopMenuMusic();
     stopBossMusic();
-    activeMapIndex = 6;
+    activeMapIndex = 1;
 
     switchMap(activeMapIndex);
     initMonsters();
     initWeapons();
     resetKeys();
 
-    playerX = 27.5f;
-    playerY = 30.5f;
-    if (activeMapIndex == 6) {
-        playerX = 27.0f; // Pozycja startowa na mapie 6
-        playerY = 30.0f;
-        playerDir = 1.57f;
-    }
-
+    playerX = 3.0f;
+    playerY = 58.0f;
     playerHealth = 100;
     playerArmor = 0;
     gameOver = false;
 
-    // --- RESET FLAG ZWYCIÊSTWA ---
     isGameWon = false;
     showEndingScreen = false;
-    // -----------------------------
 
+    /*
     // --- EKWIPUNEK TESTOWY ---
     hasRifle = true;
     ammoRifle = 999;
     currentWeapon = 3;
     // -------------------------
+    */
 
     weaponSwitchTimer = 0.0f;
 
@@ -145,6 +203,8 @@ void resetGame() {
     damageAlpha = 0.0f;
 
     std::cout << "--- NOWA GRA ---" << std::endl;
+
+    saveLevelState();
 
     startIntro(activeMapIndex);
 }
@@ -910,6 +970,7 @@ int main() {
                             if (changed) {
                                 initMonsters();
                                 initWeapons();
+                                saveLevelState();
                                 startIntro(activeMapIndex);
                                 gameState = INTRO;
                             }
@@ -935,6 +996,7 @@ int main() {
                             if (changed) {
                                 initMonsters();
                                 initWeapons();
+                                saveLevelState();
                                 startIntro(activeMapIndex);
                                 gameState = INTRO;
                             }
@@ -1005,7 +1067,52 @@ int main() {
                 glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
                 glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
             }
-            else if (!gameOver) {
+            else if (gameOver) {
+                glUniform1f(dmgIntLoc, 0.2f);
+
+                vertices.clear(); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, t[27]);
+                drawQuad2D(vertices, 0.0f, 0.0f, 1.0f, 1.0f, 30.0f);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+
+                vertices.clear();
+                glBindTexture(GL_TEXTURE_2D, t[28]);
+                drawQuad2D(vertices, 0.0f, 0.0f, 0.6f, 0.4f, 31.0f);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+                glBindTexture(GL_TEXTURE_2D, t[0]);
+
+                vertices.clear();
+                glActiveTexture(GL_TEXTURE3);
+
+                std::string msgRestart = "PRESS 'ENTER' TO RESTART LEVEL";
+                std::string msgQuit = "PRESS 'ESC' TO QUIT TO MENU";
+
+                drawText(vertices, 0.25f, -0.95f, 0.035f, msgRestart);
+                drawText(vertices, -0.95f, -0.95f, 0.035f, msgQuit);
+
+                glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+                glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
+
+                if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+                    loadLevelState();
+                    gameOver = false;
+                    gameState = INTRO;
+                    playMenuBeep();
+                }
+
+                if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+                    gameOver = false;
+                    isGameStarted = false;
+                    gameState = MENU;
+                    stopBossMusic();
+                    stopLevelMusic();
+                    playMenuMusic();
+                    playMenuBeep();
+                }
+            }
+
+            else {
                 glUniform1f(glGetUniformLocation(p, "playerDir"), playerDir); glUniform2f(glGetUniformLocation(p, "playerPos"), playerX, playerY);
                 glUniform1f(glGetUniformLocation(p, "screenWidth"), (float)screenWidth); glUniform1f(glGetUniformLocation(p, "screenHeight"), (float)screenHeight);
 
@@ -1189,15 +1296,13 @@ int main() {
                                 else if (s.type == 90) id = 153.0f;
                                 else if (s.type == 91) id = 154.0f;
 
-                                // --- OBSLUGA ID BOSSOW ---
                                 else if (s.type == MONSTER_TYPE_CYBERBOSS) {
-                                    id = 155.0f; // Mini Boss (Mapa 5) -> boss.png
+                                    id = 155.0f;
                                 }
                                 else if (s.type == MONSTER_TYPE_FINAL_BOSS) {
-                                    if (s.isShielded) id = 157.0f; // Main Boss tarcza -> main_boss.png (czerwony)
-                                    else id = 156.0f;              // Main Boss -> main_boss.png
+                                    if (s.isShielded) id = 157.0f;
+                                    else id = 156.0f;
                                 }
-                                // -------------------------
 
                                 else if (s.type == OBJECT_SHIELD_ITEM) {
                                     id = 145.0f;
@@ -1417,19 +1522,6 @@ int main() {
 
                     glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, t[0]);
                 }
-            }
-            else if (gameOver) {
-                glUniform1f(dmgIntLoc, 0.2f);
-                vertices.clear(); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, t[27]);
-                drawQuad2D(vertices, 0.0f, 0.0f, 1.0f, 1.0f, 30.0f);
-                glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
-                glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
-                vertices.clear();
-                glBindTexture(GL_TEXTURE_2D, t[28]);
-                drawQuad2D(vertices, 0.0f, 0.0f, 0.6f, 0.4f, 31.0f);
-                glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
-                glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
-                glBindTexture(GL_TEXTURE_2D, t[0]);
             }
         }
         else if (gameState == MENU) {
