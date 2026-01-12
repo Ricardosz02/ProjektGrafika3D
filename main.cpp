@@ -104,7 +104,7 @@ void startIntro(int mapIndex);
 void resetGame() {
     stopMenuMusic();
     stopBossMusic();
-    activeMapIndex = 5;
+    activeMapIndex = 6;
 
     switchMap(activeMapIndex);
     initMonsters();
@@ -722,7 +722,6 @@ int main() {
         }
         else if (gameState == PLAYING) {
 
-            // --- SPRAWDZANIE ZWYCIÊSTWA I OBS£UGA EKRANU KOÑCOWEGO ---
             if (isGameWon && !showEndingScreen) {
                 showEndingScreen = true;
                 isGameWon = false;
@@ -736,6 +735,7 @@ int main() {
                     if (!enterLastFrame) {
                         showEndingScreen = false;
                         gameState = MENU;
+                        isGameStarted = false;
                         playMenuBeep();
                     }
                     enterLastFrame = true;
@@ -743,9 +743,7 @@ int main() {
                 else enterLastFrame = false;
             }
             else {
-                // ---------------------------------------------------------------------
 
-                    // NORMALNA GRA (jeœli nie ending screen)
                 updateShells(0.016f);
                 if (weaponSwitchTimer > 0.0f) { weaponSwitchTimer -= 0.016f; if (weaponSwitchTimer < 0.0f) weaponSwitchTimer = 0.0f; }
 
@@ -989,23 +987,24 @@ int main() {
                     }
                     if (playerHealth <= 0) { gameOver = true; playPlayerDeath(); }
                 }
-            } // else (normal game)
-        } // state PLAYING
+            }
+        }
 
         vertices.clear(); glUseProgram(p);
 
         if (gameState == PLAYING) {
 
-            // --- RYSOWANIE EKRANU KONCOWEGO ---
             if (showEndingScreen) {
                 glUniform1f(dmgIntLoc, 0.0f);
                 vertices.clear();
-                // Rysujemy fullscreen quad z tekstur¹ ending_intro.png (ID 211)
                 drawQuad2D(vertices, 0.0f, 0.0f, 1.0f, 1.0f, 211.0f);
+                glActiveTexture(GL_TEXTURE3);
+
+                std::string endMsg = "PRESS 'ENTER' TO RETURN TO MENU";
+                drawText(vertices, -0.35f, -0.85f, 0.035f, endMsg);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
                 glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(vertices.size() / 7));
             }
-            // --- NORMALNE RYSOWANIE GRY ---
             else if (!gameOver) {
                 glUniform1f(glGetUniformLocation(p, "playerDir"), playerDir); glUniform2f(glGetUniformLocation(p, "playerPos"), playerX, playerY);
                 glUniform1f(glGetUniformLocation(p, "screenWidth"), (float)screenWidth); glUniform1f(glGetUniformLocation(p, "screenHeight"), (float)screenHeight);

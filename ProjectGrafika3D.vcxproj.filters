@@ -283,6 +283,9 @@
     <Image Include="intro.png">
       <Filter>Pliki zasobów</Filter>
     </Image>
+    <Image Include="shield_item.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="shoot_shotgun.wav">
@@ -399,6 +402,9 @@
     <Media Include="music_map_5.mp3" />
     <Media Include="music_map_6.mp3" />
     <Media Include="intro_sound.wav">
+      <Filter>Pliki zasobów</Filter>
+    </Media>
+    <Media Include="shield_down.wav">
       <Filter>Pliki zasobów</Filter>
     </Media>
   </ItemGroup>

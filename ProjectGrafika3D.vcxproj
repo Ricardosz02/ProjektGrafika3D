@@ -221,6 +221,7 @@
     <Image Include="settings_bg.png" />
     <Image Include="shell.png" />
     <Image Include="shell_shotgun.png" />
+    <Image Include="shield_item.png" />
     <Image Include="shotgun.png" />
     <Image Include="shotgun_view_128.png" />
     <Image Include="shotgun_view_128_shoot.png" />
@@ -261,6 +262,7 @@
     <Media Include="player_die.wav" />
     <Media Include="player_pain.wav" />
     <Media Include="punch.wav" />
+    <Media Include="shield_down.wav" />
     <Media Include="shoot_pistol.wav" />
     <Media Include="shoot_rifle.wav" />
     <Media Include="shoot_shotgun.wav" />

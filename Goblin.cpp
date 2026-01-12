@@ -46,31 +46,22 @@ void spawnWave(int waveNumber) {
     }
     else if (waveNumber == 3) {
         Sprite s1; s1.x = 47.0f; s1.y = 21.0f; s1.type = MONSTER_TYPE_GOBLIN; s1.health = 100; s1.isAlive = true; sprites.push_back(s1);
-        //Sprite s2; s2.x = 47.0f; s2.y = 23.0f; s2.type = MONSTER_TYPE_GOBLIN; s2.health = 100; s2.isAlive = true; sprites.push_back(s2);
         Sprite s3; s3.x = 47.0f; s3.y = 25.0f; s3.type = MONSTER_TYPE_GOBLIN; s3.health = 100; s3.isAlive = true; sprites.push_back(s3);
-        //Sprite s4; s4.x = 47.0f; s4.y = 27.0f; s4.type = MONSTER_TYPE_GOBLIN; s4.health = 100; s4.isAlive = true; sprites.push_back(s4);
         Sprite s5; s5.x = 47.0f; s5.y = 29.0f; s5.type = MONSTER_TYPE_GOBLIN; s5.health = 100; s5.isAlive = true; sprites.push_back(s5);
         Sprite s6; s6.x = 47.0f; s6.y = 31.0f; s6.type = MONSTER_TYPE_GOBLIN; s6.health = 100; s6.isAlive = true; sprites.push_back(s6);
-        //Sprite s7; s7.x = 47.0f; s7.y = 33.0f; s7.type = MONSTER_TYPE_GOBLIN; s7.health = 100; s7.isAlive = true; sprites.push_back(s7);
         Sprite s8; s8.x = 47.0f; s8.y = 35.0f; s8.type = MONSTER_TYPE_GOBLIN; s8.health = 100; s8.isAlive = true; sprites.push_back(s8);
-        //Sprite s9; s9.x = 47.0f; s9.y = 37.0f; s9.type = MONSTER_TYPE_GOBLIN; s9.health = 100; s9.isAlive = true; sprites.push_back(s9);
         Sprite s10; s10.x = 47.0f; s10.y = 39.0f; s10.type = MONSTER_TYPE_GOBLIN; s10.health = 100; s10.isAlive = true; sprites.push_back(s10);
     }
     else if (waveNumber == 4) {
         Sprite w1; w1.x = 45.0f; w1.y = 26.0f; w1.type = MONSTER_TYPE_WALKING; w1.health = 140; w1.isAlive = true; sprites.push_back(w1);
         Sprite w2; w2.x = 45.0f; w2.y = 30.0f; w2.type = MONSTER_TYPE_WALKING; w2.health = 140; w2.isAlive = true; sprites.push_back(w2);
         Sprite w3; w3.x = 45.0f; w3.y = 34.0f; w3.type = MONSTER_TYPE_WALKING; w3.health = 140; w3.isAlive = true; sprites.push_back(w3);
-        //Sprite w4; w4.x = 45.0f; w4.y = 34.0f; w4.type = MONSTER_TYPE_WALKING; w4.health = 140; w4.isAlive = true; sprites.push_back(w4);
 
         Sprite f1; f1.x = 47.0f; f1.y = 25.0f; f1.type = MONSTER_TYPE_FLYING; f1.health = 200; f1.isAlive = true; sprites.push_back(f1);
-        //Sprite f2; f2.x = 47.0f; f2.y = 29.0f; f2.type = MONSTER_TYPE_FLYING; f2.health = 200; f2.isAlive = true; sprites.push_back(f2);
-        //Sprite f3; f3.x = 47.0f; f3.y = 31.0f; f3.type = MONSTER_TYPE_FLYING; f3.health = 200; f3.isAlive = true; sprites.push_back(f3);
         Sprite f4; f4.x = 47.0f; f4.y = 35.0f; f4.type = MONSTER_TYPE_FLYING; f4.health = 200; f4.isAlive = true; sprites.push_back(f4);
 
         Sprite g1; g1.x = 32.0f; g1.y = 39.0f; g1.type = MONSTER_TYPE_GOBLIN; g1.health = 100; g1.isAlive = true; sprites.push_back(g1);
         Sprite g2; g2.x = 32.0f; g2.y = 21.0f; g2.type = MONSTER_TYPE_GOBLIN; g2.health = 100; g2.isAlive = true; sprites.push_back(g2);
-        //Sprite g3; g3.x = 34.0f; g3.y = 39.0f; g3.type = MONSTER_TYPE_GOBLIN; g3.health = 100; g3.isAlive = true; sprites.push_back(g3);
-        //Sprite g4; g4.x = 34.0f; g4.y = 21.0f; g4.type = MONSTER_TYPE_GOBLIN; g4.health = 100; g4.isAlive = true; sprites.push_back(g4);
     }
 }
 
@@ -314,7 +305,7 @@ bool hitMonster(int index, float hitDamage) {
     if (m.type == TYPE_EXPLOSION) return false;
 
     if (m.type == MONSTER_TYPE_CYBERBOSS) {
-        int drops = 8;
+        int drops = 5;
         for (int i = 0; i < drops; i++) {
             BloodParticle bp;
             bp.x = m.x;
@@ -327,6 +318,10 @@ bool hitMonster(int index, float hitDamage) {
             bp.velZ = ((float)rand() / RAND_MAX) * 0.1f + 0.05f;
 
             bloodParticles.push_back(bp);
+        }
+
+        if (bloodParticles.size() > 200) {
+            bloodParticles.erase(bloodParticles.begin(), bloodParticles.begin() + (bloodParticles.size() - 200));
         }
 
         m.health -= (int)hitDamage;
