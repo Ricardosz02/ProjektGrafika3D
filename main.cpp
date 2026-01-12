@@ -177,10 +177,10 @@ void resetGame() {
 
     playerX = 3.0f;
     playerY = 58.0f;
+    playerDir = 0.0f;
     playerHealth = 100;
     playerArmor = 0;
     gameOver = false;
-
     isGameWon = false;
     showEndingScreen = false;
 
@@ -191,6 +191,21 @@ void resetGame() {
     currentWeapon = 3;
     // -------------------------
     */
+
+    hasPistol = false;
+    ammoPistol = 0;
+
+    hasShotgun = false;
+    ammoShotgun = 0;
+
+    hasRifle = false;
+    ammoRifle = 0;
+
+    currentWeapon = 0;
+
+    hasGreenKey = false;
+    hasRedKey = false;
+    hasSecretNote = false;
 
     weaponSwitchTimer = 0.0f;
 
@@ -714,7 +729,7 @@ int main() {
                     isViewingNote = false;
                     playMenuBeep();
                 }
-                else if (gameState == PLAYING) {
+                else if (gameState == PLAYING && !gameOver && !showEndingScreen) {
                     gameState = MENU;
                     stopBossMusic();
                     stopLevelMusic();
@@ -961,7 +976,7 @@ int main() {
                         }
                         else if (typeX == 9) {
                             bool changed = false;
-                            if (activeMapIndex == 1) { activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 25.0f; changed = true; }
+                            if (activeMapIndex == 1) { activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 25.0f; playerDir = 1.57f; changed = true; }
                             else if (activeMapIndex == 2) { activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
                             else if (activeMapIndex == 3) { activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 2.5f; playerY = 2.5f; changed = true; }
                             else if (activeMapIndex == 4) { activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
@@ -987,7 +1002,7 @@ int main() {
                         }
                         else if (typeY == 9) {
                             bool changed = false;
-                            if (activeMapIndex == 1) { activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 25.0f; changed = true; }
+                            if (activeMapIndex == 1) { activeMapIndex = 2; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 25.0f; playerDir = 1.57f; changed = true; }
                             else if (activeMapIndex == 2) { activeMapIndex = 3; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
                             else if (activeMapIndex == 3) { activeMapIndex = 4; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 2.5f; playerY = 2.5f; changed = true; }
                             else if (activeMapIndex == 4) { activeMapIndex = 5; switchMap(activeMapIndex); hasGreenKey = false; hasRedKey = false; playerX = 3.0f; playerY = 30.0f; changed = true; }
