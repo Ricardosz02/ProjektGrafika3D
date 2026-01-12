@@ -314,6 +314,21 @@ bool hitMonster(int index, float hitDamage) {
     if (m.type == TYPE_EXPLOSION) return false;
 
     if (m.type == MONSTER_TYPE_CYBERBOSS) {
+        int drops = 8;
+        for (int i = 0; i < drops; i++) {
+            BloodParticle bp;
+            bp.x = m.x;
+            bp.y = m.y;
+            bp.z = 0.0f;
+            bp.life = 1.0f;
+
+            bp.velX = ((float)rand() / RAND_MAX - 0.5f) * 0.15f;
+            bp.velY = ((float)rand() / RAND_MAX - 0.5f) * 0.15f;
+            bp.velZ = ((float)rand() / RAND_MAX) * 0.1f + 0.05f;
+
+            bloodParticles.push_back(bp);
+        }
+
         m.health -= (int)hitDamage;
         if (!m.hasSeenPlayer) {
             m.hasSeenPlayer = true;
