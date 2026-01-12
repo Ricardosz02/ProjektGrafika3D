@@ -135,6 +135,8 @@ void saveLevelState() {
 void loadLevelState() {
     activeMapIndex = levelStartPoint.mapIndex;
     switchMap(activeMapIndex);
+    initMonsters();
+    initWeapons();
 
     playerX = levelStartPoint.x;
     playerY = levelStartPoint.y;
@@ -154,8 +156,6 @@ void loadLevelState() {
     hasGreenKey = levelStartPoint.hGreen;
     hasRedKey = levelStartPoint.hRed;
 
-    initMonsters();
-
     hitMarkers.clear();
     bulletFlashes.clear();
     shells.clear();
@@ -168,7 +168,7 @@ void loadLevelState() {
 void resetGame() {
     stopMenuMusic();
     stopBossMusic();
-    activeMapIndex = 1;
+    activeMapIndex = 5;
 
     switchMap(activeMapIndex);
     initMonsters();
@@ -1491,7 +1491,7 @@ int main() {
                         static bool enterPressed = false;
                         if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
                             if (!enterPressed) {
-                                if (keypadInput == "1234") { isKeypadSuccess = true; keypadSuccessTimer = 1.0f; if (targetKeypadDoor) { targetKeypadDoor->isLocked = false; targetKeypadDoor->state = OPENING; playDoorSound(); } keypadInput = ""; }
+                                if (keypadInput == "2167") { isKeypadSuccess = true; keypadSuccessTimer = 1.0f; if (targetKeypadDoor) { targetKeypadDoor->isLocked = false; targetKeypadDoor->state = OPENING; playDoorSound(); } hasSecretNote = false; keypadInput = ""; }
                                 else { keypadInput = ""; std::cout << "Bledny kod!" << std::endl; playAccessDeniedSound(); }
                                 enterPressed = true;
                             }
